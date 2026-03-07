@@ -280,6 +280,8 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 |----------|---------|------------------------------------------------------------------------------------|-----------------|
 | `* * *` | recruiter | add a candidate’s contact details                                                  | reach out to them later for a role. |
 | `* * *` | recruiter | view all candidate records                                                         | know exactly who is currently in my active talent pool. |
+**1. Add to User Stories (High Priority Section):**
+| `* * *` | recruiter | view the complete, detailed profile of a specific candidate | instantly read their full history (notes, tags, rejections) in one place before jumping on a call. |
 | `* * *` | recruiter | search for a candidate using known attributes (e.g., partial name, phone or email) | instantly locate their specific record even if I only remember a fragment of their details. |
 | `* * *` | recruiter | update a candidate’s information                                                   | ensure my communication records remain accurate and up-to-date. |
 | `* * *` | recruiter | remove candidate contacts that are invalid or requested removal                    | keep my database strictly clean and legally compliant. |
@@ -559,6 +561,21 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Extensions:**
 * 1a. There are no previous modifying actions to undo in the current session.
     * 1a1. System informs the user that there is nothing to undo.
+    * Use case ends.
+
+**Use case: UC13 - Viewing a candidate's full profile**
+
+**Preconditions:** Candidates exist in the system and are currently shown in a list.
+
+**MSS:**
+1. User requests to view the full details of a specific candidate.
+2. System validates the identifier.
+3. System shows the complete profile of the candidate, including all contact details, tags, notes, and rejection history.
+   Use case ends.
+
+**Extensions:**
+* 1a. User provides an invalid identifier (e.g., out of bounds, incorrect format).
+    * 1a1. System informs the user of the error and provides usage instructions.
     * Use case ends.
 
 ### Non-Functional Requirements
