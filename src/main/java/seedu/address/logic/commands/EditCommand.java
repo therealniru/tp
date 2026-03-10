@@ -48,8 +48,9 @@ public class EditCommand extends Command {
             + PREFIX_PHONE + "91234567 "
             + PREFIX_EMAIL + "johndoe@example.com";
 
-    public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited Person: %1$s";
-    public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
+    public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited Candidate: %1$s";
+    public static final String MESSAGE_NOT_EDITED = "Error: At least one field to edit must be "
+            + "provided (n/, p/, or e/).";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
 
     private final Index index;
@@ -73,14 +74,36 @@ public class EditCommand extends Command {
         List<Person> lastShownList = model.getFilteredPersonList();
 
         if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+            throw new CommandException(String.format(
+                    "Error: Index %d is out of range. The current list has %d candidate(s). "
+                    + "Please provide an index between 1 and %d.",
+                    index.getOneBased(), lastShownList.size(), lastShownList.size()));
         }
 
         Person personToEdit = lastShownList.get(index.getZeroBased());
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
 
-        if (!personToEdit.isSamePerson(editedPerson) && model.hasPerson(editedPerson)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
+        if (personToEdit.equals(editedPerson)) {
+            return new CommandResult("Note: No changes detected; candidate details remain the same.");
+        }
+
+        // Duplicate Exclusion validation
+        if (!personToEdit.isSamePerson(editedPerson) || model.hasPerson(editedPerson)) {
+            Person duplicatePerson = null;
+            for (Person p : model.getAddressBook().getPersonList()) {
+                if (!p.equals(personToEdit) && p.isSamePerson(editedPerson)) {
+                    duplicatePerson = p;
+                    break;
+                }
+            }
+            if (duplicatePerson != null) {
+                String conflictMsg = String.format("Error: This edit would duplicate an existing candidate. "
+                        + "Phone %s or Email %s is already assigned to %s.",
+                        editedPerson.getPhone().value,
+                        editedPerson.getEmail().value,
+                        duplicatePerson.getName().fullName);
+                throw new CommandException(conflictMsg);
+            }
         }
 
         model.setPerson(personToEdit, editedPerson);
