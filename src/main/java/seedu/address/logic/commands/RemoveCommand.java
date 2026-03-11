@@ -42,7 +42,7 @@ public class RemoveCommand extends Command {
 
         Person personToRemove = lastShownList.get(targetIndex.getZeroBased());
         model.deletePerson(personToRemove);
-        return new CommandResult(String.format(MESSAGE_DELETE_PERSON_SUCCESS, Messages.format(personToRemove)));
+        return new CommandResult(String.format(MESSAGE_REMOVE_PERSON_SUCCESS, Messages.format(personToRemove)));
     }
 
     @Override
