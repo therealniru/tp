@@ -5,17 +5,12 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
-import seedu.address.model.tag.Tag;
 
 /**
  * Adds a candidate to the address book.
@@ -29,15 +24,12 @@ public class AddCommand extends Command {
             + PREFIX_NAME + "NAME "
             + PREFIX_PHONE + "PHONE "
             + PREFIX_EMAIL + "EMAIL "
-            + PREFIX_ADDRESS + "ADDRESS "
-            + "[" + PREFIX_TAG + "TAG]...\n"
+            + PREFIX_ADDRESS + "ADDRESS\n"
             + "Example: " + COMMAND_WORD + " "
             + PREFIX_NAME + "John Doe "
             + PREFIX_PHONE + "98765432 "
             + PREFIX_EMAIL + "johnd@example.com "
-            + PREFIX_ADDRESS + "311, Clementi Ave 2, #02-25 "
-            + PREFIX_TAG + "friends "
-            + PREFIX_TAG + "owesMoney";
+            + PREFIX_ADDRESS + "311, Clementi Ave 2, #02-25";
 
     public static final String MESSAGE_SUCCESS = "New candidate added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book";
@@ -71,29 +63,8 @@ public class AddCommand extends Command {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
-        // Validate and retrieve canonical tags from the master registry using Shared Reference Model
-        Set<Tag> canonicalTags = new HashSet<>();
-        for (Tag tag : toAdd.getTags()) {
-            if (!model.hasTag(tag)) {
-                throw new CommandException("Tag '" + tag.tagName + "' does not exist. "
-                        + "Please create it first using the createtag command.");
-            }
-            // Retrieve the canonical tag
-            Tag canonicalTag = model.getAddressBook().getTagList().stream()
-                    .filter(t -> t.equals(tag))
-                    .findFirst()
-                    .get();
-            canonicalTags.add(canonicalTag);
-        }
-
-        Person finalPerson = new Person(
-                toAdd.getName(), toAdd.getPhone(), toAdd.getEmail(),
-                toAdd.getAddress(), canonicalTags, toAdd.getStatus(),
-                toAdd.getRejectionReasons(), toAdd.getDateAdded()
-        );
-
-        model.addPerson(finalPerson);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(finalPerson)));
+        model.addPerson(toAdd);
+        return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
     }
 
     @Override
