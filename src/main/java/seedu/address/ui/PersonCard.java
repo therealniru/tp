@@ -45,6 +45,8 @@ public class PersonCard extends UiPart<Region> {
     private Label rejectedTag;
     @FXML
     private Label dateAdded;
+    @FXML
+    private Label priorityTag;
 
     /**
      * Creates a {@code PersonCode} with the given {@code Person} and index to display.
@@ -68,6 +70,14 @@ public class PersonCard extends UiPart<Region> {
                     + "-fx-padding: 0 5 0 5; -fx-background-radius: 3;");
             rejectedTag.setVisible(true);
             rejectedTag.setManaged(true);
+        }
+        if (person.getPriority().isPriority) {
+            priorityTag.setText("⭐ PRIORITY");
+            priorityTag.setStyle("-fx-background-color: #f0ad4e; -fx-text-fill: black; "
+                    + "-fx-font-family: 'Segoe UI Semibold'; -fx-font-size: 16px; "
+                    + "-fx-padding: 0 5 0 5; -fx-background-radius: 3;");
+            priorityTag.setVisible(true);
+            priorityTag.setManaged(true);
         }
         dateAdded.setText("added on: " + person.getDateAdded().getDisplayFormat());
     }

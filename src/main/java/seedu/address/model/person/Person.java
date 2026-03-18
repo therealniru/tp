@@ -29,22 +29,23 @@ public class Person {
     private final Status status;
     private final List<RejectionReason> rejectionReasons = new ArrayList<>();
     private final DateAdded dateAdded;
+    private final Priority priority;
 
     /**
      * Every field must be present and not null.
      * Status defaults to NONE with an empty rejection reasons list and DateAdded as current time.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        this(name, phone, email, address, tags, Status.NONE, new ArrayList<>(), new DateAdded());
+        this(name, phone, email, address, tags, Status.NONE, new ArrayList<>(), new DateAdded(), new Priority("no"));
     }
 
     /**
-     * Full constructor with status, rejection reasons, and date added.
+     * Full constructor with status, rejection reasons, date added, and priority.
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags,
-                  Status status, List<RejectionReason> rejectionReasons, DateAdded dateAdded) {
-        requireAllNonNull(name, phone, email, address, tags, status, rejectionReasons, dateAdded);
+                  Status status, List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority) {
+        requireAllNonNull(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority);
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -53,6 +54,7 @@ public class Person {
         this.status = status;
         this.rejectionReasons.addAll(rejectionReasons);
         this.dateAdded = dateAdded;
+        this.priority = priority;
     }
 
     public Name getName() {
@@ -93,6 +95,10 @@ public class Person {
 
     public DateAdded getDateAdded() {
         return dateAdded;
+    }
+
+    public Priority getPriority() {
+        return priority;
     }
 
     /**
@@ -137,13 +143,14 @@ public class Person {
                 && address.equals(otherPerson.address)
                 && tags.equals(otherPerson.tags)
                 && status.equals(otherPerson.status)
-                && rejectionReasons.equals(otherPerson.rejectionReasons);
+                && rejectionReasons.equals(otherPerson.rejectionReasons)
+                && priority.equals(otherPerson.priority);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags, status, rejectionReasons);
+        return Objects.hash(name, phone, email, address, tags, status, rejectionReasons, priority);
     }
 
     @Override
@@ -157,6 +164,7 @@ public class Person {
                 .add("status", status)
                 .add("rejectionReasons", rejectionReasons)
                 .add("dateAdded", dateAdded)
+                .add("priority", priority)
                 .toString();
     }
 

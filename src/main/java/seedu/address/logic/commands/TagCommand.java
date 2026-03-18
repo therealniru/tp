@@ -119,7 +119,7 @@ public class TagCommand extends Command {
         Person editedPerson = new Person(
                 personToEdit.getName(), personToEdit.getPhone(), personToEdit.getEmail(),
                 personToEdit.getAddress(), updatedTags, personToEdit.getStatus(),
-                personToEdit.getRejectionReasons(), personToEdit.getDateAdded());
+                personToEdit.getRejectionReasons(), personToEdit.getDateAdded(), personToEdit.getPriority());
 
         model.setPerson(personToEdit, editedPerson);
 

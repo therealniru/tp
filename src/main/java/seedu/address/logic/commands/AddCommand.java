@@ -24,12 +24,14 @@ public class AddCommand extends Command {
             + PREFIX_NAME + "NAME "
             + PREFIX_PHONE + "PHONE "
             + PREFIX_EMAIL + "EMAIL "
-            + PREFIX_ADDRESS + "ADDRESS\n"
+            + PREFIX_ADDRESS + "ADDRESS "
+            + "[" + seedu.address.logic.parser.CliSyntax.PREFIX_PRIORITY + "PRIORITY]\n"
             + "Example: " + COMMAND_WORD + " "
             + PREFIX_NAME + "John Doe "
             + PREFIX_PHONE + "98765432 "
             + PREFIX_EMAIL + "johnd@example.com "
-            + PREFIX_ADDRESS + "311, Clementi Ave 2, #02-25";
+            + PREFIX_ADDRESS + "311, Clementi Ave 2, #02-25 "
+            + seedu.address.logic.parser.CliSyntax.PREFIX_PRIORITY + "yes";
 
     public static final String MESSAGE_SUCCESS = "New candidate added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book";

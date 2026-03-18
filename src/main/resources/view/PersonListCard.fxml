@@ -31,6 +31,11 @@
             <Insets left="5" />
           </HBox.margin>
         </Label>
+        <Label fx:id="priorityTag" visible="false" managed="false">
+          <HBox.margin>
+            <Insets left="5" />
+          </HBox.margin>
+        </Label>
         <Region HBox.hgrow="ALWAYS" />
         <Label fx:id="dateAdded" styleClass="cell_small_label" />
       </HBox>

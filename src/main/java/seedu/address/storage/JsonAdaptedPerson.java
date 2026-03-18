@@ -35,6 +35,7 @@ class JsonAdaptedPerson {
     private final String status;
     private final List<JsonAdaptedRejectionReason> rejectionReasons = new ArrayList<>();
     private final String dateAdded;
+    private final String priority;
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
@@ -45,7 +46,8 @@ class JsonAdaptedPerson {
             @JsonProperty("tags") List<JsonAdaptedTag> tags,
             @JsonProperty("status") String status,
             @JsonProperty("rejectionReasons") List<JsonAdaptedRejectionReason> rejectionReasons,
-            @JsonProperty("dateAdded") String dateAdded) {
+            @JsonProperty("dateAdded") String dateAdded,
+            @JsonProperty("priority") String priority) {
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -58,6 +60,7 @@ class JsonAdaptedPerson {
             this.rejectionReasons.addAll(rejectionReasons);
         }
         this.dateAdded = dateAdded;
+        this.priority = priority;
     }
 
     /**
@@ -76,6 +79,7 @@ class JsonAdaptedPerson {
                 .map(JsonAdaptedRejectionReason::new)
                 .collect(Collectors.toList()));
         dateAdded = source.getDateAdded().value;
+        priority = source.getPriority().value;
     }
 
     /**
@@ -155,8 +159,17 @@ class JsonAdaptedPerson {
             modelDateAdded = new seedu.address.model.person.DateAdded(dateAdded);
         }
 
+        final seedu.address.model.person.Priority modelPriority;
+        if (priority == null) {
+            modelPriority = new seedu.address.model.person.Priority("no");
+        } else if (!seedu.address.model.person.Priority.isValidPriority(priority)) {
+            throw new IllegalValueException(seedu.address.model.person.Priority.MESSAGE_CONSTRAINTS);
+        } else {
+            modelPriority = new seedu.address.model.person.Priority(priority);
+        }
+
         return new Person(modelName, modelPhone, modelEmail, modelAddress, modelTags,
-                modelStatus, modelRejectionReasons, modelDateAdded);
+                modelStatus, modelRejectionReasons, modelDateAdded, modelPriority);
     }
 
 }

@@ -10,6 +10,7 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Priority;
 import seedu.address.model.person.RejectionReason;
 import seedu.address.model.person.Status;
 import seedu.address.model.tag.Tag;
@@ -34,6 +35,7 @@ public class PersonBuilder {
     private Status status;
     private List<RejectionReason> rejectionReasons;
     private seedu.address.model.person.DateAdded dateAdded;
+    private Priority priority;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -47,6 +49,7 @@ public class PersonBuilder {
         status = Status.NONE;
         rejectionReasons = new ArrayList<>();
         dateAdded = new seedu.address.model.person.DateAdded(DEFAULT_DATE_ADDED);
+        priority = new Priority("no");
     }
 
     /**
@@ -61,6 +64,7 @@ public class PersonBuilder {
         status = personToCopy.getStatus();
         rejectionReasons = new ArrayList<>(personToCopy.getRejectionReasons());
         dateAdded = personToCopy.getDateAdded();
+        priority = personToCopy.getPriority();
     }
 
     /**
@@ -138,8 +142,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the {@code Priority} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withPriority(String priority) {
+        this.priority = new Priority(priority);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, email, address, tags, status, rejectionReasons, dateAdded);
+        return new Person(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority);
     }
 
 }
