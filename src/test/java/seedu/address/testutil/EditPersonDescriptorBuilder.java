@@ -65,8 +65,6 @@ public class EditPersonDescriptorBuilder {
         return this;
     }
 
-
-
     public EditPersonDescriptor build() {
         return descriptor;
     }

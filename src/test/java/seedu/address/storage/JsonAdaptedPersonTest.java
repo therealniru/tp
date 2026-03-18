@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.AddressBook;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -42,7 +43,9 @@ public class JsonAdaptedPersonTest {
     @Test
     public void toModelType_validPersonDetails_returnsPerson() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(BENSON);
-        assertEquals(BENSON, person.toModelType());
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertEquals(BENSON, person.toModelType(ab));
     }
 
     @Test
@@ -51,7 +54,9 @@ public class JsonAdaptedPersonTest {
                 new JsonAdaptedPerson(INVALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = Name.MESSAGE_CONSTRAINTS;
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -59,7 +64,9 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson person = new JsonAdaptedPerson(null, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Name.class.getSimpleName());
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -68,7 +75,9 @@ public class JsonAdaptedPersonTest {
                 new JsonAdaptedPerson(VALID_NAME, INVALID_PHONE, VALID_EMAIL, VALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = Phone.MESSAGE_CONSTRAINTS;
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -76,7 +85,9 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, null, VALID_EMAIL, VALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Phone.class.getSimpleName());
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -85,7 +96,9 @@ public class JsonAdaptedPersonTest {
                 new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, INVALID_EMAIL, VALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = Email.MESSAGE_CONSTRAINTS;
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -93,7 +106,9 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, null, VALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Email.class.getSimpleName());
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -102,7 +117,9 @@ public class JsonAdaptedPersonTest {
                 new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, INVALID_ADDRESS, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = Address.MESSAGE_CONSTRAINTS;
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -110,7 +127,9 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, null, VALID_TAGS,
                         VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Address.class.getSimpleName());
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
     }
 
     @Test
@@ -119,8 +138,12 @@ public class JsonAdaptedPersonTest {
         invalidTags.add(new JsonAdaptedTag(INVALID_TAG));
         JsonAdaptedPerson person =
                 new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS, invalidTags,
-                        VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
-        assertThrows(IllegalValueException.class, person::toModelType);
+VALID_STATUS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY);
+
+AddressBook ab = new AddressBook();
+BENSON.getTags().forEach(ab::addTag);
+
+assertThrows(IllegalValueException.class, () -> person.toModelType(ab));
     }
 
 }
