@@ -24,6 +24,7 @@ import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.RejectCommand;
 import seedu.address.logic.commands.RemoveCommand;
 import seedu.address.logic.commands.SortDateCommand;
+import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.TagPoolCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.NamePhoneEmailContainsKeywordsPredicate;
@@ -110,6 +111,15 @@ public class AddressBookParserTest {
                 TagPoolCommand.COMMAND_WORD + " a/Frontend");
         assertEquals(new TagPoolCommand(
                 java.util.List.of(new seedu.address.model.tag.Tag("Frontend")),
+                java.util.Collections.emptyList()), command);
+    }
+
+    @Test
+    public void parseCommand_tag() throws Exception {
+        TagCommand command = (TagCommand) parser.parseCommand(
+                TagCommand.COMMAND_WORD + " 1 a/Java");
+        assertEquals(new TagCommand(INDEX_FIRST_PERSON,
+                java.util.List.of(new seedu.address.model.tag.Tag("Java")),
                 java.util.Collections.emptyList()), command);
     }
 
