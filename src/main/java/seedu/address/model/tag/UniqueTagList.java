@@ -67,6 +67,18 @@ public class UniqueTagList implements Iterable<Tag> {
     }
 
     /**
+     * Returns the canonical {@code Tag} instance from the list that equals the given tag.
+     * The tag must exist in the list.
+     */
+    public Tag get(Tag toGet) {
+        requireNonNull(toGet);
+        return internalList.stream()
+                .filter(toGet::equals)
+                .findFirst()
+                .orElseThrow(TagNotFoundException::new);
+    }
+
+    /**
      * Returns the backing list as an unmodifiable {@code ObservableList}.
      */
     public ObservableList<Tag> asUnmodifiableObservableList() {

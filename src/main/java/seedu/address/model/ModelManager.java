@@ -122,6 +122,12 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public Tag getTag(Tag tag) {
+        requireNonNull(tag);
+        return addressBook.getTag(tag);
+    }
+
+    @Override
     public void deleteTag(Tag target) {
         addressBook.removeTag(target);
     }

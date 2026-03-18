@@ -175,6 +175,11 @@ public class TagPoolCommandTest {
         }
 
         @Override
+        public Tag getTag(Tag tag) {
+            return tagsAdded.stream().filter(tag::equals).findFirst().orElseThrow();
+        }
+
+        @Override
         public void deleteTag(Tag target) {
             tagsAdded.remove(target);
             addressBook.removeTag(target);
@@ -270,6 +275,11 @@ public class TagPoolCommandTest {
         @Override
         public void addTag(Tag tag) {
             tags.add(tag);
+        }
+
+        @Override
+        public Tag getTag(Tag tag) {
+            return tags.stream().filter(tag::equals).findFirst().orElseThrow();
         }
 
         @Override

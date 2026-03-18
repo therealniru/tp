@@ -84,6 +84,12 @@ public interface Model {
     boolean hasTag(Tag tag);
 
     /**
+     * Returns the canonical {@code Tag} instance from the address book that equals the given tag.
+     * The tag must exist in the address book.
+     */
+    Tag getTag(Tag tag);
+
+    /**
      * Deletes the given tag.
      * The tag must exist in the address book.
      */
