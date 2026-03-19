@@ -50,10 +50,10 @@ Talently is a **desktop app for managing job candidates, optimized for use via a
   e.g. in `add n/NAME`, `NAME` is a parameter which can be used as `add n/John Doe`.
 
 * Items in square brackets are optional.<br>
-  e.g `n/NAME [t/TAG]` can be used as `n/John Doe t/friend` or as `n/John Doe`.
+  e.g `n/NAME [pr/PRIORITY]` can be used as `n/John Doe pr/yes` or as `n/John Doe`.
 
 * Items with `…`​ after them can be used multiple times including zero times.<br>
-  e.g. `[t/TAG]…​` can be used as ` ` (i.e. 0 times), `t/friend`, `t/friend t/family` etc.
+  e.g. `[a/TAG]…​` can be used as ` ` (i.e. 0 times), `a/Shortlisted`, `a/Shortlisted a/Interviewed` etc.
 
 * Parameters can be in any order.<br>
   e.g. if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
@@ -77,18 +77,13 @@ Format: `help`
 
 Adds a candidate to Talently.
 
-Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [t/TAG]…​`
+Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 
 * `NAME` must contain only letters, spaces, hyphens (`-`), apostrophes (`'`), periods (`.`), and slashes (`/`). No digits allowed. Maximum 100 characters.
 * `PHONE` must contain only digits with an optional `+` prefix (E.164 format). Must be between 3 and 15 digits long. e.g. `91234567` or `+6591234567`.
 * `EMAIL` must be a valid email address in the format `example@domain.com`. Maximum 254 characters.
 * `ADDRESS` is required.
 * `PRIORITY` is optional. Use `yes` to flag a candidate as high priority, or `no` (default) for normal priority.
-* Tags are optional. A candidate can have any number of tags (including 0). Tags must first be created using the [`tagpool`](#managing-the-tag-pool--tagpool) command before they can be assigned.
-
-<div markdown="span" class="alert alert-primary">:bulb: **Tip:**
-A candidate can have any number of tags (including 0). Use the `tagpool` command to create tags first before assigning them.
-</div>
 
 Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
@@ -128,9 +123,12 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * The search is case-insensitive. e.g `hans` will match `Hans`
 * The order of the keywords does not matter. e.g. `Hans Bo` will match `Bo Hans`
 * Name, phone number, and email are searched.
-* Only full words will be matched e.g. `Han` will not match `Hans`
+* Partial matches are supported. e.g. `Han` will match `Hans`
 * Candidates matching at least one keyword will be returned (i.e. `OR` search).
   e.g. `Hans Bo` will return `Hans Gruber`, `Bo Yang`
+* A maximum of 20 keywords is allowed per search.
+* The entire command must not exceed 150 characters.
+* Keywords may only contain letters, digits, and the following symbols: `-` `'` `.` `/` `@` `+` `_`
 
 Examples:
 * `find John` returns `john` and `John Doe`
@@ -173,8 +171,9 @@ Format: `reject INDEX r/REASON`
 
 * Rejects the candidate at the specified `INDEX`.
 * The index refers to the index number shown in the displayed candidate list. The index **must be a positive integer** 1, 2, 3, …​
-* `REASON` must be non-empty and contain only alphanumeric characters and spaces.
+* `REASON` must be non-empty, at most 200 characters, and may contain letters, digits, spaces, and the following punctuation: `.` `,` `-` `'` `/`.
 * Each call to `reject` appends a new rejection reason to the candidate's rejection history.
+* The candidate card will display the total number of times rejected and the full list of past rejection reasons.
 * If the same reason is given consecutively, a note will be shown.
 * Cannot reject an archived candidate.
 
@@ -216,10 +215,10 @@ Examples:
 
 Adds or removes tags on a specific candidate.
 
-Format: `tag INDEX [a/TAG_TO_ADD]... [d/TAG_TO_DELETE]...`
+Format: `tag INDEX[,INDEX]... [a/TAG_TO_ADD]... [d/TAG_TO_DELETE]...`
 
-* Tags the candidate at the specified `INDEX`.
-* The index refers to the index number shown in the displayed candidate list. The index **must be a positive integer** 1, 2, 3, …​
+* Tags the candidate(s) at the specified `INDEX` or comma-separated list of indices.
+* Each index refers to the index number shown in the displayed candidate list. Each index **must be a positive integer** 1, 2, 3, …​ Duplicate indices are not allowed.
 * At least one `a/` or `d/` must be provided.
 * A maximum of 10 tags can be processed per command.
 * Tags must already exist in the tag pool (use [`tagpool`](#managing-the-tag-pool--tagpool) to create them first).
@@ -230,6 +229,7 @@ Examples:
 * `tag 1 a/Shortlisted` — Adds the "Shortlisted" tag to the 1st candidate.
 * `tag 2 d/Interviewed` — Removes the "Interviewed" tag from the 2nd candidate.
 * `tag 3 a/Senior d/Junior` — Adds "Senior" and removes "Junior" from the 3rd candidate.
+* `tag 1,2,3 a/Shortlisted` — Adds the "Shortlisted" tag to candidates 1, 2, and 3.
 
 ### Clearing all entries : `clear`
 
@@ -276,7 +276,7 @@ Furthermore, certain edits can cause Talently to behave in unexpected ways (e.g.
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665`
+**Add** | `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665`
 **Clear** | `clear`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY]`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com`
 **Filter** | `filter TAG`<br> e.g., `filter friends`
@@ -285,6 +285,6 @@ Action | Format, Examples
 **Remove** | `remove INDEX`<br> e.g., `remove 3`
 **Reject** | `reject INDEX r/REASON`<br> e.g., `reject 1 r/Failed technical interview`
 **Sort** | `sort date o/ORDER`<br> e.g., `sort date o/desc`
-**Tag** | `tag INDEX [a/TAG]... [d/TAG]...`<br> e.g., `tag 1 a/Shortlisted d/Applied`
+**Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g., `tag 1 a/Shortlisted d/Applied`
 **Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g., `tagpool a/Shortlisted d/Rejected`
 **Help** | `help`

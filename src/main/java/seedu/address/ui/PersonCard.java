@@ -1,6 +1,9 @@
 package seedu.address.ui;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -8,6 +11,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.RejectionReason;
 import seedu.address.model.person.Status;
 
 /**
@@ -42,7 +46,9 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private FlowPane tags;
     @FXML
-    private Label rejectedTag;
+    private Label rejectionCountTag;
+    @FXML
+    private Label rejectionReasonsList;
     @FXML
     private Label dateAdded;
     @FXML
@@ -64,12 +70,18 @@ public class PersonCard extends UiPart<Region> {
                 .forEach(tag -> tags.getChildren().add(new Label(tag.tagName)));
 
         if (person.getStatus() == Status.REJECTED) {
-            rejectedTag.setText("REJECTED");
-            rejectedTag.setStyle("-fx-background-color: #d9534f; -fx-text-fill: black; "
+            List<RejectionReason> reasons = person.getRejectionReasons();
+
+            rejectionCountTag.setText(formatRejectionCountText(reasons.size()));
+            rejectionCountTag.setStyle("-fx-background-color: #888888; -fx-text-fill: white; "
                     + "-fx-font-family: 'Segoe UI Semibold'; -fx-font-size: 16px; "
                     + "-fx-padding: 0 5 0 5; -fx-background-radius: 3;");
-            rejectedTag.setVisible(true);
-            rejectedTag.setManaged(true);
+            rejectionCountTag.setVisible(true);
+            rejectionCountTag.setManaged(true);
+
+            rejectionReasonsList.setText(formatRejectionReasonsText(reasons));
+            rejectionReasonsList.setVisible(true);
+            rejectionReasonsList.setManaged(true);
         }
         if (person.getPriority().isPriority) {
             priorityTag.setText("⭐ PRIORITY");
@@ -80,5 +92,22 @@ public class PersonCard extends UiPart<Region> {
             priorityTag.setManaged(true);
         }
         dateAdded.setText("added on: " + person.getDateAdded().getDisplayFormat());
+    }
+
+    /**
+     * Returns the rejection count badge text for the given {@code count}.
+     */
+    static String formatRejectionCountText(int count) {
+        return "Rejected " + count + (count == 1 ? " time" : " times");
+    }
+
+    /**
+     * Returns the formatted rejection reasons text for the given {@code reasons}.
+     */
+    static String formatRejectionReasonsText(List<RejectionReason> reasons) {
+        String reasonsText = IntStream.range(0, reasons.size())
+                .mapToObj(i -> (i + 1) + ". " + reasons.get(i).reason)
+                .collect(Collectors.joining("\n"));
+        return "Rejection reasons:\n" + reasonsText;
     }
 }
