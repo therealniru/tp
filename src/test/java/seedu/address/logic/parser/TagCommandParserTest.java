@@ -45,6 +45,15 @@ public class TagCommandParserTest {
     }
 
     @Test
+    public void parse_multipleIndices_success() throws Exception {
+        TagCommand result = parser.parse(" 1,2,3 a/Java d/Python");
+        TagCommand expected = new TagCommand(List.of(
+                Index.fromOneBased(1), Index.fromOneBased(2), Index.fromOneBased(3)),
+                List.of(new Tag("Java")), List.of(new Tag("Python")));
+        assertEquals(expected, result);
+    }
+
+    @Test
     public void parse_multipleAdds_success() throws Exception {
         TagCommand result = parser.parse(" 3 a/Java a/Python");
         TagCommand expected = new TagCommand(Index.fromOneBased(3),
@@ -95,6 +104,20 @@ public class TagCommandParserTest {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
                 -> parser.parse(" 1 randomtext a/Java"));
+    }
+
+    @Test
+    public void parse_invalidCommaSeparatedIndices_throwsParseException() {
+        assertThrows(ParseException.class,
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
+                -> parser.parse(" 1,,2 a/Java"));
+    }
+
+    @Test
+    public void parse_duplicateIndices_throwsParseException() {
+        assertThrows(ParseException.class,
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
+                -> parser.parse(" 1,1 a/Java"));
     }
 
     @Test

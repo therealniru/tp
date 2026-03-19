@@ -5,7 +5,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_ADD_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE_TAG;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.TagCommand;
@@ -20,6 +22,8 @@ public class TagCommandParser implements Parser<TagCommand> {
     public static final int MAX_TAGS = 10;
     public static final String MESSAGE_EXCEEDED_LIMIT =
             "Too many tags. A maximum of " + MAX_TAGS + " tags can be processed per command.";
+    public static final String MESSAGE_DUPLICATE_INDICES =
+            "Duplicate indices are not allowed.";
 
     /**
      * Parses the given {@code String} of arguments in the context of the TagCommand
@@ -30,9 +34,9 @@ public class TagCommandParser implements Parser<TagCommand> {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_ADD_TAG, PREFIX_DELETE_TAG);
 
-        Index index;
+        List<Index> indices;
         try {
-            index = ParserUtil.parseIndex(argMultimap.getPreamble());
+            indices = parseIndices(argMultimap.getPreamble());
         } catch (ParseException pe) {
             throw new ParseException(
                     String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), pe);
@@ -59,6 +63,27 @@ public class TagCommandParser implements Parser<TagCommand> {
             tagsToDelete.add(ParserUtil.parseTag(tagName));
         }
 
-        return new TagCommand(index, tagsToAdd, tagsToDelete);
+        return new TagCommand(indices, tagsToAdd, tagsToDelete);
+    }
+
+    private List<Index> parseIndices(String indexList) throws ParseException {
+        String[] indexTokens = indexList.split(",");
+        List<Index> parsedIndices = new ArrayList<>();
+        Set<Integer> seenIndices = new HashSet<>();
+
+        for (String indexToken : indexTokens) {
+            String trimmedIndexToken = indexToken.trim();
+            if (trimmedIndexToken.isEmpty()) {
+                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE));
+            }
+
+            Index index = ParserUtil.parseIndex(trimmedIndexToken);
+            if (!seenIndices.add(index.getOneBased())) {
+                throw new ParseException(MESSAGE_DUPLICATE_INDICES);
+            }
+            parsedIndices.add(index);
+        }
+
+        return parsedIndices;
     }
 }

@@ -142,6 +142,25 @@ Examples:
 * `list` followed by `delete 2` deletes the 2nd person in the address book.
 * `find Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
 
+### Updating tags for one or more persons : `tag`
+
+Adds and/or deletes tags for one or more persons without replacing their full tag set.
+
+Format: `tag INDEX[,INDEX]... [a/TAG_TO_ADD]... [d/TAG_TO_DELETE]...`
+
+* Each `INDEX` refers to the index number shown in the current displayed person list.
+* Each index must be a positive integer (`1, 2, 3, ...`).
+* Multiple indices must be comma-separated (for example, `1,2,4`).
+* At least one tag operation must be provided: `a/` (add) and/or `d/` (delete).
+* You can provide multiple `a/` and `d/` prefixes in one command.
+* A maximum of 10 tags (`a/` + `d/` combined) can be provided in one command.
+* Tag names must be alphanumeric, have no spaces, and be between 1 and 30 characters.
+
+Examples:
+* `tag 1 a/Java` adds `Java` to person 1.
+* `tag 2 d/Intern` deletes `Intern` from person 2.
+* `tag 1,3,4 a/Frontend d/Intern` adds `Frontend` and deletes `Intern` for persons 1, 3, and 4 in one command.
+
 ### Clearing all entries : `clear`
 
 Clears all entries from the address book.
@@ -194,6 +213,7 @@ Action | Format, Examples
 **Add** | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]…​` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 t/friend t/colleague`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
+**Tag** | `tag INDEX[,INDEX]... [a/TAG_TO_ADD]... [d/TAG_TO_DELETE]...`<br> e.g., `tag 1,2 a/Java d/Intern`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]…​`<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`

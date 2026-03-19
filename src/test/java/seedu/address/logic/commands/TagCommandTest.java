@@ -198,6 +198,35 @@ public class TagCommandTest {
     }
 
     @Test
+    public void execute_multipleIndices_addTag_success() throws CommandException {
+        Tag java = new Tag("Java");
+        model.addTag(java);
+
+        TagCommand command = new TagCommand(List.of(INDEX_FIRST_PERSON, INDEX_SECOND_PERSON),
+                List.of(new Tag("Java")), List.of());
+        command.execute(model);
+
+        Person alice = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person benson = model.getFilteredPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+
+        assertTrue(alice.getTags().stream().anyMatch(t -> t.tagName.equalsIgnoreCase("Java")));
+        assertTrue(benson.getTags().stream().anyMatch(t -> t.tagName.equalsIgnoreCase("Java")));
+    }
+
+    @Test
+    public void execute_multipleIndices_validationFails_noMutationOccurs() {
+        // ALICE does not have "owesMoney", BENSON does. This should fail before any mutation.
+        TagCommand command = new TagCommand(List.of(INDEX_FIRST_PERSON, INDEX_SECOND_PERSON),
+                List.of(), List.of(new Tag("owesMoney")));
+
+        assertCommandFailure(command, model,
+                String.format(TagCommand.MESSAGE_TAG_NOT_ON_CANDIDATE, "owesMoney"));
+
+        Person benson = model.getFilteredPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+        assertTrue(benson.getTags().stream().anyMatch(t -> t.tagName.equalsIgnoreCase("owesMoney")));
+    }
+
+    @Test
     public void execute_addTag_returnsSuccessMessage() throws CommandException {
         model.addTag(new Tag("Java"));
         Person alice = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
