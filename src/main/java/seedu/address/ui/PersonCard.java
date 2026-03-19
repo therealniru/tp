@@ -71,19 +71,15 @@ public class PersonCard extends UiPart<Region> {
 
         if (person.getStatus() == Status.REJECTED) {
             List<RejectionReason> reasons = person.getRejectionReasons();
-            int count = reasons.size();
 
-            rejectionCountTag.setText("Rejected " + count + (count == 1 ? " time" : " times"));
+            rejectionCountTag.setText(formatRejectionCountText(reasons.size()));
             rejectionCountTag.setStyle("-fx-background-color: #888888; -fx-text-fill: white; "
                     + "-fx-font-family: 'Segoe UI Semibold'; -fx-font-size: 16px; "
                     + "-fx-padding: 0 5 0 5; -fx-background-radius: 3;");
             rejectionCountTag.setVisible(true);
             rejectionCountTag.setManaged(true);
 
-            String reasonsText = IntStream.range(0, reasons.size())
-                    .mapToObj(i -> (i + 1) + ". " + reasons.get(i).reason)
-                    .collect(Collectors.joining("\n"));
-            rejectionReasonsList.setText("Rejection reasons:\n" + reasonsText);
+            rejectionReasonsList.setText(formatRejectionReasonsText(reasons));
             rejectionReasonsList.setVisible(true);
             rejectionReasonsList.setManaged(true);
         }
@@ -96,5 +92,22 @@ public class PersonCard extends UiPart<Region> {
             priorityTag.setManaged(true);
         }
         dateAdded.setText("added on: " + person.getDateAdded().getDisplayFormat());
+    }
+
+    /**
+     * Returns the rejection count badge text for the given {@code count}.
+     */
+    static String formatRejectionCountText(int count) {
+        return "Rejected " + count + (count == 1 ? " time" : " times");
+    }
+
+    /**
+     * Returns the formatted rejection reasons text for the given {@code reasons}.
+     */
+    static String formatRejectionReasonsText(List<RejectionReason> reasons) {
+        String reasonsText = IntStream.range(0, reasons.size())
+                .mapToObj(i -> (i + 1) + ". " + reasons.get(i).reason)
+                .collect(Collectors.joining("\n"));
+        return "Rejection reasons:\n" + reasonsText;
     }
 }
