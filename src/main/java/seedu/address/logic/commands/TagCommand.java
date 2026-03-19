@@ -34,7 +34,7 @@ public class TagCommand extends Command {
             + PREFIX_ADD_TAG + "Java " + PREFIX_DELETE_TAG + "Intern";
 
     public static final String MESSAGE_SUCCESS = "Successfully updated tags for candidate: %1$s";
-        public static final String MESSAGE_SUCCESS_MULTIPLE = "Successfully updated tags for candidates: %1$s";
+    public static final String MESSAGE_SUCCESS_MULTIPLE = "Successfully updated tags for candidates: %1$s";
     public static final String MESSAGE_CONFLICT =
             "Error: Cannot add and delete the same tag ('%s') in a single command.";
     public static final String MESSAGE_TAG_NOT_IN_POOL =

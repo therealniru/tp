@@ -198,7 +198,7 @@ public class TagCommandTest {
     }
 
     @Test
-    public void execute_multipleIndices_addTag_success() throws CommandException {
+    public void execute_multipleIndicesAddTag_success() throws CommandException {
         Tag java = new Tag("Java");
         model.addTag(java);
 
@@ -214,7 +214,7 @@ public class TagCommandTest {
     }
 
     @Test
-    public void execute_multipleIndices_validationFails_noMutationOccurs() {
+    public void execute_multipleIndicesValidationFails_noMutation() {
         // ALICE does not have "owesMoney", BENSON does. This should fail before any mutation.
         TagCommand command = new TagCommand(List.of(INDEX_FIRST_PERSON, INDEX_SECOND_PERSON),
                 List.of(), List.of(new Tag("owesMoney")));
