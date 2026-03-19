@@ -67,7 +67,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveFileName = 'addressbook.jar'
+    archiveFileName = 'talently.jar'
 }
 
 defaultTasks 'clean', 'test'
