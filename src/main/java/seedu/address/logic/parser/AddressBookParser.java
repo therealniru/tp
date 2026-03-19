@@ -71,8 +71,6 @@ public class AddressBookParser {
         case EditCommand.COMMAND_WORD:
             return new EditCommandParser().parse(arguments);
 
-
-
         case RejectCommand.COMMAND_WORD:
             return new RejectCommandParser().parse(arguments);
 
