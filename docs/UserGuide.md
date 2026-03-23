@@ -231,6 +231,20 @@ Examples:
 * `tag 3 a/Senior d/Junior` — Adds "Senior" and removes "Junior" from the 3rd candidate.
 * `tag 1,2,3 a/Shortlisted` — Adds the "Shortlisted" tag to candidates 1, 2, and 3.
 
+### Undoing the last modifying command : `undo`
+
+Restores Talently data to the state immediately before the most recent successful command that changed the address book.
+
+Format: `undo`
+
+* `undo` applies only to commands that changed the address book state.
+* If there is no previous state to restore in the current session, Talently will show an error message.
+* `undo` does not take any additional arguments.
+
+Examples:
+* `remove 2` followed by `undo` restores the removed candidate.
+* `edit 1 p/91234567` followed by `undo` restores the previous phone number.
+
 ### Clearing all entries : `clear`
 
 Clears all candidates from Talently.
@@ -287,4 +301,5 @@ Action | Format, Examples
 **Sort** | `sort date o/ORDER`<br> e.g., `sort date o/desc`
 **Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g., `tag 1 a/Shortlisted d/Applied`
 **Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g., `tagpool a/Shortlisted d/Rejected`
+**Undo** | `undo`
 **Help** | `help`

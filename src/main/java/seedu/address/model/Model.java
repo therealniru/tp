@@ -54,6 +54,15 @@ public interface Model {
     /** Returns the AddressBook */
     ReadOnlyAddressBook getAddressBook();
 
+    /** Saves the current address book state into history. */
+    void commitAddressBook();
+
+    /** Returns true if there is a previous address book state to restore. */
+    boolean canUndoAddressBook();
+
+    /** Restores the previous address book state. */
+    void undoAddressBook();
+
     /**
      * Returns true if a person with the same identity as {@code person} exists in the address book.
      */
@@ -115,4 +124,10 @@ public interface Model {
      * @throws NullPointerException if {@code comparator} is null.
      */
     void sortFilteredPersonList(Comparator<Person> comparator);
+
+    /** Returns true if there is a next address book state to restore. */
+    boolean canRedoAddressBook();
+
+    /** Restores the next address book state. */
+    void redoAddressBook();
 }

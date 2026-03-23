@@ -14,7 +14,7 @@ We are a team based in the [School of Computing, National University of Singapor
 [[github](https://github.com/KeeZhiSong)]
 
 * Role: Developer
-* Responsibilities: Data 
+* Responsibilities: Data
 
 ### Kamath Arnav Santosh
 
@@ -43,7 +43,7 @@ We are a team based in the [School of Computing, National University of Singapor
 * Role: Developer
 * Responsibilities: UI
 
-### Rayson Yap 
+### Rayson Yap
 
 <img src="images/r-a-y-y-a.png" width="200px">
 

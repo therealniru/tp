@@ -27,6 +27,7 @@ import seedu.address.logic.commands.RemoveCommand;
 import seedu.address.logic.commands.SortDateCommand;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.TagPoolCommand;
+import seedu.address.logic.commands.UndoCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.NamePhoneEmailContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
@@ -147,5 +148,15 @@ public class AddressBookParserTest {
     public void parseCommand_sort() throws Exception {
         assertTrue(parser.parseCommand(SortDateCommand.COMMAND_WORD + " date o/asc") instanceof SortDateCommand);
         assertTrue(parser.parseCommand(SortDateCommand.COMMAND_WORD + " date o/desc") instanceof SortDateCommand);
+    }
+
+    @Test
+    public void parseCommand_undo() throws Exception {
+        assertTrue(parser.parseCommand(UndoCommand.COMMAND_WORD) instanceof UndoCommand);
+    }
+
+    @Test
+    public void parseCommand_undoWithExtraArgs_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parseCommand(UndoCommand.COMMAND_WORD + " now"));
     }
 }
