@@ -204,6 +204,15 @@ public class TagPoolCommandTest {
         }
 
         @Override
+        public boolean canRedoAddressBook() {
+            return false;
+        }
+
+        @Override
+        public void redoAddressBook() {
+        }
+
+        @Override
         public void setPerson(Person target, Person editedPerson) {
             // no-op for simple stub
         }
@@ -325,6 +334,15 @@ public class TagPoolCommandTest {
 
         @Override
         public void undoAddressBook() {
+        }
+
+        @Override
+        public boolean canRedoAddressBook() {
+            return false;
+        }
+
+        @Override
+        public void redoAddressBook() {
         }
 
         @Override
