@@ -30,22 +30,34 @@ public class Person {
     private final List<RejectionReason> rejectionReasons = new ArrayList<>();
     private final DateAdded dateAdded;
     private final Priority priority;
+    private final List<Note> notes = new ArrayList<>();
 
     /**
      * Every field must be present and not null.
      * Status defaults to NONE with an empty rejection reasons list and DateAdded as current time.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        this(name, phone, email, address, tags, Status.NONE, new ArrayList<>(), new DateAdded(), new Priority("no"));
+        this(name, phone, email, address, tags, Status.NONE, new ArrayList<>(), new DateAdded(), new Priority("no"),
+                new ArrayList<>());
     }
 
     /**
-     * Full constructor with status, rejection reasons, date added, and priority.
+     * Constructor with status, rejection reasons, date added, and priority. Notes default to empty.
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags,
                   Status status, List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority) {
-        requireAllNonNull(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority);
+        this(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, new ArrayList<>());
+    }
+
+    /**
+     * Full constructor with all fields including notes.
+     * Every field must be present and not null.
+     */
+    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags,
+                  Status status, List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority,
+                  List<Note> notes) {
+        requireAllNonNull(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, notes);
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -55,6 +67,7 @@ public class Person {
         this.rejectionReasons.addAll(rejectionReasons);
         this.dateAdded = dateAdded;
         this.priority = priority;
+        this.notes.addAll(notes);
     }
 
     public Name getName() {
@@ -102,6 +115,14 @@ public class Person {
     }
 
     /**
+     * Returns an immutable list of notes, which throws {@code UnsupportedOperationException}
+     * if modification is attempted.
+     */
+    public List<Note> getNotes() {
+        return Collections.unmodifiableList(notes);
+    }
+
+    /**
      * Returns true if this person has an archived status.
      */
     public boolean isArchived() {
@@ -144,13 +165,14 @@ public class Person {
                 && tags.equals(otherPerson.tags)
                 && status.equals(otherPerson.status)
                 && rejectionReasons.equals(otherPerson.rejectionReasons)
-                && priority.equals(otherPerson.priority);
+                && priority.equals(otherPerson.priority)
+                && notes.equals(otherPerson.notes);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags, status, rejectionReasons, priority);
+        return Objects.hash(name, phone, email, address, tags, status, rejectionReasons, priority, notes);
     }
 
     @Override
@@ -165,6 +187,7 @@ public class Person {
                 .add("rejectionReasons", rejectionReasons)
                 .add("dateAdded", dateAdded)
                 .add("priority", priority)
+                .add("notes", notes)
                 .toString();
     }
 

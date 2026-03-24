@@ -173,8 +173,8 @@ Format: `reject INDEX r/REASON`
 * The index refers to the index number shown in the displayed candidate list. The index **must be a positive integer** 1, 2, 3, …​
 * `REASON` must be non-empty, at most 200 characters, and may contain letters, digits, spaces, and the following punctuation: `.` `,` `-` `'` `/`.
 * Each call to `reject` appends a new rejection reason to the candidate's rejection history.
-* The candidate card will display the total number of times rejected and the full list of past rejection reasons.
-* If the same reason is given consecutively, a note will be shown.
+* The candidate card will display a red badge showing the total number of times the candidate has been rejected.
+* If the same reason is given consecutively, a warning will be shown.
 * Cannot reject an archived candidate.
 
 Examples:
@@ -193,6 +193,22 @@ Format: `sort date o/ORDER`
 Examples:
 * `sort date o/asc` — Sorts candidates from oldest to newest.
 * `sort date o/desc` — Sorts candidates from newest to oldest.
+
+### Adding a note to a candidate : `note`
+
+Appends a timestamped note to a candidate's audit trail.
+
+Format: `note INDEX n/CONTENT [h/HEADING]`
+
+* Adds a note to the candidate at the specified `INDEX`. The index refers to the index number shown in the displayed candidate list. The index **must be a positive integer** 1, 2, 3, …​
+* `CONTENT` is required and must not be blank.
+* `HEADING` is optional. If omitted, it defaults to `General Note`.
+* Each note is automatically stamped with the date and time it was created.
+* Notes are appended chronologically — earlier notes are never overwritten.
+
+Examples:
+* `note 1 n/Passed the technical interview flawlessly. h/Tech Round 1`
+* `note 2 n/Strong communication skills.`
 
 ### Managing the tag pool : `tagpool`
 
@@ -245,6 +261,20 @@ Examples:
 * `remove 2` followed by `undo` restores the removed candidate.
 * `edit 1 p/91234567` followed by `undo` restores the previous phone number.
 
+### Redoing the last undone command : `redo`
+
+Restores Talently data to the state before the most recent `undo`.
+
+Format: `redo`
+
+* `redo` can only be used after an `undo`. If there is no undone state to restore, Talently will show an error message.
+* `redo` does not take any additional arguments.
+* Performing any modifying command (e.g. `add`, `edit`, `remove`) after an `undo` will clear the redo history.
+
+Examples:
+* `remove 2` → `undo` → `redo` restores the removal.
+* `edit 1 p/91234567` → `undo` → `redo` restores the edited phone number.
+
 ### Clearing all entries : `clear`
 
 Clears all candidates from Talently.
@@ -296,6 +326,8 @@ Action | Format, Examples
 **Filter** | `filter TAG`<br> e.g., `filter friends`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
+**Note** | `note INDEX n/CONTENT [h/HEADING]`<br> e.g., `note 1 n/Passed technical interview. h/Tech Round 1`
+**Redo** | `redo`
 **Remove** | `remove INDEX`<br> e.g., `remove 3`
 **Reject** | `reject INDEX r/REASON`<br> e.g., `reject 1 r/Failed technical interview`
 **Sort** | `sort date o/ORDER`<br> e.g., `sort date o/desc`

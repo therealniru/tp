@@ -43,7 +43,6 @@
           <Insets top="4" />
         </VBox.margin>
       </Label>
-      <Label fx:id="rejectionReasonsList" styleClass="cell_small_label" visible="false" managed="false" wrapText="true" />
     </VBox>
   </GridPane>
 </HBox>
