@@ -5,6 +5,7 @@ import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORM
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,6 +14,9 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.AddressBook;
+import seedu.address.model.person.Note;
+import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -130,6 +134,39 @@ public class JsonAdaptedPersonTest {
         AddressBook ab = new AddressBook();
         BENSON.getTags().forEach(ab::addTag);
         assertThrows(IllegalValueException.class, expectedMessage, () -> person.toModelType(ab));
+    }
+
+    @Test
+    public void toModelType_personWithNotes_roundTripPreservesNotes() throws Exception {
+        LocalDateTime fixedDate = LocalDateTime.of(2026, 3, 23, 14, 30, 0);
+        Note note = new Note("Tech Round", "Passed interview", fixedDate);
+        Person personWithNote = new PersonBuilder(BENSON).withNotes(List.of(note)).build();
+
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(personWithNote);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+
+        Person restored = adapted.toModelType(ab);
+        assertEquals(1, restored.getNotes().size());
+        assertEquals(note, restored.getNotes().get(0));
+    }
+
+    @Test
+    public void toModelType_personWithMultipleNotes_preservesOrder() throws Exception {
+        LocalDateTime date1 = LocalDateTime.of(2026, 1, 1, 9, 0, 0);
+        LocalDateTime date2 = LocalDateTime.of(2026, 2, 1, 10, 0, 0);
+        Note note1 = new Note("First", "content one", date1);
+        Note note2 = new Note("Second", "content two", date2);
+        Person personWithNotes = new PersonBuilder(BENSON).withNotes(List.of(note1, note2)).build();
+
+        JsonAdaptedPerson adapted = new JsonAdaptedPerson(personWithNotes);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+
+        Person restored = adapted.toModelType(ab);
+        assertEquals(2, restored.getNotes().size());
+        assertEquals(note1, restored.getNotes().get(0));
+        assertEquals(note2, restored.getNotes().get(1));
     }
 
     @Test

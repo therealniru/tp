@@ -22,6 +22,7 @@ import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.RejectCommand;
 import seedu.address.logic.commands.RemoveCommand;
 import seedu.address.logic.commands.SortDateCommand;
@@ -148,6 +149,25 @@ public class AddressBookParserTest {
     public void parseCommand_sort() throws Exception {
         assertTrue(parser.parseCommand(SortDateCommand.COMMAND_WORD + " date o/asc") instanceof SortDateCommand);
         assertTrue(parser.parseCommand(SortDateCommand.COMMAND_WORD + " date o/desc") instanceof SortDateCommand);
+    }
+
+    @Test
+    public void parseCommand_note() throws Exception {
+        NoteCommand command = (NoteCommand) parser.parseCommand(
+                NoteCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased() + " n/Some content");
+        assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
+        assertEquals("General Note", command.getNote().heading);
+        assertEquals("Some content", command.getNote().content);
+    }
+
+    @Test
+    public void parseCommand_noteWithHeading() throws Exception {
+        NoteCommand command = (NoteCommand) parser.parseCommand(
+                NoteCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased()
+                        + " n/Passed interview h/Tech Round");
+        assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
+        assertEquals("Tech Round", command.getNote().heading);
+        assertEquals("Passed interview", command.getNote().content);
     }
 
     @Test
