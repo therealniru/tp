@@ -6,7 +6,8 @@ import java.util.function.Predicate;
 import seedu.address.commons.util.ToStringBuilder;
 
 /**
- * Tests that a {@code Person}'s {@code Name}, {@code Phone}, or {@code Email} matches any of the keywords given.
+ * Tests that a {@code Person}'s {@code Name}, {@code Phone}, {@code Email}, {@code Note}s,
+ * or {@code RejectionReason}s matches any of the keywords given.
  */
 public class NamePhoneEmailContainsKeywordsPredicate implements Predicate<Person> {
     private final List<String> keywords;
@@ -20,9 +21,15 @@ public class NamePhoneEmailContainsKeywordsPredicate implements Predicate<Person
         return keywords.stream()
                 .anyMatch(keyword -> {
                     String lowerCaseKeyword = keyword.toLowerCase();
-                    return person.getName().fullName.toLowerCase().contains(lowerCaseKeyword)
+                    boolean matchesBasicFields = person.getName().fullName.toLowerCase().contains(lowerCaseKeyword)
                             || person.getPhone().value.toLowerCase().contains(lowerCaseKeyword)
                             || person.getEmail().value.toLowerCase().contains(lowerCaseKeyword);
+                    boolean matchesNotes = person.getNotes().stream()
+                            .anyMatch(note -> note.heading.toLowerCase().contains(lowerCaseKeyword)
+                                    || note.content.toLowerCase().contains(lowerCaseKeyword));
+                    boolean matchesRejectionReasons = person.getRejectionReasons().stream()
+                            .anyMatch(r -> r.reason.toLowerCase().contains(lowerCaseKeyword));
+                    return matchesBasicFields || matchesNotes || matchesRejectionReasons;
                 });
     }
 
