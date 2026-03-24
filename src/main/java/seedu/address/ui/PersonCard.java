@@ -48,8 +48,6 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label rejectionCountTag;
     @FXML
-    private Label rejectionReasonsList;
-    @FXML
     private Label dateAdded;
     @FXML
     private Label priorityTag;
@@ -71,17 +69,12 @@ public class PersonCard extends UiPart<Region> {
 
         if (person.getStatus() == Status.REJECTED) {
             List<RejectionReason> reasons = person.getRejectionReasons();
-
             rejectionCountTag.setText(formatRejectionCountText(reasons.size()));
-            rejectionCountTag.setStyle("-fx-background-color: #888888; -fx-text-fill: white; "
+            rejectionCountTag.setStyle("-fx-background-color: #cc0000; -fx-text-fill: white; "
                     + "-fx-font-family: 'Segoe UI Semibold'; -fx-font-size: 16px; "
                     + "-fx-padding: 0 5 0 5; -fx-background-radius: 3;");
             rejectionCountTag.setVisible(true);
             rejectionCountTag.setManaged(true);
-
-            rejectionReasonsList.setText(formatRejectionReasonsText(reasons));
-            rejectionReasonsList.setVisible(true);
-            rejectionReasonsList.setManaged(true);
         }
         if (person.getPriority().isPriority) {
             priorityTag.setText("⭐ PRIORITY");

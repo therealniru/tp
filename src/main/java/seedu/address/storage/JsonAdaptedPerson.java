@@ -14,6 +14,7 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.RejectionReason;
@@ -36,6 +37,7 @@ class JsonAdaptedPerson {
     private final List<JsonAdaptedRejectionReason> rejectionReasons = new ArrayList<>();
     private final String dateAdded;
     private final String priority;
+    private final List<JsonAdaptedNote> notes = new ArrayList<>();
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
@@ -47,7 +49,8 @@ class JsonAdaptedPerson {
             @JsonProperty("status") String status,
             @JsonProperty("rejectionReasons") List<JsonAdaptedRejectionReason> rejectionReasons,
             @JsonProperty("dateAdded") String dateAdded,
-            @JsonProperty("priority") String priority) {
+            @JsonProperty("priority") String priority,
+            @JsonProperty("notes") List<JsonAdaptedNote> notes) {
         this.name = name;
         this.phone = phone;
         this.email = email;
@@ -61,6 +64,9 @@ class JsonAdaptedPerson {
         }
         this.dateAdded = dateAdded;
         this.priority = priority;
+        if (notes != null) {
+            this.notes.addAll(notes);
+        }
     }
 
     /**
@@ -80,6 +86,9 @@ class JsonAdaptedPerson {
                 .collect(Collectors.toList()));
         dateAdded = source.getDateAdded().value;
         priority = source.getPriority().value;
+        notes.addAll(source.getNotes().stream()
+                .map(JsonAdaptedNote::new)
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -168,8 +177,13 @@ class JsonAdaptedPerson {
             modelPriority = new seedu.address.model.person.Priority(priority);
         }
 
+        final List<Note> modelNotes = new ArrayList<>();
+        for (JsonAdaptedNote note : notes) {
+            modelNotes.add(note.toModelType());
+        }
+
         return new Person(modelName, modelPhone, modelEmail, modelAddress, modelTags,
-                modelStatus, modelRejectionReasons, modelDateAdded, modelPriority);
+                modelStatus, modelRejectionReasons, modelDateAdded, modelPriority, modelNotes);
     }
 
 }

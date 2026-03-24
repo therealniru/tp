@@ -118,7 +118,8 @@ public class RejectCommand extends Command {
                 Status.REJECTED,
                 updatedReasons,
                 personToReject.getDateAdded(),
-                personToReject.getPriority()
+                personToReject.getPriority(),
+                personToReject.getNotes()
         );
     }
 

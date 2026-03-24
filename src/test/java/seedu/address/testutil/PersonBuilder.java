@@ -8,6 +8,7 @@ import java.util.Set;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Priority;
@@ -36,6 +37,7 @@ public class PersonBuilder {
     private List<RejectionReason> rejectionReasons;
     private seedu.address.model.person.DateAdded dateAdded;
     private Priority priority;
+    private List<Note> notes;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -50,6 +52,7 @@ public class PersonBuilder {
         rejectionReasons = new ArrayList<>();
         dateAdded = new seedu.address.model.person.DateAdded(DEFAULT_DATE_ADDED);
         priority = new Priority("no");
+        notes = new ArrayList<>();
     }
 
     /**
@@ -65,6 +68,7 @@ public class PersonBuilder {
         rejectionReasons = new ArrayList<>(personToCopy.getRejectionReasons());
         dateAdded = personToCopy.getDateAdded();
         priority = personToCopy.getPriority();
+        notes = new ArrayList<>(personToCopy.getNotes());
     }
 
     /**
@@ -150,8 +154,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the {@code notes} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withNotes(List<Note> notes) {
+        this.notes = new ArrayList<>(notes);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority);
+        return new Person(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, notes);
     }
 
 }

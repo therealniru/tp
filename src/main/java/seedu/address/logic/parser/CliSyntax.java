@@ -16,5 +16,7 @@ public class CliSyntax {
     public static final Prefix PREFIX_PRIORITY = new Prefix("pr/");
     public static final Prefix PREFIX_ADD_TAG = new Prefix("a/");
     public static final Prefix PREFIX_DELETE_TAG = new Prefix("d/");
+    public static final Prefix PREFIX_NOTE_CONTENT = new Prefix("n/");
+    public static final Prefix PREFIX_NOTE_HEADING = new Prefix("h/");
 
 }
