@@ -98,6 +98,44 @@ public class NamePhoneEmailContainsKeywordsPredicateTest {
     }
 
     @Test
+    public void test_noteContainsKeyword_returnsTrue() {
+        // Keyword matches note heading
+        NamePhoneEmailContainsKeywordsPredicate predicate =
+                new NamePhoneEmailContainsKeywordsPredicate(Collections.singletonList("interview"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Alice")
+                .withNotes(List.of(new Note("interview", "went well"))).build()));
+
+        // Keyword matches note content
+        predicate = new NamePhoneEmailContainsKeywordsPredicate(Collections.singletonList("outstanding"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Alice")
+                .withNotes(List.of(new Note("Performance", "outstanding candidate"))).build()));
+
+        // Case-insensitive note match
+        predicate = new NamePhoneEmailContainsKeywordsPredicate(Collections.singletonList("TECH"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Alice")
+                .withNotes(List.of(new Note("Tech Round", "passed"))).build()));
+    }
+
+    @Test
+    public void test_rejectionReasonContainsKeyword_returnsTrue() {
+        // Keyword matches rejection reason
+        NamePhoneEmailContainsKeywordsPredicate predicate =
+                new NamePhoneEmailContainsKeywordsPredicate(Collections.singletonList("overqualified"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Alice")
+                .withRejectionReasons("overqualified for the role").build()));
+
+        // Partial match in rejection reason
+        predicate = new NamePhoneEmailContainsKeywordsPredicate(Collections.singletonList("skills"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Alice")
+                .withRejectionReasons("insufficient skills").build()));
+
+        // Case-insensitive rejection reason match
+        predicate = new NamePhoneEmailContainsKeywordsPredicate(Collections.singletonList("CULTURE"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Alice")
+                .withRejectionReasons("culture fit issues").build()));
+    }
+
+    @Test
     public void toStringMethod() {
         List<String> keywords = List.of("keyword1", "keyword2");
         NamePhoneEmailContainsKeywordsPredicate predicate = new NamePhoneEmailContainsKeywordsPredicate(keywords);
