@@ -51,6 +51,25 @@ public class VersionedAddressBook extends AddressBook {
         resetData(addressBookStateList.get(currentStatePointer));
     }
 
+    /**
+     * Returns {@code true} if redo can be performed.
+     */
+    public boolean canRedo() {
+        return currentStatePointer < addressBookStateList.size() - 1;
+    }
+
+    /**
+     * Restores the next address book state.
+     */
+    public void redo() {
+        if (!canRedo()) {
+            throw new IllegalStateException("No redoable state available.");
+        }
+
+        currentStatePointer++;
+        resetData(addressBookStateList.get(currentStatePointer));
+    }
+
     private void removeStatesAfterCurrentPointer() {
         addressBookStateList.subList(currentStatePointer + 1, addressBookStateList.size()).clear();
     }

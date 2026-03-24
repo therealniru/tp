@@ -124,4 +124,10 @@ public interface Model {
      * @throws NullPointerException if {@code comparator} is null.
      */
     void sortFilteredPersonList(Comparator<Person> comparator);
+
+    /** Returns true if there is a next address book state to restore. */
+    boolean canRedoAddressBook();
+
+    /** Restores the next address book state. */
+    void redoAddressBook();
 }

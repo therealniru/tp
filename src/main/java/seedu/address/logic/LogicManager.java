@@ -10,6 +10,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.RedoCommand;
 import seedu.address.logic.commands.UndoCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
@@ -53,7 +54,8 @@ public class LogicManager implements Logic {
         AddressBook previousAddressBookState = new AddressBook(model.getAddressBook());
         commandResult = command.execute(model);
 
-        if (!(command instanceof UndoCommand) && !previousAddressBookState.equals(model.getAddressBook())) {
+        if (!(command instanceof UndoCommand) && !(command instanceof RedoCommand)
+                && !previousAddressBookState.equals(model.getAddressBook())) {
             model.commitAddressBook();
         }
 
