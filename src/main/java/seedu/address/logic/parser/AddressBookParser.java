@@ -20,7 +20,7 @@ import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.RedoCommand;
 import seedu.address.logic.commands.RejectCommand;
 import seedu.address.logic.commands.RemoveCommand;
-import seedu.address.logic.commands.SortDateCommand;
+import seedu.address.logic.commands.SortPriorityCommand;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.TagPoolCommand;
 import seedu.address.logic.commands.UndoCommand;
@@ -88,8 +88,8 @@ public class AddressBookParser {
         case FilterCommand.COMMAND_WORD:
             return new FilterCommandParser().parse(arguments);
 
-        case SortDateCommand.COMMAND_WORD:
-            return new SortDateCommandParser().parse(arguments);
+        case SortPriorityCommand.COMMAND_WORD:
+            return new SortCommandParser().parse(arguments);
 
         case ListCommand.COMMAND_WORD:
             if (!arguments.trim().isEmpty()) {
