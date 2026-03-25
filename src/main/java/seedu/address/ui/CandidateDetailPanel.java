@@ -62,6 +62,13 @@ public class CandidateDetailPanel extends UiPart<Region> {
         detailContent.setVisible(true);
         detailContent.setManaged(true);
 
+        renderBasicFields(person);
+        renderTags(person);
+        renderNotes(person.getNotes());
+        renderRejections(person.getRejectionReasons());
+    }
+
+    private void renderBasicFields(Person person) {
         detailName.setText(person.getName().fullName);
         detailPhone.setText("Phone: " + person.getPhone().value);
         detailEmail.setText("Email: " + person.getEmail().value);
@@ -69,7 +76,9 @@ public class CandidateDetailPanel extends UiPart<Region> {
         detailStatus.setText("Status: " + formatStatus(person.getStatus()));
         detailPriority.setText("Priority: " + (person.getPriority().isPriority ? "⭐ High" : "Normal"));
         detailDateAdded.setText("Added: " + person.getDateAdded().getDisplayFormat());
+    }
 
+    private void renderTags(Person person) {
         detailTags.getChildren().clear();
         person.getTags().stream()
                 .sorted(Comparator.comparing(tag -> tag.tagName))
@@ -78,38 +87,40 @@ public class CandidateDetailPanel extends UiPart<Region> {
                     tagLabel.getStyleClass().add("detail-tag");
                     detailTags.getChildren().add(tagLabel);
                 });
+    }
 
+    private void renderNotes(List<Note> notes) {
         detailNotes.getChildren().clear();
-        List<Note> notes = person.getNotes();
         if (notes.isEmpty()) {
             detailNotes.getChildren().add(makeFieldLabel("No notes recorded."));
-        } else {
-            IntStream.range(0, notes.size()).forEach(i -> {
-                Note note = notes.get(i);
-                VBox noteBox = new VBox(2);
-                noteBox.getStyleClass().add("detail-note-box");
-                Label heading = new Label((i + 1) + ". " + note.heading);
-                heading.getStyleClass().add("detail-note-heading");
-                heading.setWrapText(true);
-                Label content = new Label(note.content);
-                content.getStyleClass().add("detail-field");
-                content.setWrapText(true);
-                noteBox.getChildren().addAll(heading, content);
-                detailNotes.getChildren().add(noteBox);
-            });
+            return;
         }
+        IntStream.range(0, notes.size()).forEach(i -> {
+            Note note = notes.get(i);
+            VBox noteBox = new VBox(2);
+            noteBox.getStyleClass().add("detail-note-box");
+            Label heading = new Label((i + 1) + ". " + note.heading);
+            heading.getStyleClass().add("detail-note-heading");
+            heading.setWrapText(true);
+            Label content = new Label(note.content);
+            content.getStyleClass().add("detail-field");
+            content.setWrapText(true);
+            noteBox.getChildren().addAll(heading, content);
+            detailNotes.getChildren().add(noteBox);
+        });
+    }
 
+    private void renderRejections(List<RejectionReason> reasons) {
         detailRejections.getChildren().clear();
-        List<RejectionReason> reasons = person.getRejectionReasons();
         if (reasons.isEmpty()) {
             detailRejections.getChildren().add(makeFieldLabel("No rejections recorded."));
-        } else {
-            IntStream.range(0, reasons.size()).forEach(i -> {
-                Label reasonLabel = makeFieldLabel((i + 1) + ". " + reasons.get(i).reason);
-                reasonLabel.setWrapText(true);
-                detailRejections.getChildren().add(reasonLabel);
-            });
+            return;
         }
+        IntStream.range(0, reasons.size()).forEach(i -> {
+            Label reasonLabel = makeFieldLabel((i + 1) + ". " + reasons.get(i).reason);
+            reasonLabel.setWrapText(true);
+            detailRejections.getChildren().add(reasonLabel);
+        });
     }
 
     private Label makeFieldLabel(String text) {
@@ -121,12 +132,14 @@ public class CandidateDetailPanel extends UiPart<Region> {
 
     private String formatStatus(Status status) {
         switch (status) {
+        case NONE:
+            return "Active";
         case REJECTED:
             return "Rejected";
         case ARCHIVED:
             return "Archived";
         default:
-            return "Active";
+            throw new IllegalArgumentException("Unknown status: " + status);
         }
     }
 }

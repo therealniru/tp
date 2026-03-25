@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.person.Person;
@@ -20,8 +21,8 @@ public class CommandResult {
     /** The application should exit. */
     private final boolean exit;
 
-    /** The candidate to display in the detail panel. Null if no candidate to show. */
-    private final Person selectedPerson;
+    /** The candidate to display in the detail panel. Empty if no candidate to show. */
+    private final Optional<Person> selectedPerson;
 
     /**
      * Constructs a {@code CommandResult} with the specified fields.
@@ -30,7 +31,7 @@ public class CommandResult {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
-        this.selectedPerson = null;
+        this.selectedPerson = Optional.empty();
     }
 
     /**
@@ -48,7 +49,7 @@ public class CommandResult {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = false;
         this.exit = false;
-        this.selectedPerson = selectedPerson;
+        this.selectedPerson = Optional.of(selectedPerson);
     }
 
     public String getFeedbackToUser() {
@@ -64,10 +65,10 @@ public class CommandResult {
     }
 
     public boolean isShowPerson() {
-        return selectedPerson != null;
+        return selectedPerson.isPresent();
     }
 
-    public Person getSelectedPerson() {
+    public Optional<Person> getSelectedPerson() {
         return selectedPerson;
     }
 
@@ -86,7 +87,7 @@ public class CommandResult {
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
                 && exit == otherCommandResult.exit
-                && Objects.equals(selectedPerson, otherCommandResult.selectedPerson);
+                && selectedPerson.equals(otherCommandResult.selectedPerson);
     }
 
     @Override

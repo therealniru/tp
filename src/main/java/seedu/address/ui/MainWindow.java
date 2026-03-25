@@ -193,9 +193,7 @@ public class MainWindow extends UiPart<Stage> {
                 handleExit();
             }
 
-            if (commandResult.isShowPerson()) {
-                candidateDetailPanel.showPerson(commandResult.getSelectedPerson());
-            }
+            commandResult.getSelectedPerson().ifPresent(candidateDetailPanel::showPerson);
 
             return commandResult;
         } catch (CommandException | ParseException e) {

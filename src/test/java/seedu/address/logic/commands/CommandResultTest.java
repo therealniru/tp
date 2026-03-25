@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.TypicalPersons.ALICE;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +36,9 @@ public class CommandResultTest {
 
         // different exit value -> returns false
         assertFalse(commandResult.equals(new CommandResult("feedback", false, true)));
+
+        // different selectedPerson value -> returns false
+        assertFalse(commandResult.equals(new CommandResult("feedback", ALICE)));
     }
 
     @Test
@@ -50,6 +56,9 @@ public class CommandResultTest {
 
         // different exit value -> returns different hashcode
         assertNotEquals(commandResult.hashCode(), new CommandResult("feedback", false, true).hashCode());
+
+        // different selectedPerson value -> returns different hashcode
+        assertNotEquals(commandResult.hashCode(), new CommandResult("feedback", ALICE).hashCode());
     }
 
     @Test
@@ -59,5 +68,19 @@ public class CommandResultTest {
                 + commandResult.getFeedbackToUser() + ", showHelp=" + commandResult.isShowHelp()
                 + ", exit=" + commandResult.isExit() + "}";
         assertEquals(expected, commandResult.toString());
+    }
+
+    @Test
+    public void isShowPerson_withPerson_returnsTrue() {
+        CommandResult commandResult = new CommandResult("feedback", ALICE);
+        assertTrue(commandResult.isShowPerson());
+        assertEquals(Optional.of(ALICE), commandResult.getSelectedPerson());
+    }
+
+    @Test
+    public void isShowPerson_withoutPerson_returnsFalse() {
+        CommandResult commandResult = new CommandResult("feedback");
+        assertFalse(commandResult.isShowPerson());
+        assertEquals(Optional.empty(), commandResult.getSelectedPerson());
     }
 }
