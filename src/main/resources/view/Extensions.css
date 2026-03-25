@@ -18,3 +18,62 @@
 .tooltip-text {
     -fx-text-fill: white;
 }
+
+/* ── Candidate Detail Panel ── */
+
+.detail-panel {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: transparent;
+}
+
+.detail-panel > .viewport {
+    -fx-background-color: #2a2a2a;
+}
+
+.detail-name {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 22px;
+    -fx-text-fill: #ffffff;
+}
+
+.detail-section-header {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 11px;
+    -fx-text-fill: #3e7b91;
+    -fx-padding: 6 0 2 0;
+}
+
+.detail-field {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-text-fill: #b0b8c1;
+}
+
+.detail-placeholder {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 13px;
+    -fx-text-fill: #666666;
+    -fx-font-style: italic;
+}
+
+.detail-tag {
+    -fx-text-fill: white;
+    -fx-background-color: #2e6b82;
+    -fx-padding: 2 8 2 8;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 11px;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.detail-note-box {
+    -fx-background-color: #333333;
+    -fx-background-radius: 4;
+    -fx-padding: 6 8 6 8;
+}
+
+.detail-note-heading {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 13px;
+    -fx-text-fill: #d0d8e0;
+}
