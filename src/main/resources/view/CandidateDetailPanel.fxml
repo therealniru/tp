@@ -8,8 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <ScrollPane fx:id="detailScrollPane" fitToWidth="true" styleClass="detail-panel"
-            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="seedu.address.ui.CandidateDetailPanel">
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <VBox fx:id="detailContainer" spacing="8">
     <padding>
       <Insets top="15" right="15" bottom="15" left="15" />
