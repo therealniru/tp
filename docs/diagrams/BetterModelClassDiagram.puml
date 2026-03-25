@@ -12,10 +12,15 @@ UniqueTagList -[hidden]down- UniquePersonList
 UniqueTagList -right-> "*" Tag
 UniquePersonList -right-> Person
 
-Person -up-> "*" Tag
+Person --> "*" Tag
 
 Person *--> Name
 Person *--> Phone
 Person *--> Email
 Person *--> Address
+Person *--> Status
+Person *--> Priority
+Person *--> DateAdded
+Person *--> "*" RejectionReason
+Person *--> "*" Note
 @enduml
