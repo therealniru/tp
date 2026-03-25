@@ -21,6 +21,7 @@ import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.commands.RedoCommand;
 import seedu.address.logic.commands.RejectCommand;
 import seedu.address.logic.commands.RemoveCommand;
+import seedu.address.logic.commands.ShowCommand;
 import seedu.address.logic.commands.SortPriorityCommand;
 import seedu.address.logic.commands.TagCommand;
 import seedu.address.logic.commands.TagPoolCommand;
@@ -94,6 +95,9 @@ public class AddressBookParser {
 
         case SortPriorityCommand.COMMAND_WORD:
             return new SortCommandParser().parse(arguments);
+
+        case ShowCommand.COMMAND_WORD:
+            return new ShowCommandParser().parse(arguments);
 
         case ListCommand.COMMAND_WORD:
             if (!arguments.trim().isEmpty()) {

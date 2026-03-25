@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fx:id="detailScrollPane" fitToWidth="true" styleClass="detail-panel"
+            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+  <VBox fx:id="detailContainer" spacing="8">
+    <padding>
+      <Insets top="15" right="15" bottom="15" left="15" />
+    </padding>
+
+    <!-- Placeholder shown when no candidate is selected -->
+    <Label fx:id="placeholderLabel" text="Use 'show INDEX' to view candidate details."
+           styleClass="detail-placeholder" wrapText="true" />
+
+    <!-- Detail content (hidden until a candidate is selected) -->
+    <VBox fx:id="detailContent" spacing="8" visible="false" managed="false">
+
+      <Label fx:id="detailName" styleClass="detail-name" wrapText="true" />
+
+      <Separator />
+
+      <Label text="CONTACT" styleClass="detail-section-header" />
+      <Label fx:id="detailPhone" styleClass="detail-field" wrapText="true" />
+      <Label fx:id="detailEmail" styleClass="detail-field" wrapText="true" />
+      <Label fx:id="detailAddress" styleClass="detail-field" wrapText="true" />
+
+      <Separator />
+
+      <Label text="STATUS" styleClass="detail-section-header" />
+      <Label fx:id="detailStatus" styleClass="detail-field" />
+      <Label fx:id="detailPriority" styleClass="detail-field" />
+      <Label fx:id="detailDateAdded" styleClass="detail-field" />
+
+      <Separator />
+
+      <Label text="TAGS" styleClass="detail-section-header" />
+      <FlowPane fx:id="detailTags" hgap="5" vgap="5" />
+
+      <Separator />
+
+      <Label text="NOTES" styleClass="detail-section-header" />
+      <VBox fx:id="detailNotes" spacing="6" />
+
+      <Separator />
+
+      <Label text="REJECTION HISTORY" styleClass="detail-section-header" />
+      <VBox fx:id="detailRejections" spacing="4" />
+
+    </VBox>
+  </VBox>
+</ScrollPane>

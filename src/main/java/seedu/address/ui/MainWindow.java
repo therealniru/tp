@@ -34,6 +34,7 @@ public class MainWindow extends UiPart<Stage> {
     private PersonListPanel personListPanel;
     private ResultDisplay resultDisplay;
     private HelpWindow helpWindow;
+    private CandidateDetailPanel candidateDetailPanel;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -46,6 +47,9 @@ public class MainWindow extends UiPart<Stage> {
 
     @FXML
     private StackPane resultDisplayPlaceholder;
+
+    @FXML
+    private StackPane candidateDetailPanelPlaceholder;
 
     @FXML
     private StackPane statusbarPlaceholder;
@@ -119,6 +123,9 @@ public class MainWindow extends UiPart<Stage> {
         StatusBarFooter statusBarFooter = new StatusBarFooter(logic.getAddressBookFilePath());
         statusbarPlaceholder.getChildren().add(statusBarFooter.getRoot());
 
+        candidateDetailPanel = new CandidateDetailPanel();
+        candidateDetailPanelPlaceholder.getChildren().add(candidateDetailPanel.getRoot());
+
         CommandBox commandBox = new CommandBox(this::executeCommand);
         commandBoxPlaceholder.getChildren().add(commandBox.getRoot());
     }
@@ -184,6 +191,10 @@ public class MainWindow extends UiPart<Stage> {
 
             if (commandResult.isExit()) {
                 handleExit();
+            }
+
+            if (commandResult.isShowPerson()) {
+                candidateDetailPanel.showPerson(commandResult.getSelectedPerson());
             }
 
             return commandResult;
