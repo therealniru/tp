@@ -125,7 +125,7 @@ public class Person {
     /**
      * Returns true if this person has a blacklisted status.
      */
-    public boolean isArchived() {
+    public boolean isBlacklisted() {
         return status == Status.BLACKLISTED;
     }
 

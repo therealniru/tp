@@ -189,12 +189,12 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_legacyStatusArchived_migratedToBlacklisted() throws Exception {
+    public void toModelType_legacyStatusArchived_throwsIllegalValueException() {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
                 VALID_TAGS, "ARCHIVED", VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY, null);
         AddressBook ab = new AddressBook();
         BENSON.getTags().forEach(ab::addTag);
-        assertEquals(Status.BLACKLISTED, person.toModelType(ab).getStatus());
+        assertThrows(IllegalValueException.class, () -> person.toModelType(ab));
     }
 
     @Test
