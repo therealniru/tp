@@ -3,16 +3,19 @@ layout: page
 title: User Guide
 ---
 
-Talently is a desktop application for recruiters and hiring managers who need to efficiently track and manage job candidates throughout the hiring pipeline. Optimised for fast typists, Talently uses a Command Line Interface (CLI) for speed while providing a Graphical User Interface (GUI) for visual feedback. If you can type quickly, Talently lets you manage candidates faster than traditional point-and-click applications.
+Talently is a desktop application for recruiters and hiring managers who manage large volumes of job candidates. It uses a **Command Line Interface (CLI)** for speed, backed by a visual GUI for quick scanning. If you type quickly, Talently lets you track candidates faster than any point-and-click tool.
 
-**Target Users**
-Talently is designed for tech-savvy recruiters and hiring managers who:
-* Handle a high volume of job applicants and need quick access to candidate information.
-* Are comfortable typing commands and prefer keyboard-driven workflows over mouse-based navigation.
-* Need to track candidate progress through multiple hiring stages using tags, notes, and rejection records.
+**Who is this for?**
 
-**Assumed Prior Knowledge**
-Basic familiarity with using a command terminal (e.g., navigating directories with the `cd` command). No programming experience is required.
+| Attribute | Details |
+|---|---|
+| **Role** | Recruiters and hiring managers |
+| **Technical level** | Novice–Competent (comfortable with a terminal) |
+| **Context** | Switching between terminal and candidate list, often under time pressure |
+| **Goals** | Add, track, and search candidates quickly; maintain a clean audit trail |
+| **Pain points** | Forgetting command syntax, losing candidate history, slow mouse-based tools |
+
+**Assumed knowledge:** Basic terminal usage (e.g. `cd` to navigate folders). No programming experience required.
 
 * Table of Contents
 {:toc}
@@ -21,39 +24,53 @@ Basic familiarity with using a command terminal (e.g., navigating directories wi
 
 ## Quick start
 
-1. **Install Java**
-   Ensure you have Java `17` or above installed on your computer.
-   <div markdown="span" class="alert alert-info">
-   **:information_source: Note:** Mac users must install the precise JDK version prescribed in the [SE-Education Java Installation guide for Mac](https://se-education.org/guides/tutorials/javaInstallationMac.html).
-   </div>
-   To verify your Java version, open a terminal and run: `java -version`. You should see output indicating version 17 or higher.
+**Step 1 — Install Java**
+Ensure you have Java `17` or above installed.
 
-2. **Download Talently**
-   Download the latest `talently.jar` file from the [Talently GitHub Releases page](https://github.com/AY2526S2-CS2103T-T17-4/tp/releases).
+```
+java -version
+```
+Expected: output showing `17` or higher.
 
-3. **Set Up the Application**
-   Copy the downloaded `.jar` file into the folder you want to use as the home folder for Talently. This folder will also store your candidate data.
+<div markdown="span" class="alert alert-info">
+:information_source: **Mac users:** Install the exact JDK version from the [SE-Education Java Installation guide for Mac](https://se-education.org/guides/tutorials/javaInstallationMac.html).
+</div>
 
-4. **Launch Talently**
-   Open a command terminal, navigate to the folder containing the `.jar` file, and run the `java -jar talently.jar` command.<br>
-   The GUI should appear within a few seconds. The app comes pre-loaded with sample data so you can explore its features immediately.<br>
-   ![Ui](images/Ui.png)
+**Step 2 — Download Talently**
+Get the latest `talently.jar` from the [Talently GitHub Releases page](https://github.com/AY2526S2-CS2103T-T17-4/tp/releases).
 
-5. **Overview of the User Interface**
-   The Talently interface consists of four main areas:
-   * **Command Box (Top):** Type commands here and press Enter to execute.
-   * **Result Display (Below command box):** Shows feedback messages after each command.
-   * **Candidate List (Left panel):** Displays candidates with index, name, phone, email, address, tags, and priority. Each card displays an index number, name (with a ⭐ indicator if high priority), date added, tags, contact info, and a rejection count badge.
-   * **Candidate Detail Panel (Right panel):** Shows full details of a selected candidate.
+**Step 3 — Set up your home folder**
+Copy `talently.jar` into the folder you want Talently to use. Candidate data is stored here.
 
-6. **Try Your First Commands**
-   Type these commands in the command box and press Enter after each one:
-   * `list` : View all candidates.
-   * `add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Road` : Add a new candidate.
-   * `find Jane` : Search for candidates matching `Jane`.
-   * `help` : Open the help window.
+**Step 4 — Launch**
 
-   Once you are comfortable, refer to the [Features](#features) section below for the full list of commands.
+```
+java -jar talently.jar
+```
+
+Expected: Talently opens within a few seconds with sample candidate data pre-loaded.
+
+![Ui](images/Ui.png)
+
+**Step 5 — Overview of the interface**
+
+| Area | Location | Purpose |
+|---|---|---|
+| Command Box | Top | Type commands here, press Enter to run |
+| Result Display | Below command box | Feedback after every command |
+| Candidate List | Left panel | Cards showing index, name, tags, contact info, rejection badge |
+| Detail Panel | Right panel | Full candidate details (opened with `show`) |
+
+**Step 6 — Try these commands**
+
+```
+list
+add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Road
+find Jane
+help
+```
+
+Ready for more? Continue to [Features](#features).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -61,33 +78,28 @@ Basic familiarity with using a command terminal (e.g., navigating directories wi
 
 <div markdown="block" class="alert alert-info">
 
-**:information_source: Notes About the Command Format:**<br>
+**:information_source: Command format rules:**
 
-* Words in `UPPER_CASE` are parameters to be supplied by you.<br>
-  e.g. in `add n/NAME`, `NAME` is a parameter: `add n/John Doe`.
+* `UPPER_CASE` = parameter you supply. e.g. `add n/NAME` → `add n/John Doe`
+* `[square brackets]` = optional. e.g. `[pr/PRIORITY]` can be omitted.
+* `…` after an item = repeatable. e.g. `[a/TAG]…` can be `a/Java a/Python`.
+* Parameters can be in any order.
+* Commands with no parameters (e.g. `help`, `list`, `exit`, `clear`) ignore extra input.
+* Avoid copying multi-line commands from a PDF — spaces around line breaks may be lost.
 
-* Items in square brackets are optional.<br>
-  e.g `n/NAME [pr/PRIORITY]` can be used as `n/John Doe pr/yes` or `n/John Doe`.
-
-* Items with `…`​ after them can be used multiple times (including zero times).<br>
-  e.g. `[a/TAG]…​` can be used as ` ` (nothing), `a/Shortlisted`, or `a/Shortlisted a/Interviewed`.
-
-* Parameters can be in any order.<br>
-  e.g. `n/NAME p/PHONE` and `p/PHONE n/NAME` are both acceptable.
-
-* Commands without parameters (e.g. `help`, `list`, `exit`, `clear`) ignore extraneous input.<br>
-  e.g. `help 123` is treated as `help`.
-
-* If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 </div>
+
+---
 
 ### Viewing help : `help`
 
 Opens a help window with a link to this User Guide.
 
+Format: `help`
+
 ![help message](images/helpMessage.png)
 
-Format: `help`
+---
 
 ### Adding a candidate : `add`
 
@@ -95,19 +107,27 @@ Adds a new candidate to Talently.
 
 Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
 
-**Parameter Constraints:**
+**Parameters:**
 
 | Parameter | Prefix | Required | Rules |
-|-----------|--------|----------|-------|
-| NAME | `n/` | Yes | Letters, spaces, hyphens (`-`), apostrophes (`'`), periods (`.`), and slashes (`/`) only. No digits. Max 100 characters. |
-| PHONE | `p/` | Yes | Digits only, with optional `+` prefix (E.164 format). Between 3 and 15 digits. |
-| EMAIL | `e/` | Yes | Valid email in `local@domain` format. Max 254 characters. |
+|---|---|---|---|
+| NAME | `n/` | Yes | Letters, spaces, hyphens, apostrophes, periods, slashes. No digits. Max 100 characters. |
+| PHONE | `p/` | Yes | Digits only, optional `+` prefix. 3–15 digits. |
+| EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. |
 | ADDRESS | `a/` | Yes | Any non-empty text. |
-| PRIORITY | `pr/` | No | `yes` (high priority) or `no` (normal). Defaults to `no`. |
-| STATUS | `s/` | No | `active`, `rejected`, `hired`, or `blacklisted` (case-insensitive). Defaults to `active`. |
+| PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
+| STATUS | `s/` | No | `active`, `rejected`, `hired`, `blacklisted`. Default: `active`. |
+
+<div markdown="span" class="alert alert-info">
+:information_source: **Tags are not set at add time.** First create tags with `tagpool`, then assign them with `tag`. See [Managing the tag pool](#managing-the-tag-pool--tagpool) and [Tagging a candidate](#tagging-a-candidate--tag).
+</div>
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `pr/yes` to flag high-priority candidates so you can sort them to the top later with `sort pr o/asc`.
+:bulb: **Tip:** Use `pr/yes` to flag high-priority candidates. Surface them later with `sort pr o/asc`.
+</div>
+
+<div markdown="span" class="alert alert-warning">
+:warning: **Warning:** Duplicate detection is based on phone number and email — not name. Two candidates with the same name but different phone/email are allowed.
 </div>
 
 Examples:
@@ -115,186 +135,238 @@ Examples:
 * `add n/Betsy O'Brien e/betsy@example.com a/Newgate Prison p/+6591234567 pr/yes`
 * `add n/Jane Smith p/91234567 e/jane@example.com a/Clementi Ave 3 s/hired`
 
+<p align="center"><img src="images/add%20command.png" alt="Expected result after running the add command" width="730"/></p>
+
+---
+
 ### Listing all candidates : `list`
 
-Displays all candidates in Talently, sorted alphabetically by name.
+Displays every candidate, sorted alphabetically by name.
 
 Format: `list`
 
-* Shows the total number of candidates.
-* If no candidates exist, a message prompts you to add one.
+* Shows total candidate count.
+* If Talently is empty, a prompt appears to add candidates.
+
+<p align="center"><img src="images/list%20command.png" alt="Expected result after running the list command" width="730"/></p>
+
+---
 
 ### Editing a candidate : `edit`
 
-Modifies an existing candidate's details.
+Updates one or more fields of an existing candidate.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/STATUS]`
 
-* Edits the candidate at the specified `INDEX` (the index shown in the currently displayed list).
-* `INDEX` must be a positive integer (1, 2, 3, …).
-* At least one optional field must be provided.
-* Only the specified fields are updated; all other fields remain unchanged.
-* `PRIORITY` accepts `yes` or `no`.
-* `STATUS` accepts `active`, `rejected`, `hired`, or `blacklisted` (case-insensitive).
+* `INDEX` refers to the number shown in the current list. Must be a positive integer.
+* At least one field must be provided.
+* Unspecified fields are unchanged.
+* `PRIORITY`: `yes` or `no`.
+* `STATUS`: `active`, `rejected`, `hired`, `blacklisted` (case-insensitive).
 
-<div markdown="block" class="alert alert-info">
-
-**:bulb: Tip:** If a candidate was rejected in a previous hiring cycle but applies again, use `edit INDEX s/active` to return them to the active pipeline. Their past rejection reasons remain safely stored in their history.
-
+<div markdown="span" class="alert alert-primary">
+:bulb: **Tip:** To re-activate a previously rejected candidate, use `edit INDEX s/active`. Their rejection history is preserved.
 </div>
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Editing a candidate's name or phone to match an existing candidate will result in an error, as Talently does not allow duplicate candidates.
+:warning: **Warning:** Editing name or phone to match another existing candidate will fail — duplicates are not allowed.
 </div>
 
 Examples:
-* `edit 1 p/91234567 e/johndoe@example.com`<br> Updates the phone and email of the 1st candidate.
-* `edit 2 n/Betsy Crower pr/yes`<br> Updates the name and sets high priority for the 2nd candidate.
-* `edit 1 s/hired` — Updates the 1st candidate's status to Hired.
-* `edit 3 s/active` — Re-activates a previously rejected candidate.
+* `edit 1 p/91234567 e/johndoe@example.com` — Updates phone and email.
+* `edit 2 n/Betsy Crower pr/yes` — Updates name and sets high priority.
+* `edit 1 s/hired` — Marks candidate as hired.
+* `edit 3 s/active` — Re-activates a rejected candidate.
+
+<p align="center"><img src="images/edit%20command.png" alt="Expected result after running the edit command" width="730"/></p>
+
+---
 
 ### Showing candidate details : `show`
 
-Displays the full details of a candidate in the detail panel on the right side of the interface.
+Opens the full detail panel for a candidate on the right side of the screen.
 
 Format: `show INDEX`
 
-* Shows the candidate at the specified `INDEX`.
-* `INDEX` must be a positive integer (1, 2, 3, …).
-* The detail panel displays: name, phone, email, address, status, priority, date added, all tags, notes (with headings and content), and rejection history.
+* `INDEX` must be a positive integer.
+* Detail panel displays: name, phone, email, address, status, priority, date added, tags, all notes (with headings, content, and timestamps), and full rejection history.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `show` after adding notes or rejections to verify your changes in the detail panel.
+:bulb: **Tip:** Use `show` after `note` or `reject` to verify your changes.
 </div>
 
 Examples:
-* `show 1`<br> Displays full details of the 1st candidate.
-* `find John` followed by `show 1`<br> Shows the first candidate from the search results.
+* `show 1` — Opens details for the 1st candidate.
+* `find John` then `show 1` — Opens details for the first match.
+
+<p align="center"><img src="images/show%20command.png" alt="Expected result after running the show command" width="730"/></p>
+
+---
 
 ### Locating candidates : `find`
 
-Finds candidates whose name, phone, email, notes, or rejection reasons contain any of the given keywords.
+Searches across all candidates by keywords.
 
 Format: `find KEYWORD [MORE_KEYWORDS]`
 
-* Search is case-insensitive. e.g. `hans` matches `Hans`.
-* Partial matches are supported. e.g. `Han` matches `Hans`.
-* Name, phone, email, note headings, note content, and rejection reasons are all searched.
-* Candidates matching at least one keyword are returned (`OR` search). e.g. `Hans Bo` returns both `Hans Gruber` and `Bo Yang`.
-* Maximum of 20 keywords per search.
-* Total command length must not exceed 150 characters.
-* Keywords may contain: letters, digits, and the symbols `-` `'` `.` `/` `@` `+` `_`
+**What is searched:**
+
+| Field | Example |
+|---|---|
+| Name | `find john` matches `John Doe` |
+| Phone | `find 9123` matches `91234567` |
+| Email | `find gmail` matches `john@gmail.com` |
+| Note headings and content | `find interview` matches notes titled `Tech Round 1` containing "interview" |
+| Rejection reasons | `find overqualified` matches rejection records |
+
+**Rules:**
+* Case-insensitive. Partial matches supported.
+* Candidates matching **any** keyword are returned (OR logic).
+* Max 20 keywords. Total command length max 150 characters.
+* Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_`
 
 Examples:
-* `find John` returns `john` and `John Doe`.
-* `find alex david` returns `Alex Yeoh` and `David Li`.<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
-* `find overqualified` returns candidates with "overqualified" in their rejection reasons.
-* `find interview` returns candidates with "interview" in their note headings or content.
-* `find technical interview` returns candidates with notes or rejection reasons mentioning `technical` or `interview`.
+* `find John` — Matches `john`, `John Doe`.
+* `find alex david` — Matches candidates whose name contains `alex` or `david`.
+* `find overqualified` — Matches candidates whose rejection reasons include "overqualified".
+* `find technical interview` — Matches candidates with notes or rejection reasons mentioning `technical` or `interview`.
 
-### Filtering candidates by exact tag: `filter`
+<p align="center"><img src="images/find%20command.png" alt="Expected result after running the find command" width="730"/></p>
 
-Finds candidates whose tags exactly match the given tag name.
+---
+
+### Filtering candidates by tag : `filter`
+
+Returns all candidates who have a specific tag assigned.
 
 Format: `filter TAG`
 
-* Matching is exact (not substring-based). `Java` does not match `JavaScript`.
-* Matching is case-insensitive. `java` matches `Java`.
-* The tag must follow tag naming rules: alphanumeric, no spaces, 1–30 characters.
+* Exact match (not partial). `Java` does not match `JavaScript`.
+* Case-insensitive. `java` matches `Java`.
+* Tag must follow naming rules: alphanumeric, no spaces, 1–30 characters.
 
-Examples:
-* `filter Shortlisted` returns all candidates tagged `Shortlisted`.
-* `filter Java` returns candidates tagged `Java`, but not `JavaScript`.
-
-### Removing a candidate : `remove`
-
-Permanently removes a candidate from Talently.
-
-Format: `remove INDEX`
-
-* Removes the candidate at the specified `INDEX`.
-* `INDEX` refers to the number shown in the currently displayed list.
-* `INDEX` must be a positive integer (1, 2, 3, …).
-
-<div markdown="span" class="alert alert-warning">
-:warning: **Warning:** This action permanently deletes the candidate and all their associated data (notes, tags, rejection history). Use `undo` immediately if you remove a candidate by mistake.
+<div markdown="span" class="alert alert-primary">
+:bulb: **Tip:** Use `filter` to pull all candidates at a specific hiring stage, e.g. `filter Shortlisted`.
 </div>
 
 Examples:
-* `list` followed by `remove 2` removes the 2nd candidate in the full list.
-* `find Betsy` followed by `remove 1` removes the 1st candidate from the search results.
+* `filter Shortlisted` — Shows all candidates tagged `Shortlisted`.
+* `filter Java` — Shows candidates tagged `Java`, not `JavaScript`.
+
+<p align="center"><img src="images/filter%20command.png" alt="Expected result after running the filter command" width="730"/></p>
+
+---
+
+### Removing a candidate : `remove`
+
+Permanently deletes a candidate and all their data.
+
+Format: `remove INDEX`
+
+* `INDEX` must be a positive integer referencing the currently displayed list.
+
+<div markdown="span" class="alert alert-warning">
+:warning: **Warning:** This deletes the candidate along with all their notes, tags, and rejection history. Use `undo` immediately to recover.
+</div>
+
+Examples:
+* `list` then `remove 2` — Removes the 2nd candidate in the full list.
+* `find Betsy` then `remove 1` — Removes the first result from the search.
+
+<p align="center"><img src="images/remove%20command.png" alt="Expected result after running the remove command" width="730"/></p>
+
+---
 
 ### Rejecting a candidate : `reject`
 
-Records a rejection against a candidate with a stated reason.
+Records a rejection against a candidate and appends a reason to their history.
 
 Format: `reject INDEX r/REASON`
 
-* Rejects the candidate at the specified `INDEX`.
-* `INDEX` must be a positive integer (1, 2, 3, …).
-* `REASON` must be non-empty, at most 200 characters, and may contain: letters, digits, spaces, and the punctuation `.` `,` `-` `'` `/`.
-* Each `reject` call appends a new entry to the candidate's rejection history — previous entries are preserved.
+* `INDEX` must be a positive integer.
+* `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/`.
 * **Automatically sets the candidate's status to `rejected`.**
-* The candidate's card displays a red badge showing the total rejection count.
+* Each `reject` call appends to the rejection history — previous entries are not overwritten.
+* The candidate's card shows a **red badge** with the total rejection count.
 * If the same reason is given consecutively, a warning is shown.
-* Cannot reject a blacklisted candidate.
+* Blacklisted candidates cannot be rejected.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `show INDEX` after rejecting a candidate to view their full rejection history in the detail panel.
+:bulb: **Tip:** Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
 </div>
 
 Examples:
 * `reject 1 r/Failed technical interview`
 * `reject 3 r/Insufficient experience`
 
-### Tracking candidate status : `s/`
+<p align="center"><img src="images/reject%20command.png" alt="Expected result after running the reject command" width="730"/></p>
 
-Talently tracks each candidate's position in the hiring lifecycle using a status field.
+---
 
-**Allowed values** (case-insensitive):
+### Candidate status reference
+
+Talently tracks each candidate's stage using a `status` field.
 
 | Status | Colour in detail panel | Meaning |
 |---|---|---|
-| `active` | Blue | Candidate is in the active pipeline |
-| `rejected` | Red | Candidate has been rejected |
-| `hired` | Green | Candidate has been successfully hired |
-| `blacklisted` | Grey | Candidate is blacklisted from future consideration |
+| `active` | Blue | In the active pipeline |
+| `rejected` | Red | Has been rejected |
+| `hired` | Green | Successfully hired |
+| `blacklisted` | Grey | Blocked from future consideration |
 
-* Status defaults to `active` when a new candidate is added without `s/`.
-* The `reject` command automatically sets status to `rejected`.
-* Status can be freely changed using the `edit` command with `s/STATUS`.
-* The detail panel (opened with `show`) automatically refreshes when the displayed candidate's data is edited — no need to re-open it.
+**How status is set:**
+* Defaults to `active` on `add`.
+* `reject` automatically sets it to `rejected`.
+* Change status at any time with `edit INDEX s/STATUS`.
+* The detail panel auto-refreshes when a displayed candidate's data changes.
+
+---
 
 ### Sorting candidates by date : `sort date`
 
-Sorts all candidates by the date they were added to Talently.
+Sorts all candidates by the date they were added.
 
 Format: `sort date o/ORDER`
 
-* `ORDER` must be `asc` (oldest first) or `desc` (newest first).
-* Candidates with the same date are sorted alphabetically by name.
+* `ORDER`: `asc` (oldest first) or `desc` (newest first).
+* Candidates added on the same date are sorted alphabetically by name.
+
+<div markdown="span" class="alert alert-warning">
+:warning: **Warning:** Cannot sort an empty candidate list — an error is shown if Talently has no candidates.
+</div>
 
 Examples:
 * `sort date o/asc` — Oldest candidates first.
 * `sort date o/desc` — Newest candidates first.
 
+<p align="center"><img src="images/sort%20command.png" alt="Expected result after running sort date" width="730"/></p>
+
+---
+
 ### Sorting candidates by priority : `sort pr`
 
-Sorts all candidates by their priority status.
+Sorts all candidates by their priority flag.
 
 Format: `sort pr o/ORDER`
 
-* `ORDER` must be `asc` (high-priority candidates first) or `desc` (high-priority candidates last).
-* Secondary sort: by date added (newest first), then alphabetically by name.
+* `ORDER`: `asc` (high-priority first) or `desc` (high-priority last).
+* Secondary sort: by date added (newest first), then alphabetically.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `sort pr o/asc` to quickly surface your high-priority candidates at the top of the list.
+:bulb: **Tip:** Use `sort pr o/asc` to immediately surface your most important candidates.
+</div>
+
+<div markdown="span" class="alert alert-warning">
+:warning: **Warning:** Cannot sort an empty candidate list — an error is shown if Talently has no candidates.
 </div>
 
 Examples:
-* `sort pr o/asc` — High-priority candidates appear first.
-* `sort pr o/desc` — High-priority candidates appear last.
+* `sort pr o/asc` — High-priority candidates first.
+* `sort pr o/desc` — High-priority candidates last.
+
+<p align="center"><img src="images/sort%20pr%20command.png" alt="Expected result after running sort pr" width="730"/></p>
+
+---
 
 ### Adding a note to a candidate : `note`
 
@@ -302,36 +374,44 @@ Appends a timestamped note to a candidate's record.
 
 Format: `note INDEX n/CONTENT [h/HEADING]`
 
-* Adds a note to the candidate at the specified `INDEX`.
-* `INDEX` must be a positive integer (1, 2, 3, …).
+* `INDEX` must be a positive integer.
 * `CONTENT` is required and must not be blank.
-* `HEADING` is optional. If omitted, it defaults to `General Note`.
+* `HEADING` is optional. Defaults to `General Note` if omitted.
 * Each note is automatically stamped with the current date and time.
-* Notes are appended chronologically — earlier notes are never overwritten.
+* Notes are appended in order — earlier notes are never overwritten.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use descriptive headings (e.g., `h/Tech Round 1`, `h/HR Interview`) to organise notes by hiring stage. View all notes with `show INDEX`.
+:bulb: **Tip:** Use descriptive headings (e.g. `h/Tech Round 1`, `h/HR Interview`) to organise notes by hiring stage. View all notes with `show INDEX`.
 </div>
 
 Examples:
 * `note 1 n/Passed the technical interview flawlessly. h/Tech Round 1`
 * `note 2 n/Strong communication skills.`
 
+<p align="center"><img src="images/note%20command.png" alt="Expected result after running the note command" width="730"/></p>
+
+---
+
 ### Managing the tag pool : `tagpool`
 
-Creates or deletes tags in the master tag registry. Tags must exist in the pool before they can be assigned to candidates.
+Creates or deletes tags in the master tag registry.
+
+**Tags must exist in the pool before they can be assigned to candidates.**
 
 Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
 
-* At least one `a/` or `d/` prefix must be provided.
-* A maximum of 10 tags can be processed per command.
-* Tag names must be alphanumeric, no spaces, 1–30 characters.
-* Tag names are case-insensitive (`Python` and `python` are the same tag).
-* Cannot create a tag that already exists, or delete a tag that does not exist.
+* At least one `a/` or `d/` prefix is required.
+* Max 10 tags per command.
+* Tag names: alphanumeric, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
+* Cannot create a tag that already exists, or delete one that does not exist.
 * Cannot create and delete the same tag in one command.
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Deleting a tag from the pool also removes it from all candidates currently holding that tag. This action is irreversible unless you use `undo` immediately.
+:warning: **Warning:** Deleting a tag removes it from **all candidates** currently holding it. Use `undo` immediately to reverse.
+</div>
+
+<div markdown="span" class="alert alert-primary">
+:bulb: **Workflow:** `tagpool a/Shortlisted` → `tag 1 a/Shortlisted` → `filter Shortlisted`
 </div>
 
 Examples:
@@ -339,38 +419,49 @@ Examples:
 * `tagpool d/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
 * `tagpool a/Senior d/Junior` — Creates `Senior` and deletes `Junior` in one command.
 
+<p align="center"><img src="images/tagpool%20command.png" alt="Expected result after running the tagpool command" width="730"/></p>
+
+---
+
 ### Tagging a candidate : `tag`
 
 Adds or removes tags on one or more candidates.
 
 Format: `tag INDEX[,INDEX]... [a/TAG_TO_ADD]... [d/TAG_TO_REMOVE]...`
 
-* Accepts a single index or a comma-separated list of indices (e.g., `1,2,3`).
-* Each `INDEX` must be a positive integer (1, 2, 3, …). Duplicate indices are not allowed.
-* At least one `a/` or `d/` prefix must be provided.
-* A maximum of 10 tags can be processed per command.
+* Single index or comma-separated list (e.g. `1,2,3`). Duplicate indices not allowed.
+* Each `INDEX` must be a positive integer.
+* At least one `a/` or `d/` prefix is required.
+* Max 10 tags per command.
 * Tags must already exist in the tag pool — use `tagpool` to create them first.
-* Cannot add a tag the candidate already has, or remove a tag the candidate does not have.
+* Cannot add a tag the candidate already has, or remove one they do not have.
 * Cannot add and delete the same tag in one command.
 
 Examples:
-* `tag 1 a/Shortlisted` — Adds `Shortlisted` to the 1st candidate.
-* `tag 2 d/Interviewed` — Removes `Interviewed` from the 2nd candidate.
-* `tag 3 a/Senior d/Junior` — Adds `Senior` and removes `Junior` from the 3rd candidate.
+* `tag 1 a/Shortlisted` — Adds `Shortlisted` to candidate 1.
+* `tag 2 d/Interviewed` — Removes `Interviewed` from candidate 2.
+* `tag 3 a/Senior d/Junior` — Adds `Senior` and removes `Junior` from candidate 3.
 * `tag 1,2,3 a/Shortlisted` — Adds `Shortlisted` to candidates 1, 2, and 3.
+
+<p align="center"><img src="images/tag%20command.png" alt="Expected result after running the tag command" width="730"/></p>
+
+---
 
 ### Undoing the last modifying command : `undo`
 
-Reverts Talently's data to the state before the most recent command that modified the candidate list.
+Reverts Talently to the state before the most recent data-changing command.
 
 Format: `undo`
 
-* Only applies to commands that changed data (e.g., `add`, `edit`, `remove`, `reject`, `tag`, `clear`).
-* If there is no previous state to restore, an error message is shown.
-* Does not accept additional arguments.
+* Applies to: `add`, `edit`, `remove`, `reject`, `tag`, `tagpool`, `note`, `clear`.
+* If there is nothing to undo, an error is shown.
 
 Examples:
-* `remove 2` followed by `undo` restores the removed candidate.
+* `remove 2` then `undo` — Restores the removed candidate.
+
+<p align="center"><img src="images/undo%20command.png" alt="Expected result after running the undo command" width="730"/></p>
+
+---
 
 ### Redoing the last undone command : `redo`
 
@@ -378,74 +469,88 @@ Re-applies the most recently undone command.
 
 Format: `redo`
 
-* Can only be used after an `undo`. If there is no undone state, an error message is shown.
-* Does not accept additional arguments.
-* Performing any new modifying command after `undo` clears the redo history.
+* Can only be used after `undo`. If there is no undone state, an error is shown.
+* Any new modifying command after `undo` clears the redo history.
 
 Examples:
-* `remove 2` then `undo` then `redo` re-applies the removal.
+* `remove 2` → `undo` → `redo` — Re-applies the removal.
+
+<p align="center"><img src="images/redo%20command.png" alt="Expected result after running the redo command" width="730"/></p>
+
+---
 
 ### Clearing all entries : `clear`
 
-Deletes all candidates from Talently.
+Deletes every candidate from Talently.
 
 Format: `clear`
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** This removes all candidate data permanently. Use `undo` immediately if executed by mistake.
+:warning: **Warning:** Removes all candidate data. Use `undo` immediately to recover.
 </div>
+
+<p align="center"><img src="images/clear%20command.png" alt="Expected result after running the clear command" width="730"/></p>
+
+---
 
 ### Exiting the program : `exit`
 
-Closes the Talently application.
+Closes Talently.
 
 Format: `exit`
 
+---
+
 ### Saving the data
 
-Talently saves your data to disk automatically after every command that modifies the candidate list. There is no need to save manually.
+Talently saves automatically after every command that modifies data. No manual save is needed.
+
+---
 
 ### Editing the data file
 
-Talently data is stored as a JSON file at: `[JAR file location]/data/talently.json`
+Data is stored at: `[JAR file location]/data/talently.json`
 
 Advanced users may edit this file directly.
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** If your edits make the data file invalid, Talently will discard all data and start with an empty file on the next launch. Back up the file before editing. Certain invalid values (e.g., out-of-range fields) may cause unexpected behaviour.
+:warning: **Warning:** Invalid edits will cause Talently to discard all data and start empty on next launch. Back up the file before editing.
 </div>
 
 --------------------------------------------------------------------------------------------------------------------
 
 ## FAQ
 
-**Q: How do I transfer my data to another computer?**<br>
-**A:** Install Talently on the other computer, then copy the `data/talently.json` file from your current home folder to the new installation's home folder, replacing the empty data file.
+**Q: How do I transfer data to another computer?**
+A: Copy `data/talently.json` from your current home folder to the same location on the new machine after installing Talently there.
 
-**Q: Can I undo a clear command?**<br>
-**A:** Yes. Use `undo` immediately after `clear` to restore all candidates.
+**Q: Can I undo a `clear`?**
+A: Yes — run `undo` immediately after `clear` to restore all candidates.
 
-**Q: What happens if I add a candidate with the same name as an existing one?**<br>
-**A:** Talently identifies candidates by phone number and email. Two candidates may share the same name as long as they have different phone numbers and email addresses.
+**Q: Why can't I assign a tag to a candidate?**
+A: Tags must first exist in the pool. Run `tagpool a/TAG_NAME`, then `tag INDEX a/TAG_NAME`.
 
-**Q: Why can't I assign a tag to a candidate?**<br>
-**A:** Tags must first be created in the tag pool using `tagpool a/TAG_NAME`. Only tags that exist in the pool can be assigned to candidates.
+**Q: What does the red badge on a candidate card mean?**
+A: It shows the total number of times that candidate has been rejected. Run `show INDEX` to view the full rejection history.
 
-**Q: How do I view a candidate's notes and rejection history?**<br>
-**A:** Use `show INDEX` to display the candidate's full details — including all notes and rejection records — in the detail panel.
+**Q: How do I view all notes for a candidate?**
+A: Use `show INDEX`. The detail panel lists all notes with headings, content, and timestamps.
 
-**Q: What happens if I open a save file from an older version of Talently?**<br>
-**A:** Talently will automatically migrate legacy status values — `NONE` becomes `active` and `ARCHIVED` becomes `blacklisted` — so your data loads without any issues.
+**Q: Can two candidates have the same name?**
+A: Yes — Talently identifies duplicates by phone **and** email, not name. Same name with different phone/email is allowed.
+
+**Q: What happens when I open a save file from an older version?**
+A: The legacy status value `NONE` is automatically migrated to `active`. Save files with other unrecognised status values will fail to load — back up your data file before upgrading.
 
 --------------------------------------------------------------------------------------------------------------------
 
 ## Known issues
 
-1. **Multiple-screen setups:** If you move Talently to a secondary screen and later disconnect that screen, the application window may open off-screen.
-   **Fix:** Delete the `preferences.json` file in the home folder before relaunching.
+1. **Multiple screens:** If Talently was last used on a secondary screen that is now disconnected, the window may open off-screen.
+   **Fix:** Delete `preferences.json` from the home folder before relaunching.
 
-2. **Minimised Help Window:** If the Help Window is minimised and you run `help` again, the minimised window will not automatically restore.
-   **Fix:** Manually restore the minimised Help Window from the taskbar.
+2. **Minimised Help Window:** Running `help` again while the window is minimised does not restore it.
+   **Fix:** Restore the window manually from the taskbar.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -453,21 +558,21 @@ Advanced users may edit this file directly.
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123 Clementi Rd s/active`
+**Add** | `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]` <br> e.g. `add n/James Ho p/22224444 e/jamesho@example.com a/123 Clementi Rd`
 **Clear** | `clear`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/STATUS]`<br> e.g., `edit 2 n/James Lee e/jameslee@example.com s/hired`
-**Filter** | `filter TAG`<br> e.g., `filter Shortlisted`
-**Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
-**List** | `list`
-**Note** | `note INDEX n/CONTENT [h/HEADING]`<br> e.g., `note 1 n/Passed interview. h/Tech Round 1`
-**Redo** | `redo`
-**Remove** | `remove INDEX`<br> e.g., `remove 3`
-**Reject** | `reject INDEX r/REASON`<br> e.g., `reject 1 r/Failed technical interview`
-**Show** | `show INDEX`<br> e.g., `show 1`
-**Sort (date)** | `sort date o/ORDER`<br> e.g., `sort date o/desc`
-**Sort (priority)** | `sort pr o/ORDER`<br> e.g., `sort pr o/asc`
-**Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g., `tagpool a/Shortlisted d/Rejected`
-**Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g., `tag 1,2 a/Shortlisted d/Applied`
-**Undo** | `undo`
-**Help** | `help`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/STATUS]`<br> e.g. `edit 2 n/James Lee e/jameslee@example.com s/hired`
 **Exit** | `exit`
+**Filter** | `filter TAG`<br> e.g. `filter Shortlisted`
+**Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g. `find James Jake`
+**Help** | `help`
+**List** | `list`
+**Note** | `note INDEX n/CONTENT [h/HEADING]`<br> e.g. `note 1 n/Passed interview. h/Tech Round 1`
+**Redo** | `redo`
+**Reject** | `reject INDEX r/REASON`<br> e.g. `reject 1 r/Failed technical interview`
+**Remove** | `remove INDEX`<br> e.g. `remove 3`
+**Show** | `show INDEX`<br> e.g. `show 1`
+**Sort (date)** | `sort date o/ORDER`<br> e.g. `sort date o/desc`
+**Sort (priority)** | `sort pr o/ORDER`<br> e.g. `sort pr o/asc`
+**Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g. `tag 1,2 a/Shortlisted d/Applied`
+**Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g. `tagpool a/Shortlisted d/Rejected`
+**Undo** | `undo`

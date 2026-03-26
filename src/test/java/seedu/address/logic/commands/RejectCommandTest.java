@@ -111,23 +111,22 @@ public class RejectCommandTest {
     }
 
     @Test
-    public void execute_archivedPerson_throwsCommandException() {
-        Person archivedPerson = new PersonBuilder()
-                .withName("Archived Person")
+    public void execute_blacklistedPerson_throwsCommandException() {
+        Person blacklistedPerson = new PersonBuilder()
+                .withName("Blacklisted Person")
                 .withPhone("99999999")
-                .withEmail("archived@example.com")
-                .withAddress("Archived Street")
+                .withEmail("blacklisted@example.com")
+                .withAddress("Blacklisted Street")
                 .withStatus(Status.BLACKLISTED)
                 .build();
 
-        Model modelWithArchived = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-        modelWithArchived.addPerson(archivedPerson);
+        Model modelWithBlacklisted = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        modelWithBlacklisted.addPerson(blacklistedPerson);
 
-        // The archived person is the last in the list
-        Index archivedIndex = Index.fromOneBased(modelWithArchived.getFilteredPersonList().size());
-        RejectCommand rejectCommand = new RejectCommand(archivedIndex, VALID_REASON);
+        Index blacklistedIndex = Index.fromOneBased(modelWithBlacklisted.getFilteredPersonList().size());
+        RejectCommand rejectCommand = new RejectCommand(blacklistedIndex, VALID_REASON);
 
-        assertCommandFailure(rejectCommand, modelWithArchived, RejectCommand.MESSAGE_ARCHIVED_PERSON);
+        assertCommandFailure(rejectCommand, modelWithBlacklisted, RejectCommand.MESSAGE_BLACKLISTED_PERSON);
     }
 
     @Test

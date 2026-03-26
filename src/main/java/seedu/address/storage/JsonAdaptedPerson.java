@@ -149,12 +149,9 @@ class JsonAdaptedPerson {
         if (status == null) {
             modelStatus = Status.ACTIVE;
         } else {
-            // Migrate legacy status values from older save files
             String normalizedStatus = status.toUpperCase();
             if (normalizedStatus.equals("NONE")) {
                 normalizedStatus = "ACTIVE";
-            } else if (normalizedStatus.equals("ARCHIVED")) {
-                normalizedStatus = "BLACKLISTED";
             }
             if (!Status.isValidStatus(normalizedStatus)) {
                 throw new IllegalValueException(Status.MESSAGE_CONSTRAINTS);

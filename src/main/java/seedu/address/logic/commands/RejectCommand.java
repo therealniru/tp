@@ -36,9 +36,8 @@ public class RejectCommand extends Command {
     public static final String MESSAGE_REJECT_PERSON_SUCCESS_DUPLICATE_WARNING =
             "Candidate marked as REJECTED. New Reason added: %1$s (Total rejections on record: %2$d)\n"
             + "Note: This reason is the same as the previous rejection reason.";
-    public static final String MESSAGE_ARCHIVED_PERSON =
-            "Error: Cannot modify archived candidate. "
-            + "Please unarchive the candidate before recording a rejection.";
+    public static final String MESSAGE_BLACKLISTED_PERSON =
+            "Error: Cannot reject a blacklisted candidate.";
 
     private static final Logger logger = LogsCenter.getLogger(RejectCommand.class);
 
@@ -68,8 +67,8 @@ public class RejectCommand extends Command {
 
         Person personToReject = lastShownList.get(targetIndex.getZeroBased());
 
-        if (personToReject.isArchived()) {
-            throw new CommandException(MESSAGE_ARCHIVED_PERSON);
+        if (personToReject.isBlacklisted()) {
+            throw new CommandException(MESSAGE_BLACKLISTED_PERSON);
         }
 
         boolean isDuplicateReason = isSequentialDuplicate(personToReject, reason);

@@ -280,8 +280,6 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 | `* * *` | recruiter | record a rejection with a specific chronological reason                            | remember exactly why a candidate was previously unsuitable before engaging them for a new role. |
 | `* * *` | recruiter | assign tags (e.g., Frontend, Intern) to candidates                                 | easily segment and organize my candidate pool by role or technical skill. |
 | `* * *` | recruiter | record rapid notes about a candidate                                               | capture important impressions and context immediately after a conversation. |
-| `* *` | recruiter | archive candidates instead of removing them                                        | remove them from my active pool without permanently losing past interaction data. |
-| `* *` | recruiter | restore an archived candidate                                                      | recover their contact details and history when a suitable role reopens. |
 | `* *` | recruiter | filter candidates strictly by tags or status                                       | focus entirely on a specific hiring subset without visual clutter. |
 | `* *` | recruiter | sort candidates by date added                                                      | quickly review the most recent leads and fresh applicants in my database. |
 | `* *` | recruiter | apply a specific tag to a bulk group of filtered candidates                        | categorize a large batch of newly sourced leads instantly. |
@@ -361,9 +359,6 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * 3a. User provides an invalid identifier.
     * 3a1. System informs the user of the error.
     * Use case ends.
-* 3b. Target candidate is currently archived.
-    * 3b1. System informs the user that archived candidates cannot be modified.
-    * Use case ends.
 * 4a. User provides an invalid reason (e.g., empty string or exceeding maximum character limit).
     * 4a1. System maintains the candidate's original status and informs the user of the validation error.
     * Use case ends.
@@ -373,27 +368,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case resumes at step 5.
 
 
-**Use case: UC4 - Archiving a candidate**
-
-**Preconditions:** The candidate exists and is active.
-
-**MSS:**
-1. User requests to archive a specific candidate.
-2. System archives the candidate.
-3. System updates the list of active candidates.
-4. System informs the user of the successful archival.
-   Use case ends.
-
-**Extensions:**
-* 1a. User specifies an invalid identifier.
-    * 1a1. System informs the user of the error.
-    * Use case ends.
-* 1b. The targeted candidate is already in the archive.
-    * 1b1. System informs the user that the candidate is already archived.
-    * Use case ends.
-
-
-**Use case: UC5 - Filtering candidates by tags**
+**Use case: UC4 - Filtering candidates by tags**
 
 **Preconditions:** The system contains at least one candidate with tags.
 
@@ -415,7 +390,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case ends.
 
 
-**Use case: UC6 - Updating candidate information**
+**Use case: UC5 - Updating candidate information**
 
 **Preconditions:** The target candidate already exists.
 
@@ -438,7 +413,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case ends.
 
 
-**Use case: UC7 - Finding a candidate by attributes**
+**Use case: UC6 - Finding a candidate by attributes**
 
 **Preconditions:** Candidates exist in the system.
 
@@ -457,7 +432,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case ends.
 
 
-**Use case: UC8 - Assigning a tag to a candidate**
+**Use case: UC7 - Assigning a tag to a candidate**
 
 **Preconditions:** The candidate exists in the system.
 
@@ -483,25 +458,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case ends.
 
 
-**Use case: UC9 - Restoring an archived candidate**
-
-**Preconditions:** The target candidate is currently in the archive.
-
-**MSS:**
-1. User requests to view the list of archived candidates.
-2. System shows the archived candidates.
-3. User requests to restore a specific candidate.
-4. System restores the candidate to the active list.
-5. System informs the user of the successful restoration.
-   Use case ends.
-
-**Extensions:**
-* 3a. User specifies an invalid identifier.
-    * 3a1. System informs the user of the error.
-    * Use case ends.
-
-
-**Use case: UC10 - Sorting candidates by date added**
+**Use case: UC8 - Sorting candidates by date added**
 
 **Preconditions:** Multiple candidates exist in the active list.
 
@@ -517,7 +474,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case ends.
 
 
-**Use case: UC11 - Applying a tag in bulk**
+**Use case: UC9 - Applying a tag in bulk**
 
 **Preconditions:** A filtered list of multiple candidates is currently shown.
 
@@ -540,7 +497,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case resumes at step 4.
 
 
-**Use case: UC12 - Undoing the previous action**
+**Use case: UC10 - Undoing the previous action**
 
 **Preconditions:** The user has performed at least one modifying command during the current session.
 
@@ -555,7 +512,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 1a1. System informs the user that there is nothing to undo.
     * Use case ends.
 
-**Use case: UC13 - Viewing a candidate's full profile**
+**Use case: UC11 - Viewing a candidate's full profile**
 
 **Preconditions:** Candidates exist in the system and are currently shown in a list.
 
@@ -585,7 +542,6 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 * **Applicant Tracking System (ATS):** A heavy, enterprise-level software application that enables the electronic handling of recruitment and hiring needs. Talently serves as a lightweight, developer-friendly alternative to this.
 * **Candidate:** A person whose details and interaction history are tracked within the system for recruitment purposes.
-* **Archive:** A state where a candidate record is hidden from the primary active list but remains safely stored in the system for future retrieval.
 * **Rejection History:** A chronological list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles.
 * **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering.
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
