@@ -117,7 +117,7 @@ public class RejectCommandTest {
                 .withPhone("99999999")
                 .withEmail("archived@example.com")
                 .withAddress("Archived Street")
-                .withStatus(Status.ARCHIVED)
+                .withStatus(Status.BLACKLISTED)
                 .build();
 
         Model modelWithArchived = new ModelManager(getTypicalAddressBook(), new UserPrefs());
@@ -201,7 +201,7 @@ public class RejectCommandTest {
     @Test
     public void execute_setsStatusToRejected() {
         Person personToReject = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        assertEquals(Status.NONE, personToReject.getStatus());
+        assertEquals(Status.ACTIVE, personToReject.getStatus());
 
         RejectCommand rejectCommand = new RejectCommand(INDEX_FIRST_PERSON, VALID_REASON);
         try {

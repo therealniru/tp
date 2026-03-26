@@ -37,7 +37,7 @@ public class Person {
      * Status defaults to NONE with an empty rejection reasons list and DateAdded as current time.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        this(name, phone, email, address, tags, Status.NONE, new ArrayList<>(), new DateAdded(), new Priority("no"),
+        this(name, phone, email, address, tags, Status.ACTIVE, new ArrayList<>(), new DateAdded(), new Priority("no"),
                 new ArrayList<>());
     }
 
@@ -123,10 +123,10 @@ public class Person {
     }
 
     /**
-     * Returns true if this person has an archived status.
+     * Returns true if this person has a blacklisted status.
      */
     public boolean isArchived() {
-        return status == Status.ARCHIVED;
+        return status == Status.BLACKLISTED;
     }
 
     /**

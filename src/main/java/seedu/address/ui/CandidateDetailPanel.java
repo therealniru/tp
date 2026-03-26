@@ -68,13 +68,35 @@ public class CandidateDetailPanel extends UiPart<Region> {
         renderRejections(person.getRejectionReasons());
     }
 
+    /**
+     * Refreshes the detail panel with updated person data without changing visibility.
+     */
+    public void updatePerson(Person person) {
+        showPerson(person);
+    }
+
+    /**
+     * Clears the detail panel and shows the placeholder.
+     */
+    public void clear() {
+        detailContent.setVisible(false);
+        detailContent.setManaged(false);
+        placeholderLabel.setVisible(true);
+        placeholderLabel.setManaged(true);
+    }
+
     private void renderBasicFields(Person person) {
         detailName.setText(person.getName().fullName);
         detailPhone.setText("Phone: " + person.getPhone().value);
         detailEmail.setText("Email: " + person.getEmail().value);
         detailAddress.setText("Address: " + person.getAddress().value);
-        detailStatus.setText("Status: " + formatStatus(person.getStatus()));
-        detailPriority.setText("Priority: " + (person.getPriority().isPriority ? "⭐ High" : "Normal"));
+
+        Status status = person.getStatus();
+        detailStatus.setText("Status: " + formatStatus(status));
+        detailStatus.getStyleClass().removeIf(c -> c.startsWith("status-"));
+        detailStatus.getStyleClass().add(getStatusStyleClass(status));
+
+        detailPriority.setText("Priority: " + (person.getPriority().isPriority ? "\u2b50 High" : "Normal"));
         detailDateAdded.setText("Added: " + person.getDateAdded().getDisplayFormat());
     }
 
@@ -132,14 +154,31 @@ public class CandidateDetailPanel extends UiPart<Region> {
 
     private String formatStatus(Status status) {
         switch (status) {
-        case NONE:
+        case ACTIVE:
             return "Active";
         case REJECTED:
             return "Rejected";
-        case ARCHIVED:
-            return "Archived";
+        case HIRED:
+            return "Hired";
+        case BLACKLISTED:
+            return "Blacklisted";
         default:
             throw new IllegalArgumentException("Unknown status: " + status);
+        }
+    }
+
+    private String getStatusStyleClass(Status status) {
+        switch (status) {
+        case ACTIVE:
+            return "status-active";
+        case REJECTED:
+            return "status-rejected";
+        case HIRED:
+            return "status-hired";
+        case BLACKLISTED:
+            return "status-blacklisted";
+        default:
+            return "status-active";
         }
     }
 }

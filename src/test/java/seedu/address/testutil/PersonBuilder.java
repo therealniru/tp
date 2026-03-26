@@ -48,7 +48,7 @@ public class PersonBuilder {
         email = new Email(DEFAULT_EMAIL);
         address = new Address(DEFAULT_ADDRESS);
         tags = new HashSet<>();
-        status = Status.NONE;
+        status = Status.ACTIVE;
         rejectionReasons = new ArrayList<>();
         dateAdded = new seedu.address.model.person.DateAdded(DEFAULT_DATE_ADDED);
         priority = new Priority("no");

@@ -77,3 +77,19 @@
     -fx-font-size: 13px;
     -fx-text-fill: #d0d8e0;
 }
+
+.status-active {
+    -fx-text-fill: #4fc3f7;
+}
+
+.status-rejected {
+    -fx-text-fill: #ef5350;
+}
+
+.status-hired {
+    -fx-text-fill: #66bb6a;
+}
+
+.status-blacklisted {
+    -fx-text-fill: #bdbdbd;
+}

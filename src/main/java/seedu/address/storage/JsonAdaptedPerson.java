@@ -147,11 +147,19 @@ class JsonAdaptedPerson {
 
         final Status modelStatus;
         if (status == null) {
-            modelStatus = Status.NONE;
-        } else if (!Status.isValidStatus(status)) {
-            throw new IllegalValueException(Status.MESSAGE_CONSTRAINTS);
+            modelStatus = Status.ACTIVE;
         } else {
-            modelStatus = Status.valueOf(status.toUpperCase());
+            // Migrate legacy status values from older save files
+            String normalizedStatus = status.toUpperCase();
+            if (normalizedStatus.equals("NONE")) {
+                normalizedStatus = "ACTIVE";
+            } else if (normalizedStatus.equals("ARCHIVED")) {
+                normalizedStatus = "BLACKLISTED";
+            }
+            if (!Status.isValidStatus(normalizedStatus)) {
+                throw new IllegalValueException(Status.MESSAGE_CONSTRAINTS);
+            }
+            modelStatus = Status.valueOf(normalizedStatus);
         }
 
         final List<RejectionReason> modelRejectionReasons = new ArrayList<>();

@@ -1,7 +1,9 @@
 package seedu.address.ui;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
@@ -16,6 +18,7 @@ import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Person;
 
 /**
  * The Main Window. Provides the basic application layout containing
@@ -35,6 +38,7 @@ public class MainWindow extends UiPart<Stage> {
     private ResultDisplay resultDisplay;
     private HelpWindow helpWindow;
     private CandidateDetailPanel candidateDetailPanel;
+    private Person currentlyShownPerson = null;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -193,7 +197,25 @@ public class MainWindow extends UiPart<Stage> {
                 handleExit();
             }
 
-            commandResult.getSelectedPerson().ifPresent(candidateDetailPanel::showPerson);
+            commandResult.getSelectedPerson().ifPresent(person -> {
+                currentlyShownPerson = person;
+                candidateDetailPanel.showPerson(person);
+            });
+
+            // Refresh the detail panel if a profile is open and the list has changed
+            if (currentlyShownPerson != null && !commandResult.getSelectedPerson().isPresent()) {
+                ObservableList<Person> currentList = logic.getFilteredPersonList();
+                Optional<Person> updatedPerson = currentList.stream()
+                        .filter(p -> p.isSamePerson(currentlyShownPerson))
+                        .findFirst();
+                if (updatedPerson.isPresent()) {
+                    currentlyShownPerson = updatedPerson.get();
+                    candidateDetailPanel.updatePerson(currentlyShownPerson);
+                } else {
+                    currentlyShownPerson = null;
+                    candidateDetailPanel.clear();
+                }
+            }
 
             return commandResult;
         } catch (CommandException | ParseException e) {

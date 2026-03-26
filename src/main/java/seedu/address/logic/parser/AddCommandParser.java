@@ -5,6 +5,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PRIORITY;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_STATUS;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,7 +34,7 @@ public class AddCommandParser implements Parser<AddCommand> {
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS,
-                        PREFIX_PRIORITY);
+                        PREFIX_PRIORITY, PREFIX_STATUS);
 
         if (!argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(AddCommand.MESSAGE_MISSING_ALL);
@@ -42,7 +43,7 @@ public class AddCommandParser implements Parser<AddCommand> {
         checkRequiredPrefixes(argMultimap);
 
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS,
-                PREFIX_PRIORITY);
+                PREFIX_PRIORITY, PREFIX_STATUS);
         Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
         Phone phone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PHONE).get());
         Email email = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_EMAIL).get());
@@ -50,9 +51,12 @@ public class AddCommandParser implements Parser<AddCommand> {
         Priority priority = argMultimap.getValue(PREFIX_PRIORITY).isPresent()
                 ? ParserUtil.parsePriority(argMultimap.getValue(PREFIX_PRIORITY).get())
                 : new Priority("no");
+        Status status = argMultimap.getValue(PREFIX_STATUS).isPresent()
+                ? ParserUtil.parseStatus(argMultimap.getValue(PREFIX_STATUS).get())
+                : Status.ACTIVE;
 
         Person person = new Person(name, phone, email, address, Collections.emptySet(),
-                Status.NONE, new ArrayList<>(), new DateAdded(), priority);
+                status, new ArrayList<>(), new DateAdded(), priority);
 
         return new AddCommand(person);
     }

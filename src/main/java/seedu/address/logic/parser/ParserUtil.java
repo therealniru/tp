@@ -152,4 +152,19 @@ public class ParserUtil {
         }
         return new seedu.address.model.person.Priority(trimmedPriority);
     }
+
+    /**
+     * Parses a {@code String status} into a {@code Status}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code status} is invalid.
+     */
+    public static seedu.address.model.person.Status parseStatus(String status) throws ParseException {
+        requireNonNull(status);
+        String trimmedStatus = status.trim();
+        if (!seedu.address.model.person.Status.isValidStatus(trimmedStatus)) {
+            throw new ParseException(seedu.address.model.person.Status.MESSAGE_CONSTRAINTS);
+        }
+        return seedu.address.model.person.Status.parse(trimmedStatus);
+    }
 }
