@@ -133,6 +133,13 @@ The `Model` component,
 
 </div>
 
+#### UniqueTagList
+
+The class diagram below details the internal structure of `UniqueTagList`:
+
+<img src="images/UniqueTagListClassDiagram.png" width="450" />
+
+`UniqueTagList` maintains an `ObservableList<Tag>` internally and enforces uniqueness using case-insensitive equality defined in `Tag#equals`. Adding a duplicate tag throws `DuplicateTagException`, while attempting to remove or retrieve a non-existent tag throws `TagNotFoundException`. The list exposes a read-only view via `asUnmodifiableObservableList()`, which is used by the UI and other components to observe tag changes without mutating the collection.
 
 ### Storage component
 
