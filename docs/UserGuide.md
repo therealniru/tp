@@ -3,19 +3,19 @@ layout: page
 title: User Guide
 ---
 
-Talently is a desktop application for recruiters and hiring managers who manage large volumes of job candidates. It uses a **Command Line Interface (CLI)** for speed, backed by a visual GUI for quick scanning. If you type quickly, Talently lets you track candidates faster than any point-and-click tool.
+Talently is a **desktop contact-management application** for recruiters and hiring managers who manage large volumes of job candidates. It uses a **Command Line Interface (CLI)** for speed, backed by a visual GUI for quick scanning. If you type quickly, Talently lets you manage candidates efficiently with just a few keystrokes.
 
 **Who is this for?**
 
 | Attribute | Details |
 |---|---|
-| **Role** | Recruiters and hiring managers |
-| **Technical level** | Novice–Competent (comfortable with a terminal) |
+| **Role** | Recruiters and hiring managers at startups or small teams |
+| **Technical level** | Comfortable typing commands in a terminal (no programming needed) |
 | **Context** | Switching between terminal and candidate list, often under time pressure |
 | **Goals** | Add, track, and search candidates quickly; maintain a clean audit trail |
-| **Pain points** | Forgetting command syntax, losing candidate history, slow mouse-based tools |
+| **Challenges addressed** | Forgetting command syntax, losing candidate history, slow mouse-based tools |
 
-**Assumed knowledge:** Basic terminal usage (e.g. `cd` to navigate folders). No programming experience required.
+**Assumed knowledge:** You can open a terminal and type commands. No programming experience required.
 
 * Table of Contents
 {:toc}
@@ -40,7 +40,7 @@ Expected: output showing `17` or higher.
 Get the latest `talently.jar` from the [Talently GitHub Releases page](https://github.com/AY2526S2-CS2103T-T17-4/tp/releases).
 
 **Step 3 — Set up your home folder**
-Copy `talently.jar` into the folder you want Talently to use. Candidate data is stored here.
+Copy `talently.jar` into an **empty folder**. Talently stores its data files here — using an empty folder avoids accidental conflicts with existing files.
 
 **Step 4 — Launch**
 
@@ -61,14 +61,21 @@ Expected: Talently opens within a few seconds with sample candidate data pre-loa
 | Candidate List | Left panel | Cards showing index, name, tags, contact info, rejection badge |
 | Detail Panel | Right panel | Full candidate details (opened with `show`) |
 
-**Step 6 — Try these commands**
+**Step 6 — Try a realistic workflow**
 
-```
-list
-add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Road
-find Jane
-help
-```
+Follow these commands in order to experience a typical recruiter workflow:
+
+| Step | Command | What it does |
+|---|---|---|
+| 1 | `list` | View all candidates |
+| 2 | `add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Road` | Add a new candidate |
+| 3 | `show 1` | Open the detail panel for the first candidate |
+| 4 | `note 1 n/Strong portfolio, schedule follow-up. h/Initial Screen` | Attach a note |
+| 5 | `tagpool a/Shortlisted` | Create a new tag in the tag pool |
+| 6 | `tag 1 a/Shortlisted` | Assign the tag to the candidate |
+| 7 | `filter Shortlisted` | View only candidates with that tag |
+| 8 | `find Jane` | Search by name |
+| 9 | `undo` | Undo the last change |
 
 Ready for more? Continue to [Features](#features).
 
@@ -80,12 +87,13 @@ Ready for more? Continue to [Features](#features).
 
 **:information_source: Command format rules:**
 
-* `UPPER_CASE` = parameter you supply. e.g. `add n/NAME` → `add n/John Doe`
+* Words in `UPPER_CASE` are placeholders for values you supply. e.g. `add n/NAME` means you type `add n/John Doe`.
 * `[square brackets]` = optional. e.g. `[pr/PRIORITY]` can be omitted.
 * `…` after an item = repeatable. e.g. `[a/TAG]…` can be `a/Java a/Python`.
 * Parameters can be in any order.
-* Commands with no parameters (e.g. `help`, `list`, `exit`, `clear`) ignore extra input.
+* Commands with no parameters (e.g. `help`, `list`, `exit`, `clear`, `undo`, `redo`) do not take any arguments.
 * Avoid copying multi-line commands from a PDF — spaces around line breaks may be lost.
+* Prefixes like `n/`, `p/`, `e/`, `a/` are recognised when preceded by a space. If your input text naturally contains these sequences (e.g., an address containing ` a/` or ` n/`), the text after them may be mis-parsed. Rephrase if needed (e.g., `a/Blk 123 North Rd` instead of `a/Blk 123 n/orth Rd`).
 
 </div>
 
@@ -127,7 +135,7 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
 </div>
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Duplicate detection is based on phone number and email — not name. Two candidates with the same name but different phone/email are allowed.
+:warning: **Warning:** Duplicate detection is based on phone number **or** email — not name. If a new candidate shares the same phone **or** email as an existing one, it is rejected as a duplicate. Two candidates with the same name but different phone and email are allowed.
 </div>
 
 Examples:
@@ -169,7 +177,11 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/ST
 </div>
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Editing name or phone to match another existing candidate will fail — duplicates are not allowed.
+:warning: **Warning:** Editing phone or email to match another existing candidate will fail — duplicates are not allowed.
+</div>
+
+<div markdown="span" class="alert alert-info">
+:information_source: **Note:** After a successful edit, the displayed list resets to show all candidates. This ensures you can always see the edited candidate even if the previous filter would have hidden it.
 </div>
 
 Examples:
@@ -225,6 +237,10 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * Max 20 keywords. Total command length max 150 characters.
 * Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_`
 
+<div markdown="span" class="alert alert-info">
+:information_source: **Note:** `find` does not search the address field. To locate a candidate by address, scroll through the list or use `show` on individual candidates.
+</div>
+
 Examples:
 * `find John` — Matches `john`, `John Doe`.
 * `find alex david` — Matches candidates whose name contains `alex` or `david`.
@@ -243,7 +259,7 @@ Format: `filter TAG`
 
 * Exact match (not partial). `Java` does not match `JavaScript`.
 * Case-insensitive. `java` matches `Java`.
-* Tag must follow naming rules: alphanumeric, no spaces, 1–30 characters.
+* Tag must follow naming rules: letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `filter` to pull all candidates at a specific hiring stage, e.g. `filter Shortlisted`.
@@ -370,7 +386,7 @@ Examples:
 
 ### Adding a note to a candidate : `note`
 
-Appends a timestamped note to a candidate's record.
+Adds a timestamped note to a candidate's record.
 
 Format: `note INDEX n/CONTENT [h/HEADING]`
 
@@ -402,7 +418,7 @@ Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
 
 * At least one `a/` or `d/` prefix is required.
 * Max 10 tags per command.
-* Tag names: alphanumeric, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
+* Tag names: letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
 * Cannot create a tag that already exists, or delete one that does not exist.
 * Cannot create and delete the same tag in one command.
 
@@ -453,7 +469,7 @@ Reverts Talently to the state before the most recent data-changing command.
 
 Format: `undo`
 
-* Applies to: `add`, `edit`, `remove`, `reject`, `tag`, `tagpool`, `note`, `clear`.
+* Applies to: `add`, `edit`, `remove`, `reject`, `tag`, `tagpool`, `note`, `sort`, `clear`.
 * If there is nothing to undo, an error is shown.
 
 Examples:
@@ -481,12 +497,12 @@ Examples:
 
 ### Clearing all entries : `clear`
 
-Deletes every candidate from Talently.
+Deletes every candidate and all tags from Talently.
 
 Format: `clear`
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Removes all candidate data. Use `undo` immediately to recover.
+:warning: **Warning:** Removes all candidate data **and the entire tag pool**. Use `undo` immediately to recover.
 </div>
 
 <p align="center"><img src="images/clear%20command.png" alt="Expected result after running the clear command" width="730"/></p>
@@ -537,7 +553,7 @@ A: It shows the total number of times that candidate has been rejected. Run `sho
 A: Use `show INDEX`. The detail panel lists all notes with headings, content, and timestamps.
 
 **Q: Can two candidates have the same name?**
-A: Yes — Talently identifies duplicates by phone **and** email, not name. Same name with different phone/email is allowed.
+A: Yes — Talently identifies duplicates by phone **or** email, not name. Two candidates with the same name but different phone and email are allowed.
 
 **Q: What happens when I open a save file from an older version?**
 A: The legacy status value `NONE` is automatically migrated to `active`. Save files with other unrecognised status values will fail to load — back up your data file before upgrading.
@@ -566,7 +582,7 @@ Action | Format, Examples
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g. `find James Jake`
 **Help** | `help`
 **List** | `list`
-**Note** | `note INDEX n/CONTENT [h/HEADING]`<br> e.g. `note 1 n/Passed interview. h/Tech Round 1`
+**Note** | `note INDEX n/CONTENT [h/HEADING]`<br> e.g. `note 1 n/Passed interview h/Tech Round 1`
 **Redo** | `redo`
 **Reject** | `reject INDEX r/REASON`<br> e.g. `reject 1 r/Failed technical interview`
 **Remove** | `remove INDEX`<br> e.g. `remove 3`

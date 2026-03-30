@@ -51,7 +51,7 @@ The bulk of the app's work is done by the following four components:
 
 **How the architecture components interact with each other**
 
-The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `remove 1`.
 
 <img src="images/ArchitectureSequenceDiagram.png" width="574" />
 
@@ -230,12 +230,39 @@ The following activity diagram summarizes what happens when a user executes a ne
   * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
   * Cons: We must ensure that the implementation of each individual command are correct.
 
-_{more aspects and alternatives to be added}_
+**Aspect: When to commit state:**
 
-### \[Proposed\] Data archiving
+* **Alternative 1 (current choice):** `LogicManager` compares pre- and post-command AddressBook state. If different, commits automatically.
+  * Pros: No per-command boilerplate — all mutating commands are undoable by default. Adding a new command does not require remembering to call `commit()`.
+  * Cons: Requires creating a snapshot of the entire AddressBook before every command execution, even if the command is read-only (e.g., `list`, `find`).
 
-_{Explain here how the data archiving feature will be implemented}_
+* **Alternative 2:** Each mutating command calls `model.commitAddressBook()` explicitly.
+  * Pros: No unnecessary snapshots for read-only commands.
+  * Cons: Developers must remember to add the commit call in every new mutating command. Forgetting this silently breaks undo for that command.
 
+### Tag pool design
+
+**Aspect: Tag lifecycle — why a two-step workflow?**
+
+* **Alternative 1 (current choice):** Tags must be created in the tag pool (`tagpool a/TAG`) before assignment (`tag INDEX a/TAG`).
+  * Pros: Prevents typo-created tags (e.g., `Shotlisted` vs `Shortlisted`). Ensures canonical casing. Pool deletion cascades cleanly to all candidates.
+  * Cons: Extra step for the user.
+
+* **Alternative 2:** Tags are created implicitly when first assigned to a candidate.
+  * Pros: Faster for one-off tagging.
+  * Cons: Typos create rogue tags. No centralised view of all available tags. Deletion semantics become ambiguous (delete from one candidate? from all?).
+
+### Duplicate detection design
+
+**Aspect: What constitutes a duplicate candidate?**
+
+* **Alternative 1 (current choice):** Two candidates are duplicates if they share the same phone **or** email.
+  * Pros: Catches duplicates even if only one field is shared. Phone numbers and email addresses are strong real-world identifiers.
+  * Cons: May flag false positives if two genuinely different people share a phone (e.g., family members using a shared phone).
+
+* **Alternative 2:** Require both phone **and** email to match.
+  * Pros: Fewer false positives.
+  * Cons: Misses obvious duplicates where only one field was entered differently (e.g., same person with a new email).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -271,28 +298,26 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 | Priority | As a …​ | I want to …​                                                                       | So that I can…​ |
 |----------|---------|------------------------------------------------------------------------------------|-----------------|
-| `* * *` | recruiter | add a candidate’s contact details                                                  | reach out to them later for a role. |
+| `* * *` | recruiter | add a candidate’s contact details (with optional priority and status)              | reach out to them later for a role. |
 | `* * *` | recruiter | view all candidate records                                                         | know exactly who is currently in my active talent pool. |
-| `* * *` | recruiter | view the complete, detailed profile of a specific candidate | instantly read their full history (notes, tags, rejections) in one place before jumping on a call. |
+| `* * *` | recruiter | view the complete, detailed profile of a specific candidate                        | instantly read their full history (notes, tags, rejections) in one place before jumping on a call. |
 | `* * *` | recruiter | search for a candidate using known attributes (e.g., partial name, phone or email) | instantly locate their specific record even if I only remember a fragment of their details. |
-| `* * *` | recruiter | update a candidate’s information                                                   | ensure my communication records remain accurate and up-to-date. |
+| `* * *` | recruiter | update a candidate’s information (including status and priority)                   | ensure my communication records remain accurate and up-to-date. |
 | `* * *` | recruiter | remove candidate contacts that are invalid or requested removal                    | keep my database strictly clean and legally compliant. |
 | `* * *` | recruiter | record a rejection with a specific chronological reason                            | remember exactly why a candidate was previously unsuitable before engaging them for a new role. |
-| `* * *` | recruiter | assign tags (e.g., Frontend, Intern) to candidates                                 | easily segment and organize my candidate pool by role or technical skill. |
-| `* * *` | recruiter | record rapid notes about a candidate                                               | capture important impressions and context immediately after a conversation. |
-| `* *` | recruiter | filter candidates strictly by tags or status                                       | focus entirely on a specific hiring subset without visual clutter. |
-| `* *` | recruiter | sort candidates by date added                                                      | quickly review the most recent leads and fresh applicants in my database. |
-| `* *` | recruiter | apply a specific tag to a bulk group of filtered candidates                        | categorize a large batch of newly sourced leads instantly. |
-| `* *` | recruiter | rapidly create new system tags and delete obsolete ones in bulk                    | organize candidates according to my startup's highly specific hiring needs. |
-| `* *` | recruiter | mark candidates as priority                                                        | easily visually identify whom I need to contact first when opening the application. |
-| `* *` | recruiter | read previously recorded interaction notes                                         | refresh my memory on the candidate's background before initiating a follow-up call. |
-| `* *` | recruiter | edit previously recorded notes                                                     | correct typos or update my observations upon further review. |
-| `* *` | recruiter | see a chronological interaction timeline (e.g., calls, notes, rejections)          | accurately reconstruct the entire history of my relationship with the candidate. |
-| `* *` | recruiter | record the source of a candidate (e.g., LinkedIn, Referral)                        | evaluate analytically which sourcing channels are yielding the best talent. |
-| `*` | recruiter | undo my last action                                                                | instantly recover from an accidental deletion or rapid typing error. |
-| `*` | recruiter | redo an action I previously undid                                                  | restore a reverted change without needing to retype it. |
-| `*` | recruiter | set a reminder to contact a candidate at a later date                              | ensure promising leads are followed up with at the exact right time. |
-| `*` | recruiter | mark a candidate strictly as 'Do Not Contact'                                      | definitively avoid reaching out to candidates who explicitly opted out or declined. |
+| `* * *` | recruiter | assign tags (e.g., Frontend, Intern) to one or more candidates at once             | easily segment and organize my candidate pool by role or technical skill. |
+| `* * *` | recruiter | record rapid timestamped notes about a candidate                                   | capture important impressions and context immediately after a conversation. |
+| `* *` | recruiter | filter candidates strictly by tag                                                  | focus entirely on a specific hiring subset without visual clutter. |
+| `* *` | recruiter | sort candidates by date added or by priority                                       | quickly review the most recent leads or surface high-priority candidates. |
+| `* *` | recruiter | rapidly create new system tags and delete obsolete ones in bulk                    | organize candidates according to my startup’s highly specific hiring needs. |
+| `* *` | recruiter | mark candidates as high priority                                                   | easily visually identify whom I need to contact first when opening the application. |
+| `* *` | recruiter | read previously recorded interaction notes via a detail panel                      | refresh my memory on the candidate’s background before initiating a follow-up call. |
+| `* *` | recruiter | manage candidate status (active, rejected, hired, blacklisted) throughout the hiring lifecycle | track each candidate’s current stage and prevent inappropriate outreach. |
+| `* *` | recruiter | undo my last action                                                                | instantly recover from an accidental deletion or rapid typing error. |
+| `* *` | recruiter | redo an action I previously undid                                                  | restore a reverted change without needing to retype it. |
+| `* *` | recruiter | clear all data and start fresh                                                     | reset the system when starting a new hiring cycle. |
+| `*` | recruiter | see a chronological interaction timeline (e.g., notes, rejections)                 | accurately reconstruct the entire history of my relationship with the candidate. |
+| `*` | recruiter | mark a candidate as ‘blacklisted’                                                  | definitively avoid reaching out to candidates who explicitly opted out or declined. |
 
 ### Use cases
 
@@ -313,81 +338,81 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * 2a. System detects missing mandatory fields or invalid formatting.
     * 2a1. System informs the user of the formatting error and provides the correct command format.
     * Use case ends.
-* 2b. System detects that the candidate already exists (e.g., duplicate email or phone).
+* 2b. System detects that the candidate already exists (matching phone or email).
     * 2b1. System informs the user of the duplicate collision.
     * Use case ends.
+
+**Design justification:** Duplicate detection uses phone OR email (not both) because either field alone is sufficient to uniquely identify a real-world person. This prevents accidental duplicate entries even when only one contact field is shared, while still allowing two candidates with the same name (which is common in practice).
 
 
 **Use case: UC2 - Removing a candidate**
 
-**Preconditions:** The candidate exists in the system.
+**Preconditions:** The candidate exists in the system and is shown in the current list.
 
 **MSS:**
-1. User requests to list candidates.
-2. System shows a list of candidates.
-3. User requests to remove a specific candidate from the list.
-4. System requests confirmation to prevent accidental data loss.
-5. User confirms the removal.
-6. System removes the candidate and updates the list.
-7. System informs the user of the successful removal.
+1. User requests to remove a specific candidate by index.
+2. System validates the index.
+3. System removes the candidate and all their associated data (notes, tags, rejection history).
+4. System informs the user of the successful removal.
    Use case ends.
 
 **Extensions:**
-* 3a. User provides an invalid identifier (e.g., out of bounds, incorrect format).
-    * 3a1. System informs the user of the error and provides usage instructions.
+* 1a. User provides an invalid index (e.g., out of bounds, non-integer, zero).
+    * 1a1. System informs the user of the error and provides usage instructions.
     * Use case ends.
-* 5a. User cancels the removal at the confirmation prompt.
-    * 5a1. System aborts the operation.
-    * Use case ends.
+
+**Design justification:** No confirmation prompt is required because the `undo` command can immediately reverse an accidental removal. This keeps the CLI workflow fast and avoids interrupting the recruiter's typing flow.
 
 
 **Use case: UC3 - Recording a rejection with reason**
 
-**Preconditions:** The candidate exists in the system and is currently active.
+**Preconditions:** The candidate exists in the system and is not blacklisted.
 
 **MSS:**
-1. User requests to list active candidates.
-2. System shows a list of active candidates.
-3. User requests to reject a specific candidate, providing a rejection reason.
-4. System validates the identifier and the reason.
-5. System updates the candidate's status to REJECTED.
-6. System appends the reason to the candidate’s rejection history.
-7. System informs the user of the successful update.
+1. User requests to reject a specific candidate by index, providing a rejection reason.
+2. System validates the index and the reason.
+3. System updates the candidate’s status to REJECTED.
+4. System appends the reason to the candidate’s rejection history.
+5. System informs the user of the successful update (including total rejection count).
    Use case ends.
 
 **Extensions:**
-* 3a. User provides an invalid identifier.
-    * 3a1. System informs the user of the error.
+* 1a. User provides an invalid index.
+    * 1a1. System informs the user of the error.
     * Use case ends.
-* 4a. User provides an invalid reason (e.g., empty string or exceeding maximum character limit).
-    * 4a1. System maintains the candidate's original status and informs the user of the validation error.
+* 2a. User provides an invalid reason (e.g., empty string, exceeds 200 characters, or contains disallowed characters).
+    * 2a1. System maintains the candidate’s original status and informs the user of the validation error.
     * Use case ends.
-* 4b. System detects the exact same rejection reason being entered sequentially for this candidate.
-    * 4b1. System warns the user regarding the duplicate entry and asks for confirmation.
-    * 4b2. User confirms intent to proceed.
-    * Use case resumes at step 5.
+* 2b. The candidate is blacklisted.
+    * 2b1. System informs the user that blacklisted candidates cannot be rejected.
+    * Use case ends.
+* 5a. System detects the same rejection reason as the immediately previous one (case-insensitive).
+    * 5a1. System still records the rejection but includes a warning about the consecutive duplicate.
+    * Use case ends.
+
+**Design justification:** The system allows rejecting a candidate multiple times (even with the same reason) because real-world hiring involves multiple rounds. Rather than blocking the operation, a warning on consecutive duplicates guards against accidental double-entry while preserving flexibility.
 
 
-**Use case: UC4 - Filtering candidates by tags**
+**Use case: UC4 - Filtering candidates by tag**
 
-**Preconditions:** The system contains at least one candidate with tags.
+**Preconditions:** The system contains at least one candidate.
 
 **MSS:**
-1. User requests to filter the candidate list by specifying one or more tags.
-2. System searches the database for candidates matching the specified tag(s).
-3. System shows the matching candidates.
+1. User requests to filter the candidate list by specifying exactly one tag name.
+2. System validates the tag format (letters, numbers, or hyphens, 1–30 characters).
+3. System filters the list to show only candidates who have that tag assigned (case-insensitive match).
+4. System shows the matching candidates with a count.
    Use case ends.
 
 **Extensions:**
-* 1a. User specifies an invalid tag format.
+* 1a. User specifies an invalid tag format or multiple words.
     * 1a1. System informs the user of the formatting error.
     * Use case ends.
-* 1b. The specified tag does not exist in the system's tag pool.
-    * 1b1. System informs the user that the tag does not exist.
+* 3a. No candidates have the specified tag.
+    * 3a1. System informs the user that no matching candidates were found.
     * Use case ends.
-* 2a. No candidates match the specified tag(s).
-    * 2a1. System informs the user that no matching candidates were found.
-    * Use case ends.
+
+**Design justification:** Filter accepts exactly one tag to keep the command syntax simple and predictable. Multi-tag filtering can be achieved by chaining `filter` with `find` or by using the tag pool's existing categorisation system.
 
 
 **Use case: UC5 - Updating candidate information**
@@ -408,9 +433,11 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * 2a. System detects invalid formatting in the newly provided fields.
     * 2a1. System informs the user of the formatting error.
     * Use case ends.
-* 2b. System detects the updated details conflict with another existing candidate (duplicate collision).
-    * 2b1. System aborts the update and informs the user of the duplicate entry.
+* 2b. System detects the updated details conflict with another existing candidate (duplicate collision on phone or email).
+    * 2b1. System aborts the update and informs the user of the specific conflict (which field and which existing candidate).
     * Use case ends.
+
+**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean.
 
 
 **Use case: UC6 - Finding a candidate by attributes**
@@ -454,57 +481,153 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2b1. System informs the user that the tag must be created before it can be assigned.
     * Use case ends.
 * 2c. The candidate already has the specified tag (case-insensitive).
-    * 2c1. System ignores the duplicate tag and informs the user.
+    * 2c1. System rejects the operation and informs the user that the candidate already has the tag.
     * Use case ends.
 
+**Design justification:** Tags must exist in the tag pool before assignment, enforcing a two-step workflow (`tagpool` then `tag`). This registry pattern prevents typos from creating rogue tags and ensures all tag names across candidates are canonically consistent (case-insensitive). The system rejects (rather than silently ignores) duplicate tag assignments to alert the user that their intended action is a no-op.
 
-**Use case: UC8 - Sorting candidates by date added**
 
-**Preconditions:** Multiple candidates exist in the active list.
+**Use case: UC8 - Managing the tag pool**
+
+**Preconditions:** None.
 
 **MSS:**
-1. User requests to sort the candidate list by date added.
+1. User requests to create or delete tags in the master tag pool.
+2. System validates all tag names (alphanumeric, 1–30 characters) and checks for conflicts.
+3. System adds new tags to the pool.
+4. For any tags being deleted, system removes them from all candidates who currently hold them (cascading deletion).
+5. System removes the tags from the pool.
+6. System informs the user of the number of tags created and deleted.
+   Use case ends.
+
+**Extensions:**
+* 2a. A tag to create already exists in the pool.
+    * 2a1. System informs the user of the duplicate. No changes are made.
+    * Use case ends.
+* 2b. A tag to delete does not exist in the pool.
+    * 2b1. System informs the user. No changes are made.
+    * Use case ends.
+* 2c. Same tag appears in both create and delete lists.
+    * 2c1. System informs the user of the conflict. No changes are made.
+    * Use case ends.
+
+**Design justification:** Deleting a tag from the pool cascades to all candidates. This maintains referential integrity — no candidate can hold a tag that doesn't exist in the pool. The cascading sweep uses snapshot iteration to avoid concurrent modification issues. All validations run before any mutations (fail-fast atomicity).
+
+
+**Use case: UC9 - Sorting candidates by date added**
+
+
+**Preconditions:** At least one candidate exists.
+
+**MSS:**
+1. User requests to sort the candidate list by date added, specifying ascending or descending order.
 2. System rearranges the list chronologically.
 3. System shows the newly sorted list.
    Use case ends.
 
 **Extensions:**
-* 1a. The active list contains zero candidates.
-    * 1a1. System informs the user that there are no candidates to sort.
+* 1a. The candidate list is empty.
+    * 1a1. System informs the user that there is nothing to sort.
     * Use case ends.
 
+**Design justification:** Secondary sort by name (alphabetical) provides a deterministic tiebreaker for candidates added on the same date. The sort modifies the underlying list order (persisted to disk), so it is undoable via `undo`.
 
-**Use case: UC9 - Applying a tag in bulk**
 
-**Preconditions:** A filtered list of multiple candidates is currently shown.
+**Use case: UC10 - Tagging multiple candidates at once**
+
+**Preconditions:** The target candidates exist in the current displayed list, and the tag exists in the tag pool.
 
 **MSS:**
-1. User requests to apply a specific tag to all currently shown candidates.
-2. System validates the tag against the existing tag pool.
-3. System applies the tag to each candidate's profile.
-4. System informs the user of the number of candidates successfully tagged.
+1. User requests to add or remove tags for multiple candidates using comma-separated indices.
+2. System validates all indices, tag names, and checks for conflicts (same tag in both add and delete).
+3. System verifies all tags exist in the tag pool.
+4. System verifies each candidate's tag state (no duplicate additions, no removing absent tags).
+5. System applies tag changes to all specified candidates atomically.
+6. System informs the user of success.
    Use case ends.
 
 **Extensions:**
-* 2a. User specifies an invalid tag format.
-    * 2a1. System informs the user of the formatting error.
+* 2a. Any index is invalid or duplicated.
+    * 2a1. System informs the user of the error. No changes are made.
     * Use case ends.
-* 2b. The specified tag does not exist in the system's tag pool.
-    * 2b1. System informs the user that the tag must be created first.
+* 2b. Same tag appears in both add and delete lists.
+    * 2b1. System informs the user of the conflict. No changes are made.
     * Use case ends.
-* 3a. A candidate in the list already possesses the tag.
-    * 3a1. System skips duplicating the tag for that specific candidate and continues tagging the rest.
-    * Use case resumes at step 4.
+* 3a. A tag does not exist in the tag pool.
+    * 3a1. System informs the user that the tag must be created first. No changes are made.
+    * Use case ends.
+* 4a. A candidate already has a tag being added, or does not have a tag being removed.
+    * 4a1. System informs the user of the specific conflict. No changes are made.
+    * Use case ends.
+
+**Design justification:** The command uses fail-fast atomic validation — all checks run before any mutations. This prevents partial updates where some candidates are tagged but others fail, which would leave the system in a confusing state. The max of 10 tags per command prevents abuse while covering realistic batch operations.
 
 
-**Use case: UC10 - Undoing the previous action**
+**Use case: UC11 - Adding a note to a candidate**
+
+**Preconditions:** The candidate exists in the current displayed list.
+
+**MSS:**
+1. User requests to add a note to a candidate by index, providing content and an optional heading.
+2. System validates the index and content (must be non-empty).
+3. System creates a timestamped note and appends it to the candidate's record.
+4. System informs the user of success.
+   Use case ends.
+
+**Extensions:**
+* 1a. User provides an invalid index.
+    * 1a1. System informs the user of the error.
+    * Use case ends.
+* 2a. Content is empty or blank.
+    * 2a1. System informs the user that note content is required.
+    * Use case ends.
+* 2b. Duplicate `n/` or `h/` prefixes detected.
+    * 2b1. System informs the user that duplicate prefixes are not allowed.
+    * Use case ends.
+
+**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed.
+
+
+**Use case: UC12 - Sorting candidates by priority**
+
+**Preconditions:** At least one candidate exists.
+
+**MSS:**
+1. User requests to sort candidates by priority, specifying ascending or descending order.
+2. System sorts the list (high-priority first for ascending, last for descending).
+3. System shows the sorted list.
+   Use case ends.
+
+**Extensions:**
+* 1a. The candidate list is empty.
+    * 1a1. System informs the user that there is nothing to sort.
+    * Use case ends.
+
+**Design justification:** Ascending puts high-priority candidates first (most useful default) because `isPriority=true` sorts before `false`. Secondary sort by date-added (newest first) and tertiary by name provide stable, predictable ordering within same-priority groups.
+
+
+**Use case: UC13 - Clearing all data**
+
+**Preconditions:** None.
+
+**MSS:**
+1. User requests to clear all data.
+2. System deletes all candidates and the entire tag pool.
+3. System informs the user of success.
+   Use case ends.
+
+**Design justification:** No confirmation prompt is used for the same reason as remove (UC2) — `undo` provides immediate recovery. The command also clears the tag pool to maintain referential integrity: orphaned tags without candidates would be confusing.
+
+
+**Use case: UC14 - Undoing the previous action**
 
 **Preconditions:** The user has performed at least one modifying command during the current session.
 
 **MSS:**
 1. User requests to undo their previous action.
 2. System restores the application data to the state immediately preceding the last modifying command.
-3. System informs the user of the action that was successfully undone.
+3. System resets the displayed list to show all candidates.
+4. System informs the user of success.
    Use case ends.
 
 **Extensions:**
@@ -512,7 +635,29 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 1a1. System informs the user that there is nothing to undo.
     * Use case ends.
 
-**Use case: UC11 - Viewing a candidate's full profile**
+**Design justification:** Undo uses full-state snapshots (the entire AddressBook is saved before each mutating command). This is simpler and more reliable than per-command inverse logic, at the cost of higher memory usage. For the expected dataset size (up to 1,000 candidates), this trade-off is acceptable.
+
+
+**Use case: UC15 - Redoing a previously undone action**
+
+**Preconditions:** The user has performed at least one `undo` and has not yet executed a new modifying command.
+
+**MSS:**
+1. User requests to redo the previously undone action.
+2. System re-applies the undone state.
+3. System resets the displayed list to show all candidates.
+4. System informs the user of success.
+   Use case ends.
+
+**Extensions:**
+* 1a. There is no undone action to redo (either no undo was performed, or a new modifying command was executed after undo).
+    * 1a1. System informs the user that there is nothing to redo.
+    * Use case ends.
+
+**Design justification:** Any new modifying command after `undo` clears the redo history. This linear history model prevents confusing branching states and is consistent with how most mainstream applications handle undo/redo.
+
+
+**Use case: UC16 - Viewing a candidate's full profile**
 
 **Preconditions:** Candidates exist in the system and are currently shown in a list.
 
@@ -543,7 +688,11 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **Applicant Tracking System (ATS):** A heavy, enterprise-level software application that enables the electronic handling of recruitment and hiring needs. Talently serves as a lightweight, developer-friendly alternative to this.
 * **Candidate:** A person whose details and interaction history are tracked within the system for recruitment purposes.
 * **Rejection History:** A chronological list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles.
-* **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering.
+* **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Tags may contain letters, numbers, hyphens, dots, and `+` signs (no spaces). Comparison is case-insensitive.
+* **Tag Pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Deleting a tag from the pool cascades the removal to all candidates.
+* **Note:** A timestamped text entry attached to a candidate, with an optional heading. Notes are append-only and ordered chronologically.
+* **Status:** A candidate's current stage in the hiring pipeline: `active`, `rejected`, `hired`, or `blacklisted`.
+* **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates can be surfaced with `sort pr o/asc`.
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
 * **Identifier:** The reference used by the recruiter to execute commands on a specific candidate (often an index number representing their position in the current list).
 * **JSON (JavaScript Object Notation):** A lightweight, text-based data format used by the system to save and load candidate records locally in a human-readable format.
@@ -577,22 +726,27 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases …​ }_
 
-### Deleting a person
+### Removing a candidate
 
-1. Deleting a person while all persons are being shown
+1. Removing a candidate while all candidates are being shown
 
-   1. Prerequisites: List all persons using the `list` command. Multiple persons in the list.
+   1. Prerequisites: List all candidates using the `list` command. Multiple candidates in the list.
 
-   1. Test case: `delete 1`<br>
-      Expected: First contact is deleted from the list. Details of the deleted contact shown in the status message. Timestamp in the status bar is updated.
+   1. Test case: `remove 1`<br>
+      Expected: First candidate is removed from the list. Details of the removed candidate shown in the result display.
 
-   1. Test case: `delete 0`<br>
-      Expected: No person is deleted. Error details shown in the status message. Status bar remains the same.
+   1. Test case: `remove 0`<br>
+      Expected: No candidate is removed. Error details shown in the result display.
 
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
+   1. Other incorrect remove commands to try: `remove`, `remove x` (where x is larger than the list size)<br>
       Expected: Similar to previous.
 
-1. _{ more test cases …​ }_
+1. Removing a candidate after filtering
+
+   1. Prerequisites: Use `find` or `filter` to show a subset of candidates. At least one candidate in the filtered list.
+
+   1. Test case: `remove 1`<br>
+      Expected: First candidate in the filtered list is removed. The removal applies to the correct candidate, not the first in the full list.
 
 ### Saving data
 
