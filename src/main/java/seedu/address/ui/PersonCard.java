@@ -67,7 +67,7 @@ public class PersonCard extends UiPart<Region> {
                 .sorted(Comparator.comparing(tag -> tag.tagName))
                 .forEach(tag -> tags.getChildren().add(new Label(tag.tagName)));
 
-        if (person.getStatus() == Status.REJECTED) {
+        if (!person.getRejectionReasons().isEmpty()) {
             List<RejectionReason> reasons = person.getRejectionReasons();
             rejectionCountTag.setText(formatRejectionCountText(reasons.size()));
             rejectionCountTag.setStyle("-fx-background-color: #cc0000; -fx-text-fill: white; "
