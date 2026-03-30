@@ -85,6 +85,11 @@ public class AddressBookParser {
             return new RemoveCommandParser().parse(arguments);
 
         case ClearCommand.COMMAND_WORD:
+            if (!arguments.trim().isEmpty()) {
+                throw new ParseException(
+                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, ClearCommand.COMMAND_WORD
+                                + ": Clears all data. This command does not take any arguments."));
+            }
             return new ClearCommand();
 
         case FindCommand.COMMAND_WORD:
@@ -107,9 +112,18 @@ public class AddressBookParser {
             return new ListCommand();
 
         case ExitCommand.COMMAND_WORD:
+            if (!arguments.trim().isEmpty()) {
+                throw new ParseException(
+                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, ExitCommand.COMMAND_WORD
+                                + ": Exits the application. This command does not take any arguments."));
+            }
             return new ExitCommand();
 
         case HelpCommand.COMMAND_WORD:
+            if (!arguments.trim().isEmpty()) {
+                throw new ParseException(
+                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, HelpCommand.MESSAGE_USAGE));
+            }
             return new HelpCommand();
 
         case UndoCommand.COMMAND_WORD:

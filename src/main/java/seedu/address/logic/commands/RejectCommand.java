@@ -38,6 +38,8 @@ public class RejectCommand extends Command {
             + "Note: This reason is the same as the previous rejection reason.";
     public static final String MESSAGE_BLACKLISTED_PERSON =
             "Error: Cannot reject a blacklisted candidate.";
+    public static final String MESSAGE_HIRED_PERSON =
+            "Error: Cannot reject a hired candidate. Edit their status first if needed.";
 
     private static final Logger logger = LogsCenter.getLogger(RejectCommand.class);
 
@@ -71,6 +73,10 @@ public class RejectCommand extends Command {
             throw new CommandException(MESSAGE_BLACKLISTED_PERSON);
         }
 
+        if (personToReject.getStatus() == Status.HIRED) {
+            throw new CommandException(MESSAGE_HIRED_PERSON);
+        }
+
         boolean isDuplicateReason = isSequentialDuplicate(personToReject, reason);
         Person rejectedPerson = createRejectedPerson(personToReject, reason);
 
@@ -94,7 +100,7 @@ public class RejectCommand extends Command {
             return false;
         }
         RejectionReason lastReason = existingReasons.get(existingReasons.size() - 1);
-        return lastReason.equals(newReason);
+        return lastReason.reason.equalsIgnoreCase(newReason.reason);
     }
 
     /**

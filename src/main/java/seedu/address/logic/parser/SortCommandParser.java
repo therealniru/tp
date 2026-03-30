@@ -18,23 +18,18 @@ public class SortCommandParser implements Parser<Command> {
      * @throws ParseException if the user input does not conform the expected format
      */
     public Command parse(String args) throws ParseException {
-        // We peek at the first word of the arguments to see if it's 'date' or 'pr'
         String strippedArgs = args.trim();
-        if (strippedArgs.toLowerCase().startsWith("date")) {
+        if (strippedArgs.isEmpty()) {
+            throw new ParseException(MESSAGE_INVALID_SORT_TYPE);
+        }
+
+        String firstWord = strippedArgs.split("\\s+")[0].toLowerCase();
+
+        if (firstWord.equals("date")) {
             return new SortDateCommandParser().parse(args);
-        } else if (strippedArgs.toLowerCase().startsWith("pr")) {
+        } else if (firstWord.equals("pr")) {
             return new SortPriorityCommandParser().parse(args);
         } else {
-            // Alternatively, delegate to SortDateCommandParser if not "pr",
-            // but throwing an error for invalid sort type is better.
-            if (!strippedArgs.isEmpty()) {
-                String firstWord = strippedArgs.split("\\s+")[0].toLowerCase();
-                if (firstWord.equals("date")) {
-                    return new SortDateCommandParser().parse(args);
-                } else if (firstWord.equals("pr")) {
-                    return new SortPriorityCommandParser().parse(args);
-                }
-            }
             throw new ParseException(MESSAGE_INVALID_SORT_TYPE);
         }
     }

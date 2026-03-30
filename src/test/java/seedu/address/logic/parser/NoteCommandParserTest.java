@@ -87,6 +87,16 @@ public class NoteCommandParserTest {
     }
 
     @Test
+    public void parse_duplicateContentPrefix_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parse(" 1 n/first n/second"));
+    }
+
+    @Test
+    public void parse_duplicateHeadingPrefix_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parse(" 1 n/content h/first h/second"));
+    }
+
+    @Test
     public void parse_nullArgument_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> parser.parse(null));
     }

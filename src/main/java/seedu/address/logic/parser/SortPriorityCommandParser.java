@@ -14,7 +14,7 @@ public class SortPriorityCommandParser implements Parser<SortPriorityCommand> {
             "Invalid sort order. Please use 'asc' for oldest-first or 'desc' for newest-first.";
 
     public static final String MESSAGE_INVALID_FORMAT =
-            "Invalid command format! \nFormat: sort pr \nExample: sort pr";
+            "Invalid command format! \nFormat: sort pr o/ORDER \nExample: sort pr o/asc";
 
     /**
      * Parses the given {@code String} of arguments in the context of the SortPriorityCommand

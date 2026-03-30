@@ -52,12 +52,20 @@ public class Phone {
         }
 
         Phone otherPhone = (Phone) other;
-        return value.equals(otherPhone.value);
+        return normalizedDigits().equals(otherPhone.normalizedDigits());
+    }
+
+    /**
+     * Returns the digits-only form of this phone number (strips leading '+').
+     * Used for duplicate detection so that +6591234567 and 6591234567 are considered the same.
+     */
+    private String normalizedDigits() {
+        return value.startsWith("+") ? value.substring(1) : value;
     }
 
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return normalizedDigits().hashCode();
     }
 
 }
