@@ -30,8 +30,8 @@ public class FindCommandParserTest {
 
     @Test
     public void parse_tooLong_throwsParseException() {
-        assertParseFailure(parser, " a".repeat(73) + " a",
-                "Error: Search query too long. Please keep the entire command under 150 characters.");
+        assertParseFailure(parser, " a".repeat(76),
+                "Error: Search query too long. Please keep search keywords under 150 characters.");
     }
 
     @Test

@@ -53,7 +53,11 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
+    }
+
+    @Test
+    public void parseCommand_clearWithExtraArgs_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parseCommand(ClearCommand.COMMAND_WORD + " 3"));
     }
 
     @Test
@@ -75,7 +79,11 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_exit() throws Exception {
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD) instanceof ExitCommand);
-        assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD + " 3") instanceof ExitCommand);
+    }
+
+    @Test
+    public void parseCommand_exitWithExtraArgs_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parseCommand(ExitCommand.COMMAND_WORD + " 3"));
     }
 
     @Test
@@ -95,7 +103,11 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_help() throws Exception {
         assertTrue(parser.parseCommand(HelpCommand.COMMAND_WORD) instanceof HelpCommand);
-        assertTrue(parser.parseCommand(HelpCommand.COMMAND_WORD + " 3") instanceof HelpCommand);
+    }
+
+    @Test
+    public void parseCommand_helpWithExtraArgs_throwsParseException() {
+        assertThrows(ParseException.class, () -> parser.parseCommand(HelpCommand.COMMAND_WORD + " 3"));
     }
 
     @Test

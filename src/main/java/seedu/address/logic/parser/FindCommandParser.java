@@ -19,9 +19,9 @@ public class FindCommandParser implements Parser<FindCommand> {
      * @throws ParseException if the user input does not conform the expected format
      */
     public FindCommand parse(String args) throws ParseException {
-        if (("find" + args).length() > 150) {
+        if (args.trim().length() > 150) {
             throw new ParseException("Error: Search query too long. "
-                    + "Please keep the entire command under 150 characters.");
+                    + "Please keep search keywords under 150 characters.");
         }
 
         String trimmedArgs = args.trim();

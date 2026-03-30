@@ -34,7 +34,7 @@ public class Person {
 
     /**
      * Every field must be present and not null.
-     * Status defaults to NONE with an empty rejection reasons list and DateAdded as current time.
+     * Status defaults to ACTIVE with an empty rejection reasons list and DateAdded as current time.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
         this(name, phone, email, address, tags, Status.ACTIVE, new ArrayList<>(), new DateAdded(), new Priority("no"),
