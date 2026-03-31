@@ -108,4 +108,11 @@ public class SortDateCommandTest {
         // different values -> returns false
         assertFalse(sortAscFirst.equals(sortDesc));
     }
+
+    @Test
+    public void toStringMethod() {
+        SortDateCommand sortDateCommand = new SortDateCommand(true);
+        // Ensure toString doesn't crash and returns a string
+        assertTrue(sortDateCommand.toString() != null);
+    }
 }
