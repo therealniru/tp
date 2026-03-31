@@ -18,7 +18,8 @@ public class Note {
     public static final String MESSAGE_HEADING_CONSTRAINTS =
             "Note heading must not be blank and must not exceed " + MAX_HEADING_LENGTH + " characters.";
     public static final String MESSAGE_CONTENT_CONSTRAINTS =
-            "Note content must not be blank and must not exceed " + MAX_CONTENT_LENGTH + " characters.";
+            "Note content must not be blank, must not contain newline characters,"
+            + " and must not exceed " + MAX_CONTENT_LENGTH + " characters.";
 
     public final String heading;
     public final String content;
@@ -56,14 +57,18 @@ public class Note {
      * Returns true if the given heading string is valid (non-null, non-blank).
      */
     public static boolean isValidHeading(String heading) {
-        return heading != null && !heading.isBlank() && heading.length() <= MAX_HEADING_LENGTH;
+        return heading != null && !heading.isBlank()
+                && !heading.contains("\n") && !heading.contains("\r")
+                && heading.length() <= MAX_HEADING_LENGTH;
     }
 
     /**
      * Returns true if the given content string is valid (non-null, non-blank).
      */
     public static boolean isValidContent(String content) {
-        return content != null && !content.isBlank() && content.length() <= MAX_CONTENT_LENGTH;
+        return content != null && !content.isBlank()
+                && !content.contains("\n") && !content.contains("\r")
+                && content.length() <= MAX_CONTENT_LENGTH;
     }
 
     @Override
