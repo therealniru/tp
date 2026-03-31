@@ -100,4 +100,38 @@ public class NoteCommandParserTest {
     public void parse_nullArgument_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> parser.parse(null));
     }
+
+    @Test
+    public void parse_contentExceedsMaxLength_throwsParseException() {
+        // Content with 501 characters (exceeds MAX_CONTENT_LENGTH of 500)
+        String longContent = "a".repeat(501);
+        assertParseFailure(parser, " 1 n/" + longContent,
+                String.format("Error: Note content must not exceed %d characters (currently %d).",
+                        500, 501));
+    }
+
+    @Test
+    public void parse_contentAtMaxLength_success() throws Exception {
+        // Content with exactly 500 characters (at MAX_CONTENT_LENGTH)
+        String maxContent = "a".repeat(500);
+        NoteCommand cmd = parser.parse(" 1 n/" + maxContent);
+        assertEquals(maxContent, cmd.getNote().content);
+    }
+
+    @Test
+    public void parse_headingExceedsMaxLength_throwsParseException() {
+        // Heading with 51 characters (exceeds MAX_HEADING_LENGTH of 50)
+        String longHeading = "a".repeat(51);
+        assertParseFailure(parser, " 1 n/content h/" + longHeading,
+                String.format("Error: Note heading must not exceed %d characters (currently %d).",
+                        50, 51));
+    }
+
+    @Test
+    public void parse_headingAtMaxLength_success() throws Exception {
+        // Heading with exactly 50 characters (at MAX_HEADING_LENGTH)
+        String maxHeading = "a".repeat(50);
+        NoteCommand cmd = parser.parse(" 1 n/content h/" + maxHeading);
+        assertEquals(maxHeading, cmd.getNote().heading);
+    }
 }

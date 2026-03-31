@@ -181,4 +181,54 @@ public class NoteTest {
     public void constructor_rejectsBlankContent() {
         assertThrows(IllegalArgumentException.class, () -> new Note(HEADING, "   ", FIXED_DATE));
     }
+
+    @Test
+    public void isValidHeading_atMaxLength_returnsTrue() {
+        String maxHeading = "a".repeat(50); // Exactly MAX_HEADING_LENGTH
+        assertTrue(Note.isValidHeading(maxHeading));
+    }
+
+    @Test
+    public void isValidHeading_exceedsMaxLength_returnsFalse() {
+        String tooLongHeading = "a".repeat(51); // Exceeds MAX_HEADING_LENGTH
+        assertFalse(Note.isValidHeading(tooLongHeading));
+    }
+
+    @Test
+    public void isValidContent_atMaxLength_returnsTrue() {
+        String maxContent = "a".repeat(500); // Exactly MAX_CONTENT_LENGTH
+        assertTrue(Note.isValidContent(maxContent));
+    }
+
+    @Test
+    public void isValidContent_exceedsMaxLength_returnsFalse() {
+        String tooLongContent = "a".repeat(501); // Exceeds MAX_CONTENT_LENGTH
+        assertFalse(Note.isValidContent(tooLongContent));
+    }
+
+    @Test
+    public void constructor_rejectsHeadingExceedingMaxLength() {
+        String tooLongHeading = "a".repeat(51); // Exceeds MAX_HEADING_LENGTH
+        assertThrows(IllegalArgumentException.class, () -> new Note(tooLongHeading, CONTENT, FIXED_DATE));
+    }
+
+    @Test
+    public void constructor_rejectsContentExceedingMaxLength() {
+        String tooLongContent = "a".repeat(501); // Exceeds MAX_CONTENT_LENGTH
+        assertThrows(IllegalArgumentException.class, () -> new Note(HEADING, tooLongContent, FIXED_DATE));
+    }
+
+    @Test
+    public void constructor_acceptsHeadingAtMaxLength() {
+        String maxHeading = "a".repeat(50); // Exactly MAX_HEADING_LENGTH
+        Note note = new Note(maxHeading, CONTENT, FIXED_DATE);
+        assertEquals(maxHeading, note.heading);
+    }
+
+    @Test
+    public void constructor_acceptsContentAtMaxLength() {
+        String maxContent = "a".repeat(500); // Exactly MAX_CONTENT_LENGTH
+        Note note = new Note(HEADING, maxContent, FIXED_DATE);
+        assertEquals(maxContent, note.content);
+    }
 }
