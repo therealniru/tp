@@ -57,8 +57,14 @@ class JsonAdaptedNote {
         if (heading == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, "heading"));
         }
+        if (!Note.isValidHeading(heading)) {
+            throw new IllegalValueException(Note.MESSAGE_HEADING_CONSTRAINTS);
+        }
         if (content == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, "content"));
+        }
+        if (!Note.isValidContent(content)) {
+            throw new IllegalValueException(Note.MESSAGE_CONTENT_CONSTRAINTS);
         }
         if (date == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, "date"));

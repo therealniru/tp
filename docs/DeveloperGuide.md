@@ -244,13 +244,15 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 **Aspect: Tag lifecycle — why a two-step workflow?**
 
+Talently is designed for Applicant Tracking System (ATS) workflows where missing a qualified candidate due to a mistagged record can mean a real business loss. In recruitment, tags drive filtering and shortlisting — if a candidate is tagged `Shotlisted` instead of `Shortlisted`, they silently disappear from filtered views and may never be reviewed. A master tag pool enforces a controlled vocabulary: recruiters pick from a pre-approved list rather than free-typing, eliminating typo-created tags entirely. This is more deliberate than ad-hoc tagging, but the tradeoff is justified because the cost of one missed candidate far outweighs the small overhead of creating tags upfront.
+
 * **Alternative 1 (current choice):** Tags must be created in the tag pool (`tagpool a/TAG`) before assignment (`tag INDEX a/TAG`).
-  * Pros: Prevents typo-created tags (e.g., `Shotlisted` vs `Shortlisted`). Ensures canonical casing. Pool deletion cascades cleanly to all candidates.
-  * Cons: Extra step for the user.
+  * Pros: Prevents typo-created tags (e.g., `Shotlisted` vs `Shortlisted`). Ensures canonical casing and a single source of truth for all valid tags. Pool deletion cascades cleanly to all candidates, maintaining referential integrity. Recruiters can view all available tags at a glance.
+  * Cons: Extra step for the user — tags must be pre-created before first use.
 
 * **Alternative 2:** Tags are created implicitly when first assigned to a candidate.
   * Pros: Faster for one-off tagging.
-  * Cons: Typos create rogue tags. No centralised view of all available tags. Deletion semantics become ambiguous (delete from one candidate? from all?).
+  * Cons: Typos create rogue tags that silently fragment the dataset. No centralised view of all available tags. Deletion semantics become ambiguous (delete from one candidate? from all?). In an ATS context, this risks candidates being lost during filtering.
 
 ### Duplicate detection design
 
@@ -399,7 +401,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 **MSS:**
 1. User requests to filter the candidate list by specifying exactly one tag name.
-2. System validates the tag format (letters, numbers, or hyphens, 1–30 characters).
+2. System validates the tag format (must start with a letter or number; may contain letters, numbers, hyphens, dots, or plus signs; no spaces; 1–30 characters).
 3. System filters the list to show only candidates who have that tag assigned (case-insensitive match).
 4. System shows the matching candidates with a count.
    Use case ends.
@@ -458,6 +460,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2a1. System informs the user that the result set is empty.
     * Use case ends.
 
+**Design justification:** Search uses OR semantics (matching *any* keyword) and is case-insensitive, so a user who mis-remembers part of a candidate's details can still find them (e.g., `find alice richards` returns both "Alice Davidson" and "Alison Richards"). The search covers name, phone, email, notes, and rejection reasons — the fields most likely to contain recall cues — while excluding address to avoid false-positive noise. Keywords are limited to 20 (max 150 characters total) to prevent accidental over-filtering.
 
 **Use case: UC7 - Assigning a tag to a candidate**
 
@@ -493,7 +496,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 **MSS:**
 1. User requests to create or delete tags in the master tag pool.
-2. System validates all tag names (alphanumeric, 1–30 characters) and checks for conflicts.
+2. System validates all tag names (must start with a letter or number; may contain letters, numbers, hyphens, dots, or plus signs; no spaces; 1–30 characters) and checks for conflicts.
 3. System adds new tags to the pool.
 4. For any tags being deleted, system removes them from all candidates who currently hold them (cascading deletion).
 5. System removes the tags from the pool.
@@ -509,6 +512,12 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * Use case ends.
 * 2c. Same tag appears in both create and delete lists.
     * 2c1. System informs the user of the conflict. No changes are made.
+    * Use case ends.
+* 2d. Duplicate tag names within the create list (case-insensitive, e.g., `a/Java a/java`).
+    * 2d1. System informs the user of the duplicate. No changes are made.
+    * Use case ends.
+* 2e. Duplicate tag names within the delete list (case-insensitive).
+    * 2e1. System informs the user of the duplicate. No changes are made.
     * Use case ends.
 
 **Design justification:** Deleting a tag from the pool cascades to all candidates. This maintains referential integrity — no candidate can hold a tag that doesn't exist in the pool. The cascading sweep uses snapshot iteration to avoid concurrent modification issues. All validations run before any mutations (fail-fast atomicity).
@@ -569,7 +578,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 **MSS:**
 1. User requests to add a note to a candidate by index, providing content and an optional heading.
-2. System validates the index and content (must be non-empty).
+2. System validates the index and content (must be non-empty; content max 500 characters, heading max 50 characters).
 3. System creates a timestamped note and appends it to the candidate's record.
 4. System informs the user of success.
    Use case ends.
@@ -581,8 +590,11 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * 2a. Content is empty or blank.
     * 2a1. System informs the user that note content is required.
     * Use case ends.
-* 2b. Duplicate `n/` or `h/` prefixes detected.
-    * 2b1. System informs the user that duplicate prefixes are not allowed.
+* 2b. Content exceeds 500 characters or heading exceeds 50 characters.
+    * 2b1. System informs the user of the character limit.
+    * Use case ends.
+* 2c. Duplicate `n/` or `h/` prefixes detected.
+    * 2c1. System informs the user that duplicate prefixes are not allowed.
     * Use case ends.
 
 **Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed.
@@ -690,7 +702,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **Rejection History:** A chronological list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles.
 * **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Tags may contain letters, numbers, hyphens, dots, and `+` signs (no spaces). Comparison is case-insensitive.
 * **Tag Pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Deleting a tag from the pool cascades the removal to all candidates.
-* **Note:** A timestamped text entry attached to a candidate, with an optional heading. Notes are append-only and ordered chronologically.
+* **Note:** A timestamped text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes are append-only and ordered chronologically.
 * **Status:** A candidate's current stage in the hiring pipeline: `active`, `rejected`, `hired`, or `blacklisted`.
 * **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates can be surfaced with `sort pr o/asc`.
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
@@ -724,7 +736,19 @@ testers are expected to do more *exploratory* testing.
    1. Re-launch the app by double-clicking the jar file.<br>
        Expected: The most recent window size and location is retained.
 
-1. _{ more test cases …​ }_
+1. Launching with missing data file
+
+   1. Delete the `data/addressbook.json` file (if it exists) from the app's directory.
+
+   1. Launch the app.<br>
+      Expected: The app starts with sample data. A new `data/addressbook.json` file is created.
+
+1. Launching with corrupted data file
+
+   1. Open `data/addressbook.json` and replace its contents with `{ invalid json }`.
+
+   1. Launch the app.<br>
+      Expected: The app starts with an empty address book. The corrupted file is overwritten on the next save.
 
 ### Removing a candidate
 
@@ -748,10 +772,69 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `remove 1`<br>
       Expected: First candidate in the filtered list is removed. The removal applies to the correct candidate, not the first in the full list.
 
+### Adding a note to a candidate
+
+1. Adding a note with valid input
+
+   1. Prerequisites: List all candidates using the `list` command. At least one candidate in the list.
+
+   1. Test case: `note 1 n/Strong technical skills. h/Tech Round 1`<br>
+      Expected: A note with heading "Tech Round 1" and content "Strong technical skills." is appended to the first candidate. Timestamp is the current date and time.
+
+   1. Test case: `note 1 n/Quick follow-up needed.`<br>
+      Expected: A note with default heading "General Note" is appended. Content is "Quick follow-up needed."
+
+1. Adding a note with invalid input
+
+   1. Test case: `note 0 n/content`<br>
+      Expected: Error message indicating invalid index.
+
+   1. Test case: `note 1 n/`<br>
+      Expected: Error message indicating note content cannot be empty.
+
+   1. Test case: `note 1 n/content n/more`<br>
+      Expected: Error message indicating duplicate prefixes are not allowed.
+
+### Managing the tag pool
+
+1. Adding and removing tags from the pool
+
+   1. Test case: `tagpool a/Frontend`<br>
+      Expected: Tag "Frontend" is added to the pool. Success message displayed.
+
+   1. Test case: `tagpool a/Frontend` (again)<br>
+      Expected: Error message indicating the tag already exists in the pool.
+
+   1. Test case: `tagpool a/Frontend a/frontend`<br>
+      Expected: Error message indicating duplicate tag in the add list (case-insensitive comparison).
+
+   1. Test case: `tagpool d/Frontend`<br>
+      Expected: Tag "Frontend" is removed from the pool and from all candidates who had it.
+
+### Finding candidates
+
+1. Finding by keywords
+
+   1. Prerequisites: Multiple candidates with varying names, notes, and rejection reasons.
+
+   1. Test case: `find John`<br>
+      Expected: All candidates whose name, phone, email, note content/headings, or rejection reasons contain "john" (case-insensitive) are shown.
+
+   1. Test case: `find @#$`<br>
+      Expected: Error message indicating invalid characters. Only letters, digits, and symbols ``- ' . / @ + _`` are allowed.
+
 ### Saving data
 
 1. Dealing with missing/corrupted data files
 
-   1. _{explain how to simulate a missing/corrupted file, and the expected behavior}_
+   1. To simulate a missing file: delete `data/addressbook.json` and relaunch the app.<br>
+      Expected: The app starts with sample data.
 
-1. _{ more test cases …​ }_
+   1. To simulate a corrupted file: open `data/addressbook.json` and add invalid JSON syntax (e.g., delete a closing brace).<br>
+      Expected: The app starts with an empty address book.
+
+   1. To simulate invalid field values: open `data/addressbook.json` and change a note's date to `"2025-02-30T10:00:00"` (invalid date).<br>
+      Expected: The app starts with an empty address book (graceful recovery).
+
+   1. To simulate orphaned tags: open `data/addressbook.json` and add a tag to a person that does not exist in the `"tags"` pool array.<br>
+      Expected: The app starts with an empty address book (graceful recovery).

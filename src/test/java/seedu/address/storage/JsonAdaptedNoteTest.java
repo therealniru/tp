@@ -79,4 +79,62 @@ public class JsonAdaptedNoteTest {
     public void constructor_fromNote_requiresNonNullNote() {
         assertThrows(NullPointerException.class, () -> new JsonAdaptedNote(null));
     }
+
+    @Test
+    public void toModelType_blankHeading_throwsIllegalValueException() {
+        JsonAdaptedNote adapted = new JsonAdaptedNote("   ", VALID_CONTENT, VALID_DATE.toString());
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_blankContent_throwsIllegalValueException() {
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, "   ", VALID_DATE.toString());
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_headingExceedsMaxLength_throwsIllegalValueException() {
+        String longHeading = "a".repeat(51); // Exceeds MAX_HEADING_LENGTH of 50
+        JsonAdaptedNote adapted = new JsonAdaptedNote(longHeading, VALID_CONTENT, VALID_DATE.toString());
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_contentExceedsMaxLength_throwsIllegalValueException() {
+        String longContent = "a".repeat(501); // Exceeds MAX_CONTENT_LENGTH of 500
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, longContent, VALID_DATE.toString());
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_headingAtMaxLength_success() throws Exception {
+        String maxHeading = "a".repeat(50); // At MAX_HEADING_LENGTH of 50
+        JsonAdaptedNote adapted = new JsonAdaptedNote(maxHeading, VALID_CONTENT, VALID_DATE.toString());
+        Note restored = adapted.toModelType();
+        assertEquals(maxHeading, restored.heading);
+    }
+
+    @Test
+    public void toModelType_contentAtMaxLength_success() throws Exception {
+        String maxContent = "a".repeat(500); // At MAX_CONTENT_LENGTH of 500
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, maxContent, VALID_DATE.toString());
+        Note restored = adapted.toModelType();
+        assertEquals(maxContent, restored.content);
+    }
+
+    @Test
+    public void toModelType_invalidDateWithTimezone_throwsIllegalValueException() {
+        // LocalDateTime.parse() does not accept timezone suffixes like Z or +08:00
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, VALID_CONTENT,
+                "2025-01-01T10:00:00Z");
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_invalidDateNonExistentDay_throwsIllegalValueException() {
+        // Feb 30 does not exist
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, VALID_CONTENT,
+                "2025-02-30T10:00:00");
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
 }

@@ -19,6 +19,9 @@ public class NoteCommandParser implements Parser<NoteCommand> {
 
     public static final String MESSAGE_INVALID_FORMAT =
             "Error: Note content cannot be empty. Usage: note INDEX n/CONTENT [h/HEADING]";
+    public static final String MESSAGE_INVALID_INDEX =
+            "Error: Invalid index. Please provide a valid positive integer.\n"
+            + "Usage: note INDEX n/CONTENT [h/HEADING]";
 
     private static final Logger logger = LogsCenter.getLogger(NoteCommandParser.class);
     private static final String DEFAULT_HEADING = "General Note";
@@ -38,7 +41,7 @@ public class NoteCommandParser implements Parser<NoteCommand> {
         try {
             index = ParserUtil.parseIndex(argMultimap.getPreamble());
         } catch (ParseException pe) {
-            throw new ParseException(MESSAGE_INVALID_FORMAT, pe);
+            throw new ParseException(MESSAGE_INVALID_INDEX, pe);
         }
 
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE_CONTENT, PREFIX_NOTE_HEADING);
@@ -51,11 +54,22 @@ public class NoteCommandParser implements Parser<NoteCommand> {
         if (content.isEmpty()) {
             throw new ParseException(MESSAGE_INVALID_FORMAT);
         }
+        if (content.length() > Note.MAX_CONTENT_LENGTH) {
+            throw new ParseException(String.format(
+                    "Error: Note content must not exceed %d characters (currently %d).",
+                    Note.MAX_CONTENT_LENGTH, content.length()));
+        }
 
         String heading = argMultimap.getValue(PREFIX_NOTE_HEADING)
                 .map(String::trim)
                 .filter(h -> !h.isEmpty())
                 .orElse(DEFAULT_HEADING);
+
+        if (heading.length() > Note.MAX_HEADING_LENGTH) {
+            throw new ParseException(String.format(
+                    "Error: Note heading must not exceed %d characters (currently %d).",
+                    Note.MAX_HEADING_LENGTH, heading.length()));
+        }
 
         logger.fine("Parsed note command: index=" + index.getOneBased()
                 + ", heading=" + heading + ", content=" + content);
