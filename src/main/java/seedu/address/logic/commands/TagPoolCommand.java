@@ -65,14 +65,33 @@ public class TagPoolCommand extends Command {
             }
         }
 
-        // 1b. Additions check
+        // 1b. Duplicate check within toAdd list
+        for (int i = 0; i < toAdd.size(); i++) {
+            for (int j = i + 1; j < toAdd.size(); j++) {
+                if (toAdd.get(i).equals(toAdd.get(j))) {
+                    throw new CommandException(String.format(MESSAGE_DUPLICATE_ADD, toAdd.get(j).tagName));
+                }
+            }
+        }
+
+        // 1c. Duplicate check within toDelete list
+        for (int i = 0; i < toDelete.size(); i++) {
+            for (int j = i + 1; j < toDelete.size(); j++) {
+                if (toDelete.get(i).equals(toDelete.get(j))) {
+                    throw new CommandException(
+                            String.format("Error: Duplicate tag '%s' in delete list.", toDelete.get(j).tagName));
+                }
+            }
+        }
+
+        // 1d. Additions check against existing pool
         for (Tag tag : toAdd) {
             if (model.hasTag(tag)) {
                 throw new CommandException(String.format(MESSAGE_DUPLICATE_ADD, tag.tagName));
             }
         }
 
-        // 1c. Deletions check
+        // 1e. Deletions check against existing pool
         for (Tag tag : toDelete) {
             if (!model.hasTag(tag)) {
                 throw new CommandException(String.format(MESSAGE_MISSING_DELETE, tag.tagName));

@@ -94,6 +94,8 @@ Ready for more? Continue to [Features](#features).
 * Commands with no parameters (e.g. `help`, `list`, `exit`, `clear`, `undo`, `redo`) do not take any arguments.
 * Avoid copying multi-line commands from a PDF — spaces around line breaks may be lost.
 * Prefixes like `n/`, `p/`, `e/`, `a/` are recognised when preceded by a space. If your input text naturally contains these sequences (e.g., an address containing ` a/` or ` n/`), the text after them may be mis-parsed. Rephrase if needed (e.g., `a/Blk 123 North Rd` instead of `a/Blk 123 n/orth Rd`).
+* **Input normalization:** Names have extra whitespace collapsed (e.g., `John    Doe` becomes `John Doe`). Emails are automatically lowercased (e.g., `John@Gmail.COM` becomes `john@gmail.com`). Phone numbers with or without the `+` prefix are treated as the same number for duplicate detection (e.g., `+6591234567` and `6591234567` are duplicates).
+* **Providing duplicate prefixes** (e.g., `n/Alice n/Bob`) in a single command is not allowed and will be rejected with an error.
 
 </div>
 
@@ -236,7 +238,9 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * Case-insensitive. Partial matches supported.
 * Candidates matching **any** keyword are returned (OR logic).
 * Max 20 keywords. Total command length max 150 characters.
-* Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_`
+* Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_` (non-ASCII characters such as accented letters or emojis are not supported)
+* Duplicate keywords are automatically removed (e.g., `find john john` searches for `john` once).
+* `find` replaces any active `filter` — the results show matches from the full candidate list, not the currently filtered view.
 
 <div markdown="span" class="alert alert-info">
 :information_source: **Note:** `find` does not search the address field. To locate a candidate by address, scroll through the list or use `show` on individual candidates.
@@ -260,7 +264,7 @@ Format: `filter TAG`
 
 * Exact match (not partial). `Java` does not match `JavaScript`.
 * Case-insensitive. `java` matches `Java`.
-* Tag must follow naming rules: letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters.
+* Tag must follow naming rules: must start with a letter or number, followed by letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `filter` to pull all candidates at a specific hiring stage, e.g. `filter Shortlisted`.
@@ -301,7 +305,7 @@ Records a rejection against a candidate and appends a reason to their history.
 Format: `reject INDEX r/REASON`
 
 * `INDEX` must be a positive integer.
-* `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/`.
+* `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)`.
 * **Automatically sets the candidate's status to `rejected`.**
 * Each `reject` call appends to the rejection history — previous entries are not overwritten.
 * The candidate's card shows a **red badge** with the total rejection count.
@@ -394,10 +398,11 @@ Adds a timestamped note to a candidate's record.
 Format: `note INDEX n/CONTENT [h/HEADING]`
 
 * `INDEX` must be a positive integer.
-* `CONTENT` is required and must not be blank.
-* `HEADING` is optional. Defaults to `General Note` if omitted.
+* `CONTENT` is required, must not be blank, and must not exceed 500 characters.
+* `HEADING` is optional. Defaults to `General Note` if omitted. Must not exceed 50 characters.
 * Each note is automatically stamped with the current date and time.
 * Notes are appended in order — earlier notes are never overwritten.
+* Note content and headings must not contain the sequences ` n/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use descriptive headings (e.g. `h/Tech Round 1`, `h/HR Interview`) to organise notes by hiring stage. View all notes with `show INDEX`.
@@ -421,9 +426,10 @@ Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
 
 * At least one `a/` or `d/` prefix is required.
 * Max 10 tags per command.
-* Tag names: letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
+* Tag names: must start with a letter or number, followed by letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
 * Cannot create a tag that already exists, or delete one that does not exist.
 * Cannot create and delete the same tag in one command.
+* Duplicate tags within the same add or delete list are not allowed (e.g., `tagpool a/Java a/java` is rejected because tags are case-insensitive).
 
 <div markdown="span" class="alert alert-warning">
 :warning: **Warning:** Deleting a tag removes it from **all candidates** currently holding it. Use `undo` immediately to reverse.
@@ -568,8 +574,7 @@ A: The legacy status value `NONE` is automatically migrated to `active`. Save fi
 1. **Multiple screens:** If Talently was last used on a secondary screen that is now disconnected, the window may open off-screen.
    **Fix:** Delete `preferences.json` from the home folder before relaunching.
 
-2. **Minimised Help Window:** Running `help` again while the window is minimised does not restore it.
-   **Fix:** Restore the window manually from the taskbar.
+2. ~~**Minimised Help Window:**~~ **Fixed.** The help window is now automatically restored and brought to front when `help` is run again.
 
 --------------------------------------------------------------------------------------------------------------------
 

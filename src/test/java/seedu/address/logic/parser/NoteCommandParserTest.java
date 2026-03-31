@@ -29,24 +29,24 @@ public class NoteCommandParserTest {
     @Test
     public void parse_missingContentPrefix_throwsParseException() {
         assertParseFailure(parser, " 1 some content",
-                NoteCommandParser.MESSAGE_INVALID_FORMAT);
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
     }
 
     @Test
     public void parse_invalidIndex_throwsParseException() {
         assertParseFailure(parser, " 0 n/content",
-                NoteCommandParser.MESSAGE_INVALID_FORMAT);
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " -1 n/content",
-                NoteCommandParser.MESSAGE_INVALID_FORMAT);
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " abc n/content",
-                NoteCommandParser.MESSAGE_INVALID_FORMAT);
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
     }
 
     @Test
     public void parse_trailingGarbageInPreamble_throwsParseException() {
         // preamble "1 oops" is not a valid index
         assertParseFailure(parser, " 1 oops n/text",
-                NoteCommandParser.MESSAGE_INVALID_FORMAT);
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
     }
 
     @Test

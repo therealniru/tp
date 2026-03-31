@@ -90,6 +90,28 @@ public class TagPoolCommandTest {
     }
 
     @Test
+    public void execute_duplicateWithinAddList_throwsCommandException() {
+        ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
+        Tag frontend = new Tag("Frontend");
+        Tag frontendLower = new Tag("frontend"); // same tag, different case
+
+        TagPoolCommand cmd = new TagPoolCommand(List.of(frontend, frontendLower), Collections.emptyList());
+        assertThrows(CommandException.class,
+                String.format(TagPoolCommand.MESSAGE_DUPLICATE_ADD, "frontend"), () -> cmd.execute(model));
+    }
+
+    @Test
+    public void execute_duplicateWithinDeleteList_throwsCommandException() {
+        ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
+        Tag backend = new Tag("Backend");
+        model.addTag(backend);
+
+        Tag backendUpper = new Tag("BACKEND"); // same tag, different case
+        TagPoolCommand cmd = new TagPoolCommand(Collections.emptyList(), List.of(backend, backendUpper));
+        assertThrows(CommandException.class, () -> cmd.execute(model));
+    }
+
+    @Test
     public void execute_atomicityNoMutation_throwsCommandException() {
         ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
         Tag newTag = new Tag("NewTag");

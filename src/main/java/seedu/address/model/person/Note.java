@@ -12,10 +12,13 @@ import java.util.Objects;
  */
 public class Note {
 
+    public static final int MAX_HEADING_LENGTH = 50;
+    public static final int MAX_CONTENT_LENGTH = 500;
+
     public static final String MESSAGE_HEADING_CONSTRAINTS =
-            "Note heading must not be blank.";
+            "Note heading must not be blank and must not exceed " + MAX_HEADING_LENGTH + " characters.";
     public static final String MESSAGE_CONTENT_CONSTRAINTS =
-            "Note content must not be blank.";
+            "Note content must not be blank and must not exceed " + MAX_CONTENT_LENGTH + " characters.";
 
     public final String heading;
     public final String content;
@@ -53,14 +56,14 @@ public class Note {
      * Returns true if the given heading string is valid (non-null, non-blank).
      */
     public static boolean isValidHeading(String heading) {
-        return heading != null && !heading.isBlank();
+        return heading != null && !heading.isBlank() && heading.length() <= MAX_HEADING_LENGTH;
     }
 
     /**
      * Returns true if the given content string is valid (non-null, non-blank).
      */
     public static boolean isValidContent(String content) {
-        return content != null && !content.isBlank();
+        return content != null && !content.isBlank() && content.length() <= MAX_CONTENT_LENGTH;
     }
 
     @Override
