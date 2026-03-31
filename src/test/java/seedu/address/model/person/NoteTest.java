@@ -158,6 +158,19 @@ public class NoteTest {
     }
 
     @Test
+    public void isValidContent_containsNewline_returnsFalse() {
+        assertFalse(Note.isValidContent("hello\nworld"));
+        assertFalse(Note.isValidContent("hello\rworld"));
+        assertFalse(Note.isValidContent("hello\r\nworld"));
+    }
+
+    @Test
+    public void isValidHeading_containsNewline_returnsFalse() {
+        assertFalse(Note.isValidHeading("Tech\nRound"));
+        assertFalse(Note.isValidHeading("Tech\rRound"));
+    }
+
+    @Test
     public void constructor_requiresNonNullHeading() {
         assertThrows(NullPointerException.class, () -> new Note(null, CONTENT, FIXED_DATE));
     }
