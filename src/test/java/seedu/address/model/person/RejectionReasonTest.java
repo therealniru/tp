@@ -33,8 +33,8 @@ public class RejectionReasonTest {
         assertFalse(RejectionReason.isValidReason("a".repeat(201)));
 
         // invalid characters
-        assertFalse(RejectionReason.isValidReason("Reason @invalid"));
-        assertFalse(RejectionReason.isValidReason("Reason #tag"));
+        assertFalse(RejectionReason.isValidReason("Reason <invalid"));
+        assertFalse(RejectionReason.isValidReason("Reason ^ tag"));
 
         // valid reasons
         assertTrue(RejectionReason.isValidReason("Failed technical interview"));

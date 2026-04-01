@@ -23,9 +23,18 @@ public class FindCommandParserTest {
     @Test
     public void parse_invalidChars_throwsParseException() {
         String expectedMessage = "Error: Invalid characters detected. "
-                + "Keywords can only contain letters, numbers, and symbols: - ' . / @ + _";
+                + "Keywords can only contain letters, numbers, and symbols: - ' . / @ + _ : ; ! ? ( )";
         assertParseFailure(parser, " john*doe", expectedMessage);
-        assertParseFailure(parser, " john!doe", expectedMessage);
+        assertParseFailure(parser, " john#doe", expectedMessage);
+        assertParseFailure(parser, " john$doe", expectedMessage);
+    }
+
+    @Test
+    public void parse_validSpecialChars_success() {
+        // Characters used in rejection reasons should be searchable
+        FindCommand expected = new FindCommand(new NamePhoneEmailContainsKeywordsPredicate(
+                Arrays.asList("failed!", "round(2)", "note:")));
+        assertParseSuccess(parser, " Failed! round(2) note:", expected);
     }
 
     @Test

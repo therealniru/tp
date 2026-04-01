@@ -16,7 +16,8 @@ public class Note {
     public static final int MAX_CONTENT_LENGTH = 500;
 
     public static final String MESSAGE_HEADING_CONSTRAINTS =
-            "Note heading must not be blank and must not exceed " + MAX_HEADING_LENGTH + " characters.";
+            "Note heading must not be blank, must not contain newline characters,"
+            + " and must not exceed " + MAX_HEADING_LENGTH + " characters.";
     public static final String MESSAGE_CONTENT_CONSTRAINTS =
             "Note content must not be blank, must not contain newline characters,"
             + " and must not exceed " + MAX_CONTENT_LENGTH + " characters.";

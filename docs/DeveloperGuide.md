@@ -9,7 +9,7 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
-* {list here sources of all reused/adapted ideas, code, documentation, and third-party libraries -- include links to the original source as well}
+* This project is based on the [AddressBook-Level3 (AB3)](https://se-education.org/addressbook-level3/) project created by the [SE-EDU initiative](https://se-education.org).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -368,7 +368,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 **Use case: UC3 - Recording a rejection with reason**
 
-**Preconditions:** The candidate exists in the system and is not blacklisted.
+**Preconditions:** The candidate exists in the system, is not blacklisted, and is not hired.
 
 **MSS:**
 1. User requests to reject a specific candidate by index, providing a rejection reason.
@@ -597,7 +597,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2c1. System informs the user that duplicate prefixes are not allowed.
     * Use case ends.
 
-**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed.
+**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed. Newline characters in pasted content are automatically converted to spaces to prevent JSON formatting issues and ensure single-line display.
 
 
 **Use case: UC12 - Sorting candidates by priority**
@@ -708,6 +708,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
 * **Identifier:** The reference used by the recruiter to execute commands on a specific candidate (often an index number representing their position in the current list).
 * **JSON (JavaScript Object Notation):** A lightweight, text-based data format used by the system to save and load candidate records locally in a human-readable format.
+* **Duplicate Candidate:** A candidate whose phone number or email address matches that of an existing candidate in the system. The `add` and `edit` commands prevent duplicates based on this definition.
 * **Mainstream OS:** Windows, Linux, macOS.
 
 --------------------------------------------------------------------------------------------------------------------
@@ -738,14 +739,14 @@ testers are expected to do more *exploratory* testing.
 
 1. Launching with missing data file
 
-   1. Delete the `data/addressbook.json` file (if it exists) from the app's directory.
+   1. Delete the `data/talently.json` file (if it exists) from the app's directory.
 
    1. Launch the app.<br>
-      Expected: The app starts with sample data. A new `data/addressbook.json` file is created.
+      Expected: The app starts with sample data. A new `data/talently.json` file is created.
 
 1. Launching with corrupted data file
 
-   1. Open `data/addressbook.json` and replace its contents with `{ invalid json }`.
+   1. Open `data/talently.json` and replace its contents with `{ invalid json }`.
 
    1. Launch the app.<br>
       Expected: The app starts with an empty address book. The corrupted file is overwritten on the next save.
@@ -771,6 +772,61 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `remove 1`<br>
       Expected: First candidate in the filtered list is removed. The removal applies to the correct candidate, not the first in the full list.
+
+### Editing a candidate
+
+1. Editing a candidate with valid input
+
+   1. Prerequisites: List all candidates using the `list` command. At least two candidates in the list.
+
+   1. Test case: `edit 1 n/Alice Tan`<br>
+      Expected: First candidate's name is updated to "Alice Tan". Success message shown.
+
+   1. Test case: `edit 1 p/91112222 e/newemail@example.com`<br>
+      Expected: First candidate's phone and email are updated. Success message shown.
+
+   1. Test case: `edit 1 pr/yes`<br>
+      Expected: First candidate's priority is set to high. Success message shown.
+
+1. Editing a candidate with invalid input
+
+   1. Test case: `edit 0 n/Alice`<br>
+      Expected: Error message indicating invalid index.
+
+   1. Test case: `edit 1`<br>
+      Expected: Error message indicating at least one field must be provided.
+
+   1. Test case: Edit the first candidate's phone to match the second candidate's phone.<br>
+      Expected: Error message identifying the conflicting phone number and the existing candidate.
+
+   1. Test case: `edit 1 n/alice` when the first candidate's name is already "alice" (same values).<br>
+      Expected: Message indicating no changes detected.
+
+### Rejecting a candidate
+
+1. Rejecting a candidate with valid input
+
+   1. Prerequisites: List all candidates using the `list` command. At least one active candidate.
+
+   1. Test case: `reject 1 r/Failed technical interview`<br>
+      Expected: Candidate's status changes to REJECTED. Rejection reason is recorded. Success message with rejection count shown.
+
+   1. Test case: Reject the same candidate again with the same reason.<br>
+      Expected: Rejection is recorded but a duplicate warning is shown.
+
+1. Rejecting with invalid input or status
+
+   1. Test case: `reject 0 r/reason`<br>
+      Expected: Error message indicating invalid index.
+
+   1. Test case: `reject 1 r/` (empty reason)<br>
+      Expected: Error message indicating invalid rejection reason.
+
+   1. Test case: Reject a candidate whose status is `hired`.<br>
+      Expected: Error message stating hired candidates cannot be rejected.
+
+   1. Test case: Reject a candidate whose status is `blacklisted`.<br>
+      Expected: Error message stating blacklisted candidates cannot be rejected.
 
 ### Adding a note to a candidate
 
@@ -821,20 +877,20 @@ testers are expected to do more *exploratory* testing.
       Expected: All candidates whose name, phone, email, note content/headings, or rejection reasons contain "john" (case-insensitive) are shown.
 
    1. Test case: `find @#$`<br>
-      Expected: Error message indicating invalid characters. Only letters, digits, and symbols ``- ' . / @ + _`` are allowed.
+      Expected: Error message indicating invalid characters. Only letters, digits, and symbols ``- ' . / @ + _ : ; ! ? ( )`` are allowed.
 
 ### Saving data
 
 1. Dealing with missing/corrupted data files
 
-   1. To simulate a missing file: delete `data/addressbook.json` and relaunch the app.<br>
+   1. To simulate a missing file: delete `data/talently.json` and relaunch the app.<br>
       Expected: The app starts with sample data.
 
-   1. To simulate a corrupted file: open `data/addressbook.json` and add invalid JSON syntax (e.g., delete a closing brace).<br>
+   1. To simulate a corrupted file: open `data/talently.json` and add invalid JSON syntax (e.g., delete a closing brace).<br>
       Expected: The app starts with an empty address book.
 
-   1. To simulate invalid field values: open `data/addressbook.json` and change a note's date to `"2025-02-30T10:00:00"` (invalid date).<br>
+   1. To simulate invalid field values: open `data/talently.json` and change a note's date to `"2025-02-30T10:00:00"` (invalid date).<br>
       Expected: The app starts with an empty address book (graceful recovery).
 
-   1. To simulate orphaned tags: open `data/addressbook.json` and add a tag to a person that does not exist in the `"tags"` pool array.<br>
+   1. To simulate orphaned tags: open `data/talently.json` and add a tag to a person that does not exist in the `"tags"` pool array.<br>
       Expected: The app starts with an empty address book (graceful recovery).

@@ -122,9 +122,9 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
 | Parameter | Prefix | Required | Rules |
 |---|---|---|---|
 | NAME | `n/` | Yes | Letters, spaces, hyphens, apostrophes, periods, slashes. No digits. Max 100 characters. |
-| PHONE | `p/` | Yes | Digits only, optional `+` prefix. 3–15 digits. |
+| PHONE | `p/` | Yes | Digits only, optional `+` prefix. 3–15 digits. All-zero numbers (e.g., `000`) are not allowed. |
 | EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. |
-| ADDRESS | `a/` | Yes | Any non-empty text. |
+| ADDRESS | `a/` | Yes | Any non-empty text. Max 200 characters. |
 | PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
 | STATUS | `s/` | No | `active`, `rejected`, `hired`, `blacklisted`. Default: `active`. |
 
@@ -173,7 +173,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/ST
 * Unspecified fields are unchanged.
 * `PRIORITY`: `yes` or `no` (case-insensitive — `YES`, `Yes`, `NO` are all accepted).
 * `STATUS`: `active`, `rejected`, `hired`, `blacklisted` (case-insensitive).
-* If the new values are identical to the existing ones, a message indicating no changes were detected is shown and no modification is made.
+* If the new values are identical to the existing ones (including casing), a message indicating no changes were detected is shown and no modification is made. Case-only changes (e.g., `alice` → `Alice`) are treated as real edits.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** To re-activate a previously rejected candidate, use `edit INDEX s/active`. Their rejection history is preserved.
@@ -238,12 +238,12 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * Case-insensitive. Partial matches supported.
 * Candidates matching **any** keyword are returned (OR logic).
 * Max 20 keywords. Total command length max 150 characters.
-* Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_` (non-ASCII characters such as accented letters or emojis are not supported)
+* Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_` `:` `;` `!` `?` `(` `)` (non-ASCII characters such as accented letters or emojis are not supported)
 * Duplicate keywords are automatically removed (e.g., `find john john` searches for `john` once).
 * `find` replaces any active `filter` — the results show matches from the full candidate list, not the currently filtered view.
 
 <div markdown="span" class="alert alert-info">
-:information_source: **Note:** `find` does not search the address field. To locate a candidate by address, scroll through the list or use `show` on individual candidates.
+:information_source: **Note:** `find` does not search the address field or tags. To locate candidates by address, scroll through the list or use `show` on individual candidates. To search by tag, use the `filter` command instead.
 </div>
 
 Examples:
@@ -305,7 +305,7 @@ Records a rejection against a candidate and appends a reason to their history.
 Format: `reject INDEX r/REASON`
 
 * `INDEX` must be a positive integer.
-* `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)`.
+* `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)` `&` `"` `#` `+` `%` `@` `*`.
 * **Automatically sets the candidate's status to `rejected`.**
 * Each `reject` call appends to the rejection history — previous entries are not overwritten.
 * The candidate's card shows a **red badge** with the total rejection count.
@@ -384,7 +384,7 @@ Format: `sort pr o/ORDER`
 </div>
 
 Examples:
-* `sort pr o/asc` — High-priority candidates first.
+* `sort pr o/asc` — High-priority candidates first (note: for priority, ascending order puts high values first).
 * `sort pr o/desc` — High-priority candidates last.
 
 <p align="center"><img src="images/sort%20pr%20command.png" alt="Expected result after running sort pr" width="730"/></p>
@@ -402,6 +402,7 @@ Format: `note INDEX n/CONTENT [h/HEADING]`
 * `HEADING` is optional. Defaults to `General Note` if omitted. Must not exceed 50 characters.
 * Each note is automatically stamped with the current date and time.
 * Notes are appended in order — earlier notes are never overwritten.
+* Newline characters in pasted content are automatically converted to spaces.
 * Note content and headings must not contain the sequences ` n/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
 
 <div markdown="span" class="alert alert-primary">

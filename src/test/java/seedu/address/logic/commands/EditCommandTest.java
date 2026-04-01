@@ -162,7 +162,7 @@ public class EditCommandTest {
         EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON, descriptor);
 
         String expectedMessage = String.format("Error: This edit would duplicate an existing candidate. "
-                        + "Phone %s or Email %s is already assigned to %s.",
+                        + "Phone %s and Email %s are already assigned to %s.",
                 firstPerson.getPhone().value, firstPerson.getEmail().value, firstPerson.getName().fullName);
 
         assertCommandFailure(editCommand, model, expectedMessage);
@@ -178,10 +178,59 @@ public class EditCommandTest {
                 new EditPersonDescriptorBuilder(personInList).build());
 
         String expectedMessage = String.format("Error: This edit would duplicate an existing candidate. "
-                        + "Phone %s or Email %s is already assigned to %s.",
+                        + "Phone %s and Email %s are already assigned to %s.",
                 personInList.getPhone().value, personInList.getEmail().value, personInList.getName().fullName);
 
         assertCommandFailure(editCommand, model, expectedMessage);
+    }
+
+    @Test
+    public void execute_duplicatePhoneOnly_failure() {
+        // Edit second person to have first person's phone but a unique email
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withPhone(firstPerson.getPhone().value)
+                .withEmail("unique999@example.com").build();
+        EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON, descriptor);
+
+        String expectedMessage = String.format("Error: This edit would duplicate an existing candidate. "
+                        + "Phone %s is already assigned to %s.",
+                firstPerson.getPhone().value, firstPerson.getName().fullName);
+
+        assertCommandFailure(editCommand, model, expectedMessage);
+    }
+
+    @Test
+    public void execute_duplicateEmailOnly_failure() {
+        // Edit second person to have first person's email but a unique phone
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withEmail(firstPerson.getEmail().value)
+                .withPhone("99999999").build();
+        EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON, descriptor);
+
+        String expectedMessage = String.format("Error: This edit would duplicate an existing candidate. "
+                        + "Email %s is already assigned to %s.",
+                firstPerson.getEmail().value, firstPerson.getName().fullName);
+
+        assertCommandFailure(editCommand, model, expectedMessage);
+    }
+
+    @Test
+    public void execute_caseOnlyNameChange_success() {
+        // Changing "Alice Pauline" to "alice pauline" should be detected as a real edit
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        String lowerCaseName = firstPerson.getName().fullName.toLowerCase();
+        Person editedPerson = new PersonBuilder(firstPerson).withName(lowerCaseName).build();
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withName(lowerCaseName).build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(firstPerson, editedPerson);
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
     }
 
     @Test
@@ -270,4 +319,95 @@ public class EditCommandTest {
         descriptor.setPriority(new Priority("yes"));
         assertTrue(descriptor.isAnyFieldEdited());
     }
+
+    @Test
+    public void execute_addressOnlyChange_success() {
+        // Change only the address field to cover the hasIdenticalFields branch for address
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person editedPerson = new PersonBuilder(firstPerson).withAddress("New Address 123").build();
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddress("New Address 123").build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(firstPerson, editedPerson);
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_statusOnlyChange_success() {
+        // Change only the status field to cover the hasIdenticalFields branch for status
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person editedPerson = new PersonBuilder(firstPerson).withStatus(
+                seedu.address.model.person.Status.REJECTED).build();
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withStatus(
+                seedu.address.model.person.Status.REJECTED).build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(firstPerson, editedPerson);
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_emailOnlyChange_success() {
+        // Change only the email field to cover the hasIdenticalFields branch for email
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person editedPerson = new PersonBuilder(firstPerson).withEmail("newemail@example.com").build();
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withEmail("newemail@example.com").build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(firstPerson, editedPerson);
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_phoneOnlyChange_success() {
+        // Change only the phone field to cover the hasIdenticalFields branch for phone
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person editedPerson = new PersonBuilder(firstPerson).withPhone("11111111").build();
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhone("11111111").build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(firstPerson, editedPerson);
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_sameValuesResubmitted_noChangeDetected() {
+        // Re-submit the exact same name, phone, email, address — should detect no change
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withName(firstPerson.getName().fullName)
+                .withPhone(firstPerson.getPhone().value)
+                .withEmail(firstPerson.getEmail().value)
+                .withAddress(firstPerson.getAddress().value)
+                .withPriority(firstPerson.getPriority().value)
+                .withStatus(firstPerson.getStatus())
+                .build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = "Note: No changes detected; candidate details remain the same.";
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
 }
+

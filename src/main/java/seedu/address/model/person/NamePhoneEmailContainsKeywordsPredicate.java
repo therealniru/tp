@@ -8,6 +8,7 @@ import seedu.address.commons.util.ToStringBuilder;
 /**
  * Tests that a {@code Person}'s {@code Name}, {@code Phone}, {@code Email}, {@code Note}s,
  * or {@code RejectionReason}s matches any of the keywords given.
+ * Note: Tags are not searched; use the `filter` command to search by tag.
  */
 public class NamePhoneEmailContainsKeywordsPredicate implements Predicate<Person> {
     private final List<String> keywords;

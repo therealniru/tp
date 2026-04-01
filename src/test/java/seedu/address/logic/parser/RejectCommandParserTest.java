@@ -91,12 +91,12 @@ public class RejectCommandParserTest {
 
     @Test
     public void parse_reasonWithInvalidChars_failure() {
-        // @ symbol not allowed
-        assertParseFailure(parser, " 1 r/Failed @ interview",
+        // < symbol not allowed
+        assertParseFailure(parser, " 1 r/Failed < interview",
                 Messages.MESSAGE_REJECT_INVALID_REASON);
 
-        // # symbol not allowed
-        assertParseFailure(parser, " 1 r/Reason #1",
+        // ^ symbol not allowed
+        assertParseFailure(parser, " 1 r/Reason ^1",
                 Messages.MESSAGE_REJECT_INVALID_REASON);
     }
 }

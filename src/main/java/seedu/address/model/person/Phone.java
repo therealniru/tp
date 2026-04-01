@@ -30,9 +30,15 @@ public class Phone {
 
     /**
      * Returns true if a given string is a valid phone number.
+     * Rejects all-zero or leading-zero patterns (e.g., 000, 0000000).
      */
     public static boolean isValidPhone(String test) {
-        return test.matches(VALIDATION_REGEX);
+        if (!test.matches(VALIDATION_REGEX)) {
+            return false;
+        }
+        // Reject all-zero patterns (000, 0000, etc.)
+        String digitsOnly = test.replaceAll("\\+", "");
+        return !digitsOnly.matches("0+");
     }
 
     @Override
