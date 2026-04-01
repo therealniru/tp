@@ -59,5 +59,32 @@ public class PhoneTest {
 
         // different values -> returns false
         assertFalse(phone.equals(new Phone("995")));
+
+        // phone with + prefix equals phone without + prefix (normalized)
+        assertTrue(phone.equals(new Phone("+999")));
+
+        // phone without + prefix equals phone with + prefix (normalized)
+        Phone phoneWithPlus = new Phone("+6591234567");
+        assertTrue(phoneWithPlus.equals(new Phone("6591234567")));
+
+        // both with + prefix -> equals
+        assertTrue(phoneWithPlus.equals(new Phone("+6591234567")));
+
+        // different numbers, one with + prefix -> not equal
+        assertFalse(phoneWithPlus.equals(new Phone("+6599999999")));
+    }
+
+    @Test
+    public void isValidPhone_allZeros_returnsFalse() {
+        assertFalse(Phone.isValidPhone("000"));
+        assertFalse(Phone.isValidPhone("0000000"));
+        assertFalse(Phone.isValidPhone("+000"));
+    }
+
+    @Test
+    public void hashCode_normalizedPhones_sameHashCode() {
+        Phone phoneWithPlus = new Phone("+999");
+        Phone phoneWithoutPlus = new Phone("999");
+        assertTrue(phoneWithPlus.hashCode() == phoneWithoutPlus.hashCode());
     }
 }
