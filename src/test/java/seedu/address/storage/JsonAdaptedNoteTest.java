@@ -137,4 +137,16 @@ public class JsonAdaptedNoteTest {
                 "2025-02-30T10:00:00");
         assertThrows(IllegalValueException.class, adapted::toModelType);
     }
+
+    @Test
+    public void toModelType_contentWithNewline_throwsIllegalValueException() {
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, "line1\nline2", VALID_DATE.toString());
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_headingWithNewline_throwsIllegalValueException() {
+        JsonAdaptedNote adapted = new JsonAdaptedNote("head\ning", VALID_CONTENT, VALID_DATE.toString());
+        assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
 }

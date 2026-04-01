@@ -402,6 +402,7 @@ Format: `note INDEX n/CONTENT [h/HEADING]`
 * `HEADING` is optional. Defaults to `General Note` if omitted. Must not exceed 50 characters.
 * Each note is automatically stamped with the current date and time.
 * Notes are appended in order — earlier notes are never overwritten.
+* Newline characters in pasted content are automatically converted to spaces.
 * Note content and headings must not contain the sequences ` n/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
 
 <div markdown="span" class="alert alert-primary">

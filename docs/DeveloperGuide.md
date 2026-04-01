@@ -9,7 +9,7 @@ title: Developer Guide
 
 ## **Acknowledgements**
 
-* {list here sources of all reused/adapted ideas, code, documentation, and third-party libraries -- include links to the original source as well}
+* This project is based on the [AddressBook-Level3 (AB3)](https://se-education.org/addressbook-level3/) project created by the [SE-EDU initiative](https://se-education.org).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -597,7 +597,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2c1. System informs the user that duplicate prefixes are not allowed.
     * Use case ends.
 
-**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed.
+**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed. Newline characters in pasted content are automatically converted to spaces to prevent JSON formatting issues and ensure single-line display.
 
 
 **Use case: UC12 - Sorting candidates by priority**

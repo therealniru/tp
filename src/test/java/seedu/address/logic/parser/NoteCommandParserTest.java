@@ -134,4 +134,17 @@ public class NoteCommandParserTest {
         NoteCommand cmd = parser.parse(" 1 n/content h/" + maxHeading);
         assertEquals(maxHeading, cmd.getNote().heading);
     }
+
+    @Test
+    public void parse_contentWithNewlines_strippedToSpaces() throws Exception {
+        // Newlines in pasted content should be converted to spaces
+        NoteCommand cmd = parser.parse(" 1 n/line1\nline2\r\nline3");
+        assertEquals("line1 line2 line3", cmd.getNote().content);
+    }
+
+    @Test
+    public void parse_headingWithNewlines_strippedToSpaces() throws Exception {
+        NoteCommand cmd = parser.parse(" 1 n/content h/Tech\nRound");
+        assertEquals("Tech Round", cmd.getNote().heading);
+    }
 }

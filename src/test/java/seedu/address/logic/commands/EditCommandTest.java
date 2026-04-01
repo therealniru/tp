@@ -162,7 +162,7 @@ public class EditCommandTest {
         EditCommand editCommand = new EditCommand(INDEX_SECOND_PERSON, descriptor);
 
         String expectedMessage = String.format("Error: This edit would duplicate an existing candidate. "
-                        + "Phone %s or Email %s is already assigned to %s.",
+                        + "Phone %s and Email %s are already assigned to %s.",
                 firstPerson.getPhone().value, firstPerson.getEmail().value, firstPerson.getName().fullName);
 
         assertCommandFailure(editCommand, model, expectedMessage);
@@ -178,7 +178,7 @@ public class EditCommandTest {
                 new EditPersonDescriptorBuilder(personInList).build());
 
         String expectedMessage = String.format("Error: This edit would duplicate an existing candidate. "
-                        + "Phone %s or Email %s is already assigned to %s.",
+                        + "Phone %s and Email %s are already assigned to %s.",
                 personInList.getPhone().value, personInList.getEmail().value, personInList.getName().fullName);
 
         assertCommandFailure(editCommand, model, expectedMessage);

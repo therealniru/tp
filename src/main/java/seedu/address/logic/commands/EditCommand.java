@@ -97,12 +97,20 @@ public class EditCommand extends Command {
         // Duplicate exclusion validation: check if any OTHER person conflicts with the edited identity
         for (Person p : model.getAddressBook().getPersonList()) {
             if (!p.equals(personToEdit) && p.isSamePerson(editedPerson)) {
-                String conflictMsg = String.format("Error: This edit would duplicate an existing candidate. "
-                        + "Phone %s or Email %s is already assigned to %s.",
-                        editedPerson.getPhone().value,
-                        editedPerson.getEmail().value,
-                        p.getName().fullName);
-                throw new CommandException(conflictMsg);
+                boolean phoneMatch = p.getPhone().equals(editedPerson.getPhone());
+                boolean emailMatch = p.getEmail().equals(editedPerson.getEmail());
+                String field;
+                if (phoneMatch && emailMatch) {
+                    field = String.format("Phone %s and Email %s are",
+                            editedPerson.getPhone().value, editedPerson.getEmail().value);
+                } else if (phoneMatch) {
+                    field = String.format("Phone %s is", editedPerson.getPhone().value);
+                } else {
+                    field = String.format("Email %s is", editedPerson.getEmail().value);
+                }
+                throw new CommandException(String.format(
+                        "Error: This edit would duplicate an existing candidate. "
+                        + "%s already assigned to %s.", field, p.getName().fullName));
             }
         }
 

@@ -17,7 +17,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
-import seedu.address.logic.Messages;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -57,7 +56,12 @@ public class NoteCommandTest {
     public void execute_invalidIndexUnfilteredList_throwsCommandException() {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         NoteCommand noteCommand = new NoteCommand(outOfBoundIndex, VALID_NOTE);
-        assertCommandFailure(noteCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        String expectedMessage = String.format(
+                "Error: Index %d is out of range. The current list has %d candidate(s). "
+                + "Please provide an index between 1 and %d.",
+                outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
+                model.getFilteredPersonList().size());
+        assertCommandFailure(noteCommand, model, expectedMessage);
     }
 
     @Test
@@ -89,7 +93,12 @@ public class NoteCommandTest {
         assertTrue(outOfBoundIndex.getZeroBased() < model.getAddressBook().getPersonList().size());
 
         NoteCommand noteCommand = new NoteCommand(outOfBoundIndex, VALID_NOTE);
-        assertCommandFailure(noteCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        String expectedMessage = String.format(
+                "Error: Index %d is out of range. The current list has %d candidate(s). "
+                + "Please provide an index between 1 and %d.",
+                outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
+                model.getFilteredPersonList().size());
+        assertCommandFailure(noteCommand, model, expectedMessage);
     }
 
     @Test
