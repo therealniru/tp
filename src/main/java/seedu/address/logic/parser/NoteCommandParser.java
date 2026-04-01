@@ -50,7 +50,8 @@ public class NoteCommandParser implements Parser<NoteCommand> {
             throw new ParseException(MESSAGE_INVALID_FORMAT);
         }
 
-        String content = argMultimap.getValue(PREFIX_NOTE_CONTENT).get().trim();
+        String content = argMultimap.getValue(PREFIX_NOTE_CONTENT).get()
+                .replaceAll("\\r\\n|\\r|\\n", " ").trim();
         if (content.isEmpty()) {
             throw new ParseException(MESSAGE_INVALID_FORMAT);
         }
@@ -61,6 +62,7 @@ public class NoteCommandParser implements Parser<NoteCommand> {
         }
 
         String heading = argMultimap.getValue(PREFIX_NOTE_HEADING)
+                .map(h -> h.replaceAll("\\r\\n|\\r|\\n", " "))
                 .map(String::trim)
                 .filter(h -> !h.isEmpty())
                 .orElse(DEFAULT_HEADING);
