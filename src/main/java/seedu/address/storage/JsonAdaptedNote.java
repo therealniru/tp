@@ -77,6 +77,12 @@ class JsonAdaptedNote {
             logger.warning("Invalid date format in note: " + date);
             throw new IllegalValueException("Note's date is in an invalid format: " + date);
         }
+
+        if (parsedDate.isAfter(LocalDateTime.now())) {
+            logger.warning("Note date is in the future (" + parsedDate + "). Clamping to current time.");
+            parsedDate = LocalDateTime.now();
+        }
+
         return new Note(heading, content, parsedDate);
     }
 }

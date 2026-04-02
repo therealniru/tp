@@ -1,14 +1,18 @@
 package seedu.address.storage;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.person.Address;
@@ -27,6 +31,8 @@ import seedu.address.model.tag.Tag;
 class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
+
+    private static final Logger logger = LogsCenter.getLogger(JsonAdaptedPerson.class);
 
     private final String name;
     private final String phone;
@@ -170,7 +176,15 @@ class JsonAdaptedPerson {
         } else if (!seedu.address.model.person.DateAdded.isValidDateAdded(dateAdded)) {
             throw new IllegalValueException(seedu.address.model.person.DateAdded.MESSAGE_CONSTRAINTS);
         } else {
-            modelDateAdded = new seedu.address.model.person.DateAdded(dateAdded);
+            ZonedDateTime parsedDateAdded = ZonedDateTime.parse(dateAdded,
+                    seedu.address.model.person.DateAdded.FORMATTER);
+            if (parsedDateAdded.isAfter(ZonedDateTime.now(ZoneId.systemDefault()))) {
+                logger.warning("Candidate dateAdded is in the future (" + parsedDateAdded
+                        + "). Clamping to current time.");
+                modelDateAdded = new seedu.address.model.person.DateAdded();
+            } else {
+                modelDateAdded = new seedu.address.model.person.DateAdded(dateAdded);
+            }
         }
 
         final seedu.address.model.person.Priority modelPriority;

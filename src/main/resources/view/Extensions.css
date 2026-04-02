@@ -72,6 +72,13 @@
     -fx-padding: 6 8 6 8;
 }
 
+.detail-note-date {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 11px;
+    -fx-text-fill: #888888;
+    -fx-font-style: italic;
+}
+
 .detail-note-heading {
     -fx-font-family: "Segoe UI Semibold";
     -fx-font-size: 13px;
