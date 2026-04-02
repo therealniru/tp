@@ -352,6 +352,7 @@ Format: `sort date o/ORDER`
 * `ORDER`: `asc` (oldest first) or `desc` (newest first). Case-insensitive (`ASC`, `Desc`, etc. are accepted).
 * Candidates added at the **exact same date and time** are sorted alphabetically by name.
 * After sorting, any active filter is cleared and all candidates are displayed in the new order.
+* This action is undoable with `undo`.
 
 <div markdown="span" class="alert alert-warning">
 :warning: **Warning:** Cannot sort an empty candidate list — an error is shown if Talently has no candidates.
@@ -374,6 +375,7 @@ Format: `sort pr o/ORDER`
 * `ORDER`: `asc` (high-priority first) or `desc` (high-priority last). Case-insensitive (`ASC`, `Desc`, etc. are accepted).
 * Secondary sort: by date added (newest first), then alphabetically by name.
 * After sorting, any active filter is cleared and all candidates are displayed in the new order.
+* This action is undoable with `undo`.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `sort pr o/asc` to immediately surface your most important candidates.

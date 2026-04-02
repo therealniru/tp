@@ -6,12 +6,21 @@ import java.util.Objects;
 import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.person.Person;
 
 /**
  * Represents the result of a command execution.
  */
 public class CommandResult {
+
+    /**
+     * An action to execute after the user confirms a dangerous operation.
+     */
+    @FunctionalInterface
+    public interface ConfirmedAction {
+        CommandResult execute() throws CommandException;
+    }
 
     private final String feedbackToUser;
 
@@ -24,6 +33,12 @@ public class CommandResult {
     /** The candidate to display in the detail panel. Empty if no candidate to show. */
     private final Optional<Person> selectedPerson;
 
+    /** Whether the command requires explicit user confirmation before proceeding. */
+    private final boolean requiresConfirmation;
+
+    /** The action to run if the user confirms. Empty when requiresConfirmation is false. */
+    private final Optional<ConfirmedAction> confirmedAction;
+
     /**
      * Constructs a {@code CommandResult} with the specified fields.
      */
@@ -32,6 +47,8 @@ public class CommandResult {
         this.showHelp = showHelp;
         this.exit = exit;
         this.selectedPerson = Optional.empty();
+        this.requiresConfirmation = false;
+        this.confirmedAction = Optional.empty();
     }
 
     /**
@@ -50,6 +67,21 @@ public class CommandResult {
         this.showHelp = false;
         this.exit = false;
         this.selectedPerson = Optional.of(selectedPerson);
+        this.requiresConfirmation = false;
+        this.confirmedAction = Optional.empty();
+    }
+
+    /**
+     * Constructs a {@code CommandResult} that requires explicit user confirmation
+     * before executing {@code confirmedAction}.
+     */
+    public CommandResult(String feedbackToUser, ConfirmedAction confirmedAction) {
+        this.feedbackToUser = requireNonNull(feedbackToUser);
+        this.showHelp = false;
+        this.exit = false;
+        this.selectedPerson = Optional.empty();
+        this.requiresConfirmation = true;
+        this.confirmedAction = Optional.of(confirmedAction);
     }
 
     public String getFeedbackToUser() {
@@ -72,6 +104,14 @@ public class CommandResult {
         return selectedPerson;
     }
 
+    public boolean isRequiresConfirmation() {
+        return requiresConfirmation;
+    }
+
+    public Optional<ConfirmedAction> getConfirmedAction() {
+        return confirmedAction;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
@@ -87,12 +127,13 @@ public class CommandResult {
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
                 && exit == otherCommandResult.exit
-                && selectedPerson.equals(otherCommandResult.selectedPerson);
+                && selectedPerson.equals(otherCommandResult.selectedPerson)
+                && requiresConfirmation == otherCommandResult.requiresConfirmation;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit, selectedPerson);
+        return Objects.hash(feedbackToUser, showHelp, exit, selectedPerson, requiresConfirmation);
     }
 
     @Override

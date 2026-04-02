@@ -16,6 +16,7 @@ import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.RejectionReason;
 import seedu.address.model.person.Status;
+import seedu.address.model.tag.Tag;
 
 /**
  * Rejects a candidate identified by index and records a rejection reason.
@@ -40,6 +41,8 @@ public class RejectCommand extends Command {
             "Error: Cannot reject a blacklisted candidate.";
     public static final String MESSAGE_HIRED_PERSON =
             "Error: Cannot reject a hired candidate. Edit their status first if needed.";
+    public static final String MESSAGE_CONFIRM_HIRED_TAG =
+            "Warning: This candidate has the 'hired' tag. Confirm rejection? (y/n)";
 
     private static final Logger logger = LogsCenter.getLogger(RejectCommand.class);
 
@@ -77,6 +80,19 @@ public class RejectCommand extends Command {
             throw new CommandException(MESSAGE_HIRED_PERSON);
         }
 
+        if (personToReject.getTags().contains(new Tag("hired"))) {
+            Person capturedPerson = personToReject;
+            CommandResult.ConfirmedAction action = () -> executeRejection(model, capturedPerson);
+            return new CommandResult(MESSAGE_CONFIRM_HIRED_TAG, action);
+        }
+
+        return executeRejection(model, personToReject);
+    }
+
+    /**
+     * Performs the rejection of {@code personToReject} and returns the success {@code CommandResult}.
+     */
+    private CommandResult executeRejection(Model model, Person personToReject) throws CommandException {
         boolean isDuplicateReason = isSequentialDuplicate(personToReject, reason);
         Person rejectedPerson = createRejectedPerson(personToReject, reason);
 

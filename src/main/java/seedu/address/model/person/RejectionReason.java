@@ -11,7 +11,8 @@ public class RejectionReason {
 
     public static final int MAX_LENGTH = 200;
     public static final String MESSAGE_CONSTRAINTS =
-            "Rejection reason cannot be empty and must not exceed " + MAX_LENGTH + " characters.";
+            "Rejection reason cannot be empty, must not exceed " + MAX_LENGTH + " characters, "
+            + "and may only contain letters, numbers, spaces, and the symbols . , - ' / : ; ! ? ( ) & \" # + % @ *";
     public static final String VALIDATION_REGEX = "[A-Za-z0-9 .,\\-'/:;!?()&\"#+%@*]+";
 
     public final String reason;

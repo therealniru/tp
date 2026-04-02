@@ -35,7 +35,7 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_invalidTag_throwsParseException() {
-        assertParseFailure(parser, "fri#ends",
+        assertParseFailure(parser, "fri<ends",
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, FilterCommand.MESSAGE_USAGE));
     }
 }

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
+import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -108,6 +109,58 @@ public class RejectCommandTest {
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size());
 
         assertCommandFailure(rejectCommand, model, expectedMessage);
+    }
+
+    @Test
+    public void execute_personWithHiredTag_returnsConfirmationResult() throws CommandException {
+        Person personWithHiredTag = new PersonBuilder()
+                .withName("Tagged Person")
+                .withPhone("88888888")
+                .withEmail("tagged@example.com")
+                .withAddress("Tagged Street")
+                .withTags("hired")
+                .build();
+
+        Model modelWithTagged = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        modelWithTagged.addPerson(personWithHiredTag);
+        Index taggedIndex = Index.fromOneBased(modelWithTagged.getFilteredPersonList().size());
+
+        RejectCommand rejectCommand = new RejectCommand(taggedIndex, VALID_REASON);
+        CommandResult result = rejectCommand.execute(modelWithTagged);
+
+        assertTrue(result.isRequiresConfirmation());
+        assertTrue(result.getConfirmedAction().isPresent());
+        // Model should be unchanged — rejection not yet applied
+        assertEquals(personWithHiredTag,
+                modelWithTagged.getFilteredPersonList().get(taggedIndex.getZeroBased()));
+    }
+
+    @Test
+    public void execute_personWithHiredTag_confirmedActionExecutesRejection() throws CommandException {
+        Person personWithHiredTag = new PersonBuilder()
+                .withName("Tagged Person")
+                .withPhone("88888888")
+                .withEmail("tagged@example.com")
+                .withAddress("Tagged Street")
+                .withTags("hired")
+                .build();
+
+        Model modelWithTagged = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+        modelWithTagged.addPerson(personWithHiredTag);
+        Index taggedIndex = Index.fromOneBased(modelWithTagged.getFilteredPersonList().size());
+
+        RejectCommand rejectCommand = new RejectCommand(taggedIndex, VALID_REASON);
+        CommandResult confirmationResult = rejectCommand.execute(modelWithTagged);
+
+        // Simulate user clicking Yes
+        CommandResult finalResult = confirmationResult.getConfirmedAction().get().execute();
+
+        assertFalse(finalResult.isRequiresConfirmation());
+        assertEquals(
+                String.format(RejectCommand.MESSAGE_REJECT_PERSON_SUCCESS, VALID_REASON, 1),
+                finalResult.getFeedbackToUser());
+        assertEquals(Status.REJECTED,
+                modelWithTagged.getFilteredPersonList().get(taggedIndex.getZeroBased()).getStatus());
     }
 
     @Test
