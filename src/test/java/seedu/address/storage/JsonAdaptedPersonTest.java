@@ -1,11 +1,14 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORMAT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -218,6 +221,18 @@ public class JsonAdaptedPersonTest {
         BENSON.getTags().forEach(ab::addTag);
 
         assertThrows(IllegalValueException.class, () -> person.toModelType(ab));
+    }
+
+    @Test
+    public void toModelType_futureDateAdded_clampedToCurrentTime() throws Exception {
+        ZonedDateTime futureDate = ZonedDateTime.now(ZoneId.systemDefault()).plusYears(100);
+        String futureDateStr = futureDate.format(seedu.address.model.person.DateAdded.FORMATTER);
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
+                VALID_TAGS, VALID_STATUS, VALID_REJECTION_REASONS, futureDateStr, VALID_PRIORITY, null);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        Person restored = person.toModelType(ab);
+        assertFalse(restored.getDateAdded().date.isAfter(ZonedDateTime.now(ZoneId.systemDefault())));
     }
 
 }

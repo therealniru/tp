@@ -204,7 +204,7 @@ Opens the full detail panel for a candidate on the right side of the screen.
 Format: `show INDEX`
 
 * `INDEX` must be a positive integer.
-* Detail panel displays: name, phone, email, address, status, priority, date added, tags, all notes (with headings, content, and timestamps), and full rejection history.
+* Detail panel displays: name, phone, email, address, status, priority, date added, tags, all notes (each showing the timestamp above the heading and content), and full rejection history.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `show` after `note` or `reject` to verify your changes.
@@ -402,7 +402,7 @@ Format: `note INDEX n/CONTENT [h/HEADING]`
 * `INDEX` must be a positive integer.
 * `CONTENT` is required, must not be blank, and must not exceed 500 characters.
 * `HEADING` is optional. Defaults to `General Note` if omitted. Must not exceed 50 characters.
-* Each note is automatically stamped with the current date and time.
+* Each note is automatically stamped with the current date and time. The timestamp is displayed above the note heading in the detail panel (e.g. `02 Apr 2026, 23:15`).
 * Notes are appended in order — earlier notes are never overwritten.
 * Newline characters in pasted content are automatically converted to spaces.
 * Note content and headings must not contain the sequences ` n/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.

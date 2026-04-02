@@ -1,6 +1,7 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDateTime;
@@ -148,5 +149,15 @@ public class JsonAdaptedNoteTest {
     public void toModelType_headingWithNewline_throwsIllegalValueException() {
         JsonAdaptedNote adapted = new JsonAdaptedNote("head\ning", VALID_CONTENT, VALID_DATE.toString());
         assertThrows(IllegalValueException.class, adapted::toModelType);
+    }
+
+    @Test
+    public void toModelType_futureDateNote_clampedToCurrentTime() throws Exception {
+        LocalDateTime futureDate = LocalDateTime.now().plusYears(100);
+        JsonAdaptedNote adapted = new JsonAdaptedNote(VALID_HEADING, VALID_CONTENT, futureDate.toString());
+        Note restored = adapted.toModelType();
+        assertEquals(VALID_HEADING, restored.heading);
+        assertEquals(VALID_CONTENT, restored.content);
+        assertFalse(restored.date.isAfter(LocalDateTime.now()));
     }
 }

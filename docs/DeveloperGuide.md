@@ -835,7 +835,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: List all candidates using the `list` command. At least one candidate in the list.
 
    1. Test case: `note 1 n/Strong technical skills. h/Tech Round 1`<br>
-      Expected: A note with heading "Tech Round 1" and content "Strong technical skills." is appended to the first candidate. Timestamp is the current date and time.
+      Expected: A note with heading "Tech Round 1" and content "Strong technical skills." is appended to the first candidate. Timestamp is the current date and time, displayed above the heading when viewed via `show 1`.
 
    1. Test case: `note 1 n/Quick follow-up needed.`<br>
       Expected: A note with default heading "General Note" is appended. Content is "Quick follow-up needed."
@@ -891,6 +891,12 @@ testers are expected to do more *exploratory* testing.
 
    1. To simulate invalid field values: open `data/talently.json` and change a note's date to `"2025-02-30T10:00:00"` (invalid date).<br>
       Expected: The app starts with an empty address book (graceful recovery).
+
+   1. To simulate a future note date: open `data/talently.json` and change a note's date to a far-future value such as `"2099-01-01T00:00:00"`.<br>
+      Expected: The app loads normally. The affected note's timestamp is silently clamped to the time of loading. A warning is written to the log. No data is lost.
+
+   1. To simulate a future candidate date: open `data/talently.json` and change a candidate's `dateAdded` to a far-future value such as `"01/01/2099 00:00 +0800"`.<br>
+      Expected: The app loads normally. The affected candidate's `dateAdded` is silently clamped to the time of loading. A warning is written to the log. No data is lost.
 
    1. To simulate orphaned tags: open `data/talently.json` and add a tag to a person that does not exist in the `"tags"` pool array.<br>
       Expected: The app starts with an empty address book (graceful recovery).
