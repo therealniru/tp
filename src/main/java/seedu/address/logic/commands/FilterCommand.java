@@ -36,7 +36,7 @@ public class FilterCommand extends Command {
         if (listSize == 0) {
             return new CommandResult(MESSAGE_NO_MATCH);
         }
-        return new CommandResult(listSize + " candidates listed.");
+        return new CommandResult(listSize + (listSize == 1 ? " candidate" : " candidates") + " listed.");
     }
 
     @Override

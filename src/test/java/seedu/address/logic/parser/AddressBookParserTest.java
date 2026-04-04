@@ -13,10 +13,13 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.ClearCommand;
+import seedu.address.logic.commands.DeleteNoteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.EditNoteCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.commands.FindCommand;
@@ -180,6 +183,23 @@ public class AddressBookParserTest {
         assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
         assertEquals("Tech Round", command.getNote().heading);
         assertEquals("Passed interview", command.getNote().content);
+    }
+
+    @Test
+    public void parseCommand_deletenote() throws Exception {
+        DeleteNoteCommand command = (DeleteNoteCommand) parser.parseCommand(
+                DeleteNoteCommand.COMMAND_WORD + " 1 2");
+        assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
+        assertEquals(Index.fromOneBased(2), command.getNoteIndex());
+    }
+
+    @Test
+    public void parseCommand_editnote() throws Exception {
+        EditNoteCommand command = (EditNoteCommand) parser.parseCommand(
+                EditNoteCommand.COMMAND_WORD + " 1 2 n/Updated content");
+        assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
+        assertEquals(Index.fromOneBased(2), command.getNoteIndex());
+        assertEquals("Updated content", command.getNewContent());
     }
 
     @Test

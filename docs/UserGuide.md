@@ -70,7 +70,7 @@ Follow these commands in order to experience a typical recruiter workflow:
 | 1 | `list` | View all candidates |
 | 2 | `add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Road` | Add a new candidate |
 | 3 | `show 1` | Open the detail panel for the first candidate |
-| 4 | `note 1 n/Strong portfolio, schedule follow-up. h/Initial Screen` | Attach a note |
+| 4 | `addnote 1 n/Strong portfolio, schedule follow-up. h/Initial Screen` | Attach a note |
 | 5 | `tagpool a/Shortlisted` | Create a new tag in the tag pool |
 | 6 | `tag 1 a/Shortlisted` | Assign the tag to the candidate |
 | 7 | `filter Shortlisted` | View only candidates with that tag |
@@ -124,12 +124,16 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
 | NAME | `n/` | Yes | Letters, spaces, hyphens, apostrophes, periods, slashes. No digits. Max 100 characters. |
 | PHONE | `p/` | Yes | Digits only, optional `+` prefix. 3–15 digits. All-zero numbers (e.g., `000`) are not allowed. |
 | EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. |
-| ADDRESS | `a/` | Yes | Any non-empty text. Max 200 characters. |
+| ADDRESS | `a/` | Yes | Any non-empty text. Max 100 characters. |
 | PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
 | STATUS | `s/` | No | `active`, `rejected`, `hired`, `blacklisted`. Default: `active`. |
 
 <div markdown="span" class="alert alert-info">
 :information_source: **Tags are not set at add time.** First create tags with `tagpool`, then assign them with `tag`. See [Managing the tag pool](#managing-the-tag-pool--tagpool) and [Tagging a candidate](#tagging-a-candidate--tag).
+</div>
+
+<div markdown="span" class="alert alert-info">
+:information_source: **Status at add time** is intended for data migration (e.g., importing candidates from a spreadsheet). For normal workflow, leave status as the default (`active`) and use `reject` to record rejections with reasons, or `edit` to change status later. If you need to import a candidate with prior rejection history, add them first, then use `reject` once per prior rejection to build up the full history with reasons.
 </div>
 
 <div markdown="span" class="alert alert-primary">
@@ -176,7 +180,11 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/ST
 * If the new values are identical to the existing ones (including casing), a message indicating no changes were detected is shown and no modification is made. Case-only changes (e.g., `alice` → `Alice`) are treated as real edits.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** To re-activate a previously rejected candidate, use `edit INDEX s/active`. Their rejection history is preserved.
+:bulb: **Tip:** To re-activate a previously rejected candidate for a new hiring cycle, use `edit INDEX s/active`. Their rejection history is preserved for reference — the "Rejected X times" badge reflects lifetime history, not the current status. Always check the candidate's **status** field for their current stage.
+</div>
+
+<div markdown="span" class="alert alert-info">
+:information_source: **Note:** While `edit` can set any status (including `rejected`), the recommended way to reject a candidate is using the `reject` command, which records a reason alongside the status change. Using `edit INDEX s/rejected` changes the status but does not add a rejection reason — use this only for data corrections or bulk workflows.
 </div>
 
 <div markdown="span" class="alert alert-warning">
@@ -207,7 +215,7 @@ Format: `show INDEX`
 * Detail panel displays: name, phone, email, address, status, priority, date added, tags, all notes (each showing the timestamp above the heading and content), and full rejection history.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `show` after `note` or `reject` to verify your changes.
+:bulb: **Tip:** Use `show` after `addnote` or `reject` to verify your changes.
 </div>
 
 Examples:
@@ -237,7 +245,7 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 **Rules:**
 * Case-insensitive. Partial matches supported.
 * Candidates matching **any** keyword are returned (OR logic).
-* Max 20 keywords. Total command length max 150 characters.
+* Max 20 keywords. Search keywords max 150 characters total.
 * Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_` `:` `;` `!` `?` `(` `)` (non-ASCII characters such as accented letters or emojis are not supported)
 * Duplicate keywords are automatically removed (e.g., `find john john` searches for `john` once).
 * `find` replaces any active `filter` — the results show matches from the full candidate list, not the currently filtered view.
@@ -264,7 +272,7 @@ Format: `filter TAG`
 
 * Exact match (not partial). `Java` does not match `JavaScript`.
 * Case-insensitive. `java` matches `Java`.
-* Tag must follow naming rules: must start with a letter or number, followed by letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters.
+* Tag must follow naming rules: must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`, no spaces, 1–30 characters.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `filter` to pull all candidates at a specific hiring stage, e.g. `filter Shortlisted`.
@@ -308,9 +316,10 @@ Format: `reject INDEX r/REASON`
 * `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)` `&` `"` `#` `+` `%` `@` `*`.
 * **Automatically sets the candidate's status to `rejected`.**
 * Each `reject` call appends to the rejection history — previous entries are not overwritten.
-* The candidate's card shows a **red badge** with the total rejection count.
-* If the same reason is given consecutively, a warning is shown.
-* Blacklisted candidates cannot be rejected.
+* The candidate's card shows a **red badge** with the total rejection count. This is a lifetime counter that persists across status changes — see [Candidate status reference](#candidate-status-reference) for details.
+* If the same reason is given consecutively, a warning is shown (the rejection is still recorded).
+* Blacklisted and hired candidates cannot be rejected. To reject a hired candidate, first change their status with `edit INDEX s/active`.
+* If the candidate has a tag named `hired`, a confirmation prompt is shown before proceeding.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
@@ -337,9 +346,15 @@ Talently tracks each candidate's stage using a `status` field.
 
 **How status is set:**
 * Defaults to `active` on `add`.
-* `reject` automatically sets it to `rejected`.
+* `reject` automatically sets it to `rejected` and records a reason.
 * Change status at any time with `edit INDEX s/STATUS`.
 * The detail panel auto-refreshes when a displayed candidate's data changes.
+
+**Status lifecycle across hiring cycles:**
+* A rejected candidate can be re-activated for a new role using `edit INDEX s/active`. Their rejection history is preserved.
+* The "Rejected X times" badge is a **lifetime counter** — it does not mean the candidate is currently rejected. Always check the **status** field for the candidate's current stage.
+* Even after hiring, past rejection records remain visible for reference (e.g., understanding a candidate's interview journey).
+* To permanently exclude a candidate, use `edit INDEX s/blacklisted`. Blacklisted candidates cannot be rejected.
 
 ---
 
@@ -393,11 +408,11 @@ Examples:
 
 ---
 
-### Adding a note to a candidate : `note`
+### Adding a note to a candidate : `addnote`
 
 Adds a timestamped note to a candidate's record.
 
-Format: `note INDEX n/CONTENT [h/HEADING]`
+Format: `addnote INDEX n/CONTENT [h/HEADING]`
 
 * `INDEX` must be a positive integer.
 * `CONTENT` is required, must not be blank, and must not exceed 500 characters.
@@ -412,10 +427,46 @@ Format: `note INDEX n/CONTENT [h/HEADING]`
 </div>
 
 Examples:
-* `note 1 n/Passed the technical interview flawlessly. h/Tech Round 1`
-* `note 2 n/Strong communication skills.`
+* `addnote 1 n/Passed the technical interview flawlessly. h/Tech Round 1`
+* `addnote 2 n/Strong communication skills.`
 
-<p align="center"><img src="images/note%20command.png" alt="Expected result after running the note command" width="730"/></p>
+<p align="center"><img src="images/note%20command.png" alt="Expected result after running the addnote command" width="730"/></p>
+
+---
+
+### Editing a note : `editnote`
+
+Edits the content and/or heading of an existing note. The original timestamp is preserved.
+
+Format: `editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]`
+
+* `INDEX` is the candidate's position in the displayed list (positive integer).
+* `NOTE_INDEX` is the note's position in the candidate's notes list (positive integer). Use `show INDEX` to see note numbers.
+* At least one of `n/CONTENT` or `h/HEADING` must be provided.
+* `CONTENT` must not be blank and must not exceed 500 characters.
+* `HEADING` must not be blank and must not exceed 50 characters.
+* The note's original timestamp is preserved — only the content and/or heading are updated.
+* Newline characters in pasted content are automatically converted to spaces.
+
+Examples:
+* `editnote 1 1 n/Actually failed the interview.` — updates the content of note 1 for candidate 1, keeping the original heading and timestamp.
+* `editnote 2 3 h/Final Round` — updates only the heading of note 3 for candidate 2.
+* `editnote 1 2 n/New content h/New heading` — updates both content and heading.
+
+---
+
+### Deleting a note : `deletenote`
+
+Deletes a note from a candidate's record.
+
+Format: `deletenote INDEX NOTE_INDEX`
+
+* `INDEX` is the candidate's position in the displayed list (positive integer).
+* `NOTE_INDEX` is the note's position in the candidate's notes list (positive integer). Use `show INDEX` to see note numbers.
+
+Examples:
+* `deletenote 1 2` — deletes the 2nd note from candidate 1.
+* `deletenote 3 1` — deletes the 1st note from candidate 3.
 
 ---
 
@@ -427,15 +478,17 @@ Creates or deletes tags in the master tag registry.
 
 Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
 
-* At least one `a/` or `d/` prefix is required.
+* Running `tagpool` with no arguments lists all tags currently in the pool.
+* To create or delete tags, at least one `a/` or `d/` prefix is required.
 * Max 10 tags per command.
-* Tag names: must start with a letter or number, followed by letters, numbers, hyphens, dots, or `+` signs, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
-* Cannot create a tag that already exists, or delete one that does not exist.
+* Tag names: must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
+* Cannot create a tag that already exists, or delete one that does not exist. If you try to create an existing tag, the error message will tell you it already exists — this is the quickest way to check if a tag is in the pool.
 * Cannot create and delete the same tag in one command.
 * Duplicate tags within the same add or delete list are not allowed (e.g., `tagpool a/Java a/java` is rejected because tags are case-insensitive).
+* Tags assigned to candidates are visible on their cards in the list view. Use `list` to see all candidates and their tags at a glance.
 
 <div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Deleting a tag removes it from **all candidates** currently holding it. Use `undo` immediately to reverse.
+:warning: **Warning:** Deleting a tag removes it from **all candidates** currently holding it. Use `undo` immediately to reverse. Undo fully restores the tag to the pool **and** to all candidates who had it.
 </div>
 
 <div markdown="span" class="alert alert-primary">
@@ -443,6 +496,7 @@ Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
 </div>
 
 Examples:
+* `tagpool` — Lists all tags in the pool (e.g., "Tag pool (3 tags): AI, Backend, Frontend").
 * `tagpool a/Shortlisted a/Interviewed` — Creates two new tags.
 * `tagpool d/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
 * `tagpool a/Senior d/Junior` — Creates `Senior` and deletes `Junior` in one command.
@@ -481,7 +535,7 @@ Reverts Talently to the state before the most recent data-changing command.
 
 Format: `undo`
 
-* Applies to: `add`, `edit`, `remove`, `reject`, `tag`, `tagpool`, `note`, `sort`, `clear`.
+* Applies to: `add`, `edit`, `remove`, `reject`, `tag`, `tagpool`, `addnote`, `editnote`, `deletenote`, `sort`, `clear`.
 * If there is nothing to undo, an error is shown.
 
 Examples:
@@ -545,6 +599,10 @@ Advanced users may edit this file directly.
 :warning: **Warning:** Invalid edits will cause Talently to discard all data and start empty on next launch. Back up the file before editing.
 </div>
 
+<div markdown="span" class="alert alert-info">
+:information_source: **Note:** If a candidate's `dateAdded` is set to a future date (e.g. via manual editing), Talently will automatically clamp it to the current date and time on next launch.
+</div>
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## FAQ
@@ -562,7 +620,7 @@ A: Tags must first exist in the pool. Run `tagpool a/TAG_NAME`, then `tag INDEX 
 A: It shows the total number of times that candidate has been rejected. Run `show INDEX` to view the full rejection history.
 
 **Q: How do I view all notes for a candidate?**
-A: Use `show INDEX`. The detail panel lists all notes with headings, content, and timestamps.
+A: Use `show INDEX`. The detail panel lists all notes with headings, content, and timestamps. Note numbers shown correspond to the `NOTE_INDEX` used in `editnote` and `deletenote`.
 
 **Q: Can two candidates have the same name?**
 A: Yes — Talently identifies duplicates by phone **or** email, not name. Two candidates with the same name but different phone and email are allowed.
@@ -577,7 +635,6 @@ A: The legacy status value `NONE` is automatically migrated to `active`. Save fi
 1. **Multiple screens:** If Talently was last used on a secondary screen that is now disconnected, the window may open off-screen.
    **Fix:** Delete `preferences.json` from the home folder before relaunching.
 
-2. ~~**Minimised Help Window:**~~ **Fixed.** The help window is now automatically restored and brought to front when `help` is run again.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -593,7 +650,9 @@ Action | Format, Examples
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g. `find James Jake`
 **Help** | `help`
 **List** | `list`
-**Note** | `note INDEX n/CONTENT [h/HEADING]`<br> e.g. `note 1 n/Passed interview h/Tech Round 1`
+**Add Note** | `addnote INDEX n/CONTENT [h/HEADING]`<br> e.g. `addnote 1 n/Passed interview h/Tech Round 1`
+**Delete Note** | `deletenote INDEX NOTE_INDEX`<br> e.g. `deletenote 1 2`
+**Edit Note** | `editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]`<br> e.g. `editnote 1 1 n/Updated content`
 **Redo** | `redo`
 **Reject** | `reject INDEX r/REASON`<br> e.g. `reject 1 r/Failed technical interview`
 **Remove** | `remove INDEX`<br> e.g. `remove 3`
@@ -601,5 +660,5 @@ Action | Format, Examples
 **Sort (date)** | `sort date o/ORDER`<br> e.g. `sort date o/desc`
 **Sort (priority)** | `sort pr o/ORDER`<br> e.g. `sort pr o/asc`
 **Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g. `tag 1,2 a/Shortlisted d/Applied`
-**Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g. `tagpool a/Shortlisted d/Rejected`
+**Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g. `tagpool` (list all), `tagpool a/Shortlisted d/Rejected`
 **Undo** | `undo`

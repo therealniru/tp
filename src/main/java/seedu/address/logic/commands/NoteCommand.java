@@ -19,9 +19,9 @@ import seedu.address.model.person.Person;
  */
 public class NoteCommand extends Command {
 
-    public static final String COMMAND_WORD = "note";
+    public static final String COMMAND_WORD = "addnote";
 
-    public static final String MESSAGE_USAGE = "note INDEX n/CONTENT [h/HEADING]";
+    public static final String MESSAGE_USAGE = "addnote INDEX n/CONTENT [h/HEADING]";
 
     public static final String MESSAGE_SUCCESS = "Successfully added note to candidate: %1$s";
 

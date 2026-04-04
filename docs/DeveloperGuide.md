@@ -266,6 +266,48 @@ Talently is designed for Applicant Tracking System (ATS) workflows where missing
   * Pros: Fewer false positives.
   * Cons: Misses obvious duplicates where only one field was entered differently (e.g., same person with a new email).
 
+### Rejection history design
+
+**Aspect: Why does rejection history persist across status changes?**
+
+In recruitment, a candidate who is rejected for one role may be reconsidered when a different role opens. The recruiter changes their status back to `active` (via `edit INDEX s/active`) and re-enters them into the pipeline. The rejection history and the "Rejected X times" badge intentionally persist through this transition for the following reasons:
+
+1. **"Rejected X times" does not mean "currently rejected."** The badge is a historical counter — the candidate's *current* stage is always indicated by their **status** field (`active`, `rejected`, `hired`, `blacklisted`). Recruiters should always look at the status, not the rejection count, to determine the candidate's current disposition.
+2. **Past rejection context is valuable even after hiring.** If a candidate was rejected twice for lack of experience, then eventually hired after gaining more, the recruiter may still want to reference those earlier notes when onboarding or evaluating performance. Erasing the history would lose this context.
+3. **Multiple rejection cycles are normal.** Startup hiring is cyclical — the same candidate may apply for three different roles over two years. Each rejection reason (e.g., "Overqualified for junior role", "Timing mismatch", "Failed system design round") provides distinct context. Blocking repeated rejections would force recruiters to use workarounds.
+4. **Blacklisting is the appropriate tool for permanent exclusion.** If a candidate should never be contacted again, the recruiter sets their status to `blacklisted` — which blocks further rejection attempts. The rejection history mechanism is not designed for permanent exclusion; it is designed for record-keeping across hiring cycles.
+
+* **Alternative 1 (current choice):** Rejection history accumulates permanently and is visible regardless of status. Consecutive duplicate reasons trigger a warning (not a block) to catch accidental double-entry.
+  * Pros: Full audit trail. Supports multi-cycle hiring. Clear separation between "history" and "current status".
+  * Cons: A recruiter unfamiliar with the system might initially confuse "Rejected 3 times" with "currently rejected" — mitigated by always displaying the status badge alongside the count.
+
+* **Alternative 2:** Clear rejection history when status changes to `active` or `hired`.
+  * Pros: Cleaner appearance for re-activated candidates.
+  * Cons: Permanently destroys valuable historical context. No way to recall why the candidate was previously rejected.
+
+### Status lifecycle design
+
+**Aspect: Why can status be freely changed via `edit`?**
+
+Talently allows the recruiter to set any valid status (`active`, `rejected`, `hired`, `blacklisted`) on any candidate at any time via the `edit` command. This is intentional:
+
+* A rejected candidate being reconsidered for a new role can be set back to `active`.
+* A hired candidate who leaves the company can be set back to `active` for future roles.
+* The `reject` command is a convenience shortcut that sets status to `rejected` *and* appends a reason in one step, but the status itself is always editable independently.
+* The only restrictions are: `reject` cannot be used on `hired` or `blacklisted` candidates (the recruiter must explicitly change the status first, ensuring deliberate intent).
+
+### Note management design
+
+**Aspect: Why support add, edit, and delete for notes?**
+
+Notes serve as the recruiter's live scratchpad during calls. Full CRUD (create, read, update, delete) is essential because:
+
+* **Add (`addnote`):** Captures impressions in real time. Auto-timestamping ensures chronological ordering without manual effort.
+* **Edit (`editnote`):** Corrects typos or updates details post-call without losing the original timestamp, preserving the chronological record.
+* **Delete (`deletenote`):** Removes notes added to the wrong candidate or notes that are no longer relevant. Without delete, the only way to remove an incorrect note would be to delete and re-add the entire candidate — losing all other data.
+
+The original timestamp is always preserved on edit so that the note's position in the chronological timeline remains accurate. If the recruiter wants a "fresh" note, they should delete the old one and add a new one.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Documentation, logging, testing, configuration, dev-ops**
@@ -300,26 +342,26 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 | Priority | As a …​ | I want to …​                                                                       | So that I can…​ |
 |----------|---------|------------------------------------------------------------------------------------|-----------------|
-| `* * *` | recruiter | add a candidate’s contact details (with optional priority and status)              | reach out to them later for a role. |
-| `* * *` | recruiter | view all candidate records                                                         | know exactly who is currently in my active talent pool. |
-| `* * *` | recruiter | view the complete, detailed profile of a specific candidate                        | instantly read their full history (notes, tags, rejections) in one place before jumping on a call. |
-| `* * *` | recruiter | search for a candidate using known attributes (e.g., partial name, phone or email) | instantly locate their specific record even if I only remember a fragment of their details. |
-| `* * *` | recruiter | update a candidate’s information (including status and priority)                   | ensure my communication records remain accurate and up-to-date. |
-| `* * *` | recruiter | remove candidate contacts that are invalid or requested removal                    | keep my database strictly clean and legally compliant. |
-| `* * *` | recruiter | record a rejection with a specific chronological reason                            | remember exactly why a candidate was previously unsuitable before engaging them for a new role. |
-| `* * *` | recruiter | assign tags (e.g., Frontend, Intern) to one or more candidates at once             | easily segment and organize my candidate pool by role or technical skill. |
-| `* * *` | recruiter | record rapid timestamped notes about a candidate                                   | capture important impressions and context immediately after a conversation. |
-| `* *` | recruiter | filter candidates strictly by tag                                                  | focus entirely on a specific hiring subset without visual clutter. |
-| `* *` | recruiter | sort candidates by date added or by priority                                       | quickly review the most recent leads or surface high-priority candidates. |
-| `* *` | recruiter | rapidly create new system tags and delete obsolete ones in bulk                    | organize candidates according to my startup’s highly specific hiring needs. |
-| `* *` | recruiter | mark candidates as high priority                                                   | easily visually identify whom I need to contact first when opening the application. |
-| `* *` | recruiter | read previously recorded interaction notes via a detail panel                      | refresh my memory on the candidate’s background before initiating a follow-up call. |
-| `* *` | recruiter | manage candidate status (active, rejected, hired, blacklisted) throughout the hiring lifecycle | track each candidate’s current stage and prevent inappropriate outreach. |
-| `* *` | recruiter | undo my last action                                                                | instantly recover from an accidental deletion or rapid typing error. |
-| `* *` | recruiter | redo an action I previously undid                                                  | restore a reverted change without needing to retype it. |
+| `* * *` | recruiter | add a candidate with name, phone, email, address, and optional priority/status     | begin tracking them in my talent pool immediately. |
+| `* * *` | recruiter | list all candidates alphabetically                                                 | get a full overview of everyone in my talent pool. |
+| `* * *` | recruiter | view the complete profile of a specific candidate via a detail panel                | read their full history (notes, tags, status, rejections) in one place before a call. |
+| `* * *` | recruiter | search for candidates by partial name, phone, email, note content, or rejection reason | instantly locate a record even if I only remember a fragment of their details. |
+| `* * *` | recruiter | edit a candidate’s name, phone, email, address, priority, or status                | keep my records accurate when details change. |
+| `* * *` | recruiter | remove a candidate permanently                                                     | delete invalid or withdrawn contacts and stay legally compliant. |
+| `* * *` | recruiter | record a rejection with a specific reason that appends to a chronological history   | maintain a full record of why a candidate was passed over across multiple hiring cycles. |
+| `* * *` | recruiter | add timestamped notes (with optional heading) to a candidate                       | capture impressions and context immediately during or after a conversation. |
+| `* * *` | recruiter | edit an existing note’s content or heading while preserving its timestamp           | correct mistakes without losing the chronological record. |
+| `* * *` | recruiter | delete a note from a candidate                                                     | remove outdated or incorrect information and keep records clean. |
+| `* * *` | recruiter | assign and remove tags on one or more candidates at once                           | efficiently categorize candidates by role, skill, or hiring stage. |
+| `* * *` | recruiter | manage a master tag pool (list, create, and delete tags)                            | enforce a controlled vocabulary and prevent typo-created tags from fragmenting my data. |
+| `* *` | recruiter | filter the candidate list by a single tag                                          | focus on a specific hiring subset (e.g., all "Shortlisted" candidates) without visual clutter. |
+| `* *` | recruiter | sort candidates by date added (ascending or descending)                            | quickly review the most recent or oldest leads. |
+| `* *` | recruiter | sort candidates by priority                                                        | surface high-priority candidates at the top of my list. |
+| `* *` | recruiter | set a candidate’s priority flag (high or normal)                                   | visually identify whom to contact first when opening the application. |
+| `* *` | recruiter | manage candidate status (active, rejected, hired, blacklisted) via edit            | track each candidate’s current hiring stage and prevent inappropriate outreach. |
+| `* *` | recruiter | undo the last modifying action                                                     | instantly recover from an accidental deletion or mistyped command. |
+| `* *` | recruiter | redo a previously undone action                                                    | restore a reverted change without retyping it. |
 | `* *` | recruiter | clear all data and start fresh                                                     | reset the system when starting a new hiring cycle. |
-| `*` | recruiter | see a chronological interaction timeline (e.g., notes, rejections)                 | accurately reconstruct the entire history of my relationship with the candidate. |
-| `*` | recruiter | mark a candidate as ‘blacklisted’                                                  | definitively avoid reaching out to candidates who explicitly opted out or declined. |
 
 ### Use cases
 
@@ -388,6 +430,13 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * 2b. The candidate is blacklisted.
     * 2b1. System informs the user that blacklisted candidates cannot be rejected.
     * Use case ends.
+* 2c. The candidate has status `hired`.
+    * 2c1. System informs the user that hired candidates cannot be rejected.
+    * Use case ends.
+* 2d. The candidate has a tag named `hired`.
+    * 2d1. System shows a confirmation prompt warning about the hired tag.
+    * 2d2. User confirms the rejection.
+    * Use case resumes from step 3.
 * 5a. System detects the same rejection reason as the immediately previous one (case-insensitive).
     * 5a1. System still records the rejection but includes a warning about the consecutive duplicate.
     * Use case ends.
@@ -401,7 +450,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 **MSS:**
 1. User requests to filter the candidate list by specifying exactly one tag name.
-2. System validates the tag format (must start with a letter or number; may contain letters, numbers, hyphens, dots, or plus signs; no spaces; 1–30 characters).
+2. System validates the tag format (must start with a letter or number; may contain letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`; no spaces; 1–30 characters).
 3. System filters the list to show only candidates who have that tag assigned (case-insensitive match).
 4. System shows the matching candidates with a count.
    Use case ends.
@@ -439,7 +488,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2b1. System aborts the update and informs the user of the specific conflict (which field and which existing candidate).
     * Use case ends.
 
-**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean.
+**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean. The `edit` command intentionally allows setting any status (including `rejected` or `blacklisted`) without requiring a rejection reason — this enables data migration workflows and quick corrections. The `reject` command is the recommended path for recording rejections with reasons; `edit s/rejected` is a power-user shortcut for status-only changes.
 
 
 **Use case: UC6 - Finding a candidate by attributes**
@@ -460,7 +509,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2a1. System informs the user that the result set is empty.
     * Use case ends.
 
-**Design justification:** Search uses OR semantics (matching *any* keyword) and is case-insensitive, so a user who mis-remembers part of a candidate's details can still find them (e.g., `find alice richards` returns both "Alice Davidson" and "Alison Richards"). The search covers name, phone, email, notes, and rejection reasons — the fields most likely to contain recall cues — while excluding address to avoid false-positive noise. Keywords are limited to 20 (max 150 characters total) to prevent accidental over-filtering.
+**Design justification:** Search uses OR semantics (matching *any* keyword) and is case-insensitive, so a user who mis-remembers part of a candidate's details can still find them (e.g., `find alice richards` returns both "Alice Davidson" and "Alison Richards"). The search covers name, phone, email, notes, and rejection reasons — the fields most likely to contain recall cues — while excluding address (too noisy, many candidates share common address fragments) and tags (the `filter` command provides exact tag-based filtering, which is more precise than partial keyword matching for structured labels). Keywords are limited to 20 (max 150 characters total) to prevent accidental over-filtering.
 
 **Use case: UC7 - Assigning a tag to a candidate**
 
@@ -495,12 +544,13 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Preconditions:** None.
 
 **MSS:**
-1. User requests to create or delete tags in the master tag pool.
-2. System validates all tag names (must start with a letter or number; may contain letters, numbers, hyphens, dots, or plus signs; no spaces; 1–30 characters) and checks for conflicts.
-3. System adds new tags to the pool.
-4. For any tags being deleted, system removes them from all candidates who currently hold them (cascading deletion).
-5. System removes the tags from the pool.
-6. System informs the user of the number of tags created and deleted.
+1. User requests to manage the tag pool (list, create, or delete tags).
+2. If no arguments are given, system displays all tags currently in the pool (alphabetically sorted). Use case ends.
+3. System validates all tag names (must start with a letter or number; may contain letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`; no spaces; 1–30 characters) and checks for conflicts.
+4. System adds new tags to the pool.
+5. For any tags being deleted, system removes them from all candidates who currently hold them (cascading deletion).
+6. System removes the tags from the pool.
+7. System informs the user of the number of tags created and deleted.
    Use case ends.
 
 **Extensions:**
@@ -520,7 +570,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2e1. System informs the user of the duplicate. No changes are made.
     * Use case ends.
 
-**Design justification:** Deleting a tag from the pool cascades to all candidates. This maintains referential integrity — no candidate can hold a tag that doesn't exist in the pool. The cascading sweep uses snapshot iteration to avoid concurrent modification issues. All validations run before any mutations (fail-fast atomicity).
+**Design justification:** Deleting a tag from the pool cascades to all candidates. This maintains referential integrity — no candidate can hold a tag that doesn't exist in the pool. The cascading sweep uses snapshot iteration to avoid concurrent modification issues. All validations run before any mutations (fail-fast atomicity). Tag discoverability is supported by running `tagpool` with no arguments, which lists all tags in the pool sorted alphabetically. This provides a quick overview without cluttering the UI. Tags are also visible on candidate cards and via `filter TAG`.
 
 
 **Use case: UC9 - Sorting candidates by date added**
@@ -597,10 +647,56 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2c1. System informs the user that duplicate prefixes are not allowed.
     * Use case ends.
 
-**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `note 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed. Newline characters in pasted content are automatically converted to spaces to prevent JSON formatting issues and ensure single-line display.
+**Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just `addnote 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be mis-parsed. Newline characters in pasted content are automatically converted to spaces to prevent JSON formatting issues and ensure single-line display.
 
 
-**Use case: UC12 - Sorting candidates by priority**
+**Use case: UC12 - Editing a note**
+
+**Preconditions:** The candidate exists in the current displayed list and has at least one note.
+
+**MSS:**
+1. User requests to edit a note by candidate index and note index, providing new content and/or heading.
+2. System validates both indices and the provided fields.
+3. System updates the note's content and/or heading while preserving the original timestamp.
+4. System informs the user of success.
+   Use case ends.
+
+**Extensions:**
+* 1a. User provides an invalid candidate index or note index.
+    * 1a1. System informs the user of the error with the valid range.
+    * Use case ends.
+* 1b. The candidate has no notes.
+    * 1b1. System informs the user that the candidate has no notes.
+    * Use case ends.
+* 2a. Neither content nor heading is provided.
+    * 2a1. System informs the user that at least one field must be provided.
+    * Use case ends.
+* 2b. Content is blank or exceeds 500 characters, or heading is blank or exceeds 50 characters.
+    * 2b1. System informs the user of the constraint violation.
+    * Use case ends.
+
+
+**Use case: UC13 - Deleting a note**
+
+**Preconditions:** The candidate exists in the current displayed list and has at least one note.
+
+**MSS:**
+1. User requests to delete a note by candidate index and note index.
+2. System validates both indices.
+3. System removes the note from the candidate's record.
+4. System informs the user of success.
+   Use case ends.
+
+**Extensions:**
+* 1a. User provides an invalid candidate index or note index.
+    * 1a1. System informs the user of the error with the valid range.
+    * Use case ends.
+* 1b. The candidate has no notes.
+    * 1b1. System informs the user that the candidate has no notes.
+    * Use case ends.
+
+
+**Use case: UC14 - Sorting candidates by priority**
 
 **Preconditions:** At least one candidate exists.
 
@@ -618,7 +714,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Design justification:** Ascending puts high-priority candidates first (most useful default) because `isPriority=true` sorts before `false`. Secondary sort by date-added (newest first) and tertiary by name provide stable, predictable ordering within same-priority groups.
 
 
-**Use case: UC13 - Clearing all data**
+**Use case: UC15 - Clearing all data**
 
 **Preconditions:** None.
 
@@ -631,7 +727,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Design justification:** No confirmation prompt is used for the same reason as remove (UC2) — `undo` provides immediate recovery. The command also clears the tag pool to maintain referential integrity: orphaned tags without candidates would be confusing.
 
 
-**Use case: UC14 - Undoing the previous action**
+**Use case: UC16 - Undoing the previous action**
 
 **Preconditions:** The user has performed at least one modifying command during the current session.
 
@@ -650,7 +746,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Design justification:** Undo uses full-state snapshots (the entire AddressBook is saved before each mutating command). This is simpler and more reliable than per-command inverse logic, at the cost of higher memory usage. For the expected dataset size (up to 1,000 candidates), this trade-off is acceptable.
 
 
-**Use case: UC15 - Redoing a previously undone action**
+**Use case: UC17 - Redoing a previously undone action**
 
 **Preconditions:** The user has performed at least one `undo` and has not yet executed a new modifying command.
 
@@ -669,7 +765,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Design justification:** Any new modifying command after `undo` clears the redo history. This linear history model prevents confusing branching states and is consistent with how most mainstream applications handle undo/redo.
 
 
-**Use case: UC16 - Viewing a candidate's full profile**
+**Use case: UC18 - Viewing a candidate's full profile**
 
 **Preconditions:** Candidates exist in the system and are currently shown in a list.
 
@@ -700,9 +796,9 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **Applicant Tracking System (ATS):** A heavy, enterprise-level software application that enables the electronic handling of recruitment and hiring needs. Talently serves as a lightweight, developer-friendly alternative to this.
 * **Candidate:** A person whose details and interaction history are tracked within the system for recruitment purposes.
 * **Rejection History:** A chronological list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles.
-* **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Tags may contain letters, numbers, hyphens, dots, and `+` signs (no spaces). Comparison is case-insensitive.
-* **Tag Pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Deleting a tag from the pool cascades the removal to all candidates.
-* **Note:** A timestamped text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes are append-only and ordered chronologically.
+* **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '` (no spaces, 1–30 characters). Comparison is case-insensitive.
+* **Tag Pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the pool cascades the removal to all candidates.
+* **Note:** A timestamped text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes are ordered chronologically and can be added, edited, or deleted.
 * **Status:** A candidate's current stage in the hiring pipeline: `active`, `rejected`, `hired`, or `blacklisted`.
 * **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates can be surfaced with `sort pr o/asc`.
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
@@ -828,30 +924,84 @@ testers are expected to do more *exploratory* testing.
    1. Test case: Reject a candidate whose status is `blacklisted`.<br>
       Expected: Error message stating blacklisted candidates cannot be rejected.
 
+   1. Test case: Reject a candidate who has a tag named `hired` (but whose status is not `hired`).<br>
+      Expected: A confirmation prompt is shown warning about the hired tag. Confirming proceeds with the rejection.
+
 ### Adding a note to a candidate
 
 1. Adding a note with valid input
 
    1. Prerequisites: List all candidates using the `list` command. At least one candidate in the list.
 
-   1. Test case: `note 1 n/Strong technical skills. h/Tech Round 1`<br>
+   1. Test case: `addnote 1 n/Strong technical skills. h/Tech Round 1`<br>
       Expected: A note with heading "Tech Round 1" and content "Strong technical skills." is appended to the first candidate. Timestamp is the current date and time, displayed above the heading when viewed via `show 1`.
 
-   1. Test case: `note 1 n/Quick follow-up needed.`<br>
+   1. Test case: `addnote 1 n/Quick follow-up needed.`<br>
       Expected: A note with default heading "General Note" is appended. Content is "Quick follow-up needed."
 
 1. Adding a note with invalid input
 
-   1. Test case: `note 0 n/content`<br>
+   1. Test case: `addnote 0 n/content`<br>
       Expected: Error message indicating invalid index.
 
-   1. Test case: `note 1 n/`<br>
+   1. Test case: `addnote 1 n/`<br>
       Expected: Error message indicating note content cannot be empty.
 
-   1. Test case: `note 1 n/content n/more`<br>
+   1. Test case: `addnote 1 n/content n/more`<br>
       Expected: Error message indicating duplicate prefixes are not allowed.
 
+### Editing a note
+
+1. Editing a note with valid input
+
+   1. Prerequisites: Use `addnote 1 n/Original content h/Original Heading` to add a note to the first candidate. Verify via `show 1`.
+
+   1. Test case: `editnote 1 1 n/Updated content`<br>
+      Expected: Note 1's content changes to "Updated content". Heading and timestamp are preserved.
+
+   1. Test case: `editnote 1 1 h/New Heading`<br>
+      Expected: Note 1's heading changes to "New Heading". Content and timestamp are preserved.
+
+   1. Test case: `editnote 1 1 n/New content h/New Heading`<br>
+      Expected: Both content and heading are updated. Timestamp is preserved.
+
+1. Editing a note with invalid input
+
+   1. Test case: `editnote 1 1` (no content or heading)<br>
+      Expected: Error message indicating at least one field must be provided.
+
+   1. Test case: `editnote 1 99 n/content` (note index out of range)<br>
+      Expected: Error message indicating note index is out of range.
+
+   1. Test case: `editnote 1 1 n/` (blank content)<br>
+      Expected: Error message indicating note content cannot be blank.
+
+### Deleting a note
+
+1. Deleting a note with valid input
+
+   1. Prerequisites: The first candidate has at least one note. Verify via `show 1`.
+
+   1. Test case: `deletenote 1 1`<br>
+      Expected: The first note is deleted from candidate 1. Success message shown.
+
+1. Deleting a note with invalid input
+
+   1. Test case: `deletenote 1 99` (note index out of range)<br>
+      Expected: Error message indicating note index is out of range.
+
+   1. Test case: `deletenote 1 1` when candidate 1 has no notes.<br>
+      Expected: Error message indicating candidate has no notes.
+
 ### Managing the tag pool
+
+1. Listing tags in the pool
+
+   1. Test case: `tagpool` (with no arguments, when tags exist)<br>
+      Expected: All tags in the pool are listed alphabetically, e.g., "Tag pool (3 tags): AI, Backend, Frontend".
+
+   1. Test case: `tagpool` (with no arguments, when pool is empty)<br>
+      Expected: Message indicating the tag pool is empty.
 
 1. Adding and removing tags from the pool
 

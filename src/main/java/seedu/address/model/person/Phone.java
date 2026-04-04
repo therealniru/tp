@@ -12,7 +12,8 @@ public class Phone {
 
     public static final String MESSAGE_CONSTRAINTS =
             "Error: Invalid phone number. Phone number must contain only digits "
-            + "(with optional '+' prefix), and must be between 3 and 15 digits long.";
+            + "(with optional '+' prefix), must be between 3 and 15 digits long, "
+            + "and must not be all zeros.";
     public static final String VALIDATION_REGEX = "\\+?\\d{3,15}";
     public final String value;
 
@@ -30,7 +31,7 @@ public class Phone {
 
     /**
      * Returns true if a given string is a valid phone number.
-     * Rejects all-zero or leading-zero patterns (e.g., 000, 0000000).
+     * Rejects all-zero numbers (e.g., 000, 0000000).
      */
     public static boolean isValidPhone(String test) {
         if (!test.matches(VALIDATION_REGEX)) {

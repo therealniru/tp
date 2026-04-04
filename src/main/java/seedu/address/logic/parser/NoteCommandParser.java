@@ -18,10 +18,10 @@ import seedu.address.model.person.Note;
 public class NoteCommandParser implements Parser<NoteCommand> {
 
     public static final String MESSAGE_INVALID_FORMAT =
-            "Error: Note content cannot be empty. Usage: note INDEX n/CONTENT [h/HEADING]";
+            "Error: Note content cannot be empty. Usage: addnote INDEX n/CONTENT [h/HEADING]";
     public static final String MESSAGE_INVALID_INDEX =
             "Error: Invalid index. Please provide a valid positive integer.\n"
-            + "Usage: note INDEX n/CONTENT [h/HEADING]";
+            + "Usage: addnote INDEX n/CONTENT [h/HEADING]";
 
     private static final Logger logger = LogsCenter.getLogger(NoteCommandParser.class);
     private static final String DEFAULT_HEADING = "General Note";

@@ -22,7 +22,7 @@ public class DateAdded implements Comparable<DateAdded> {
     public static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     public final String value;
-    public final ZonedDateTime date; // for comparations and sorting
+    public final ZonedDateTime date; // for comparisons and sorting
 
     /**
      * Constructs a {@code DateAdded} using the current system time.

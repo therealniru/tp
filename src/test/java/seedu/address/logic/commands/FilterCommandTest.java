@@ -107,7 +107,7 @@ public class FilterCommandTest {
         FilterCommand command = new FilterCommand(predicate);
         customExpected.updateFilteredPersonList(predicate);
 
-        assertCommandSuccess(command, customModel, "1 candidates listed.", customExpected);
+        assertCommandSuccess(command, customModel, "1 candidate listed.", customExpected);
         assertEquals(1, customModel.getFilteredPersonList().size());
         assertEquals("Java Person", customModel.getFilteredPersonList().get(0).getName().fullName);
     }

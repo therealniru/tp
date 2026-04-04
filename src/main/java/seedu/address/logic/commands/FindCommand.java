@@ -44,7 +44,7 @@ public class FindCommand extends Command {
         if (listSize == 0) {
             return new CommandResult("No matching candidates found.");
         } else {
-            return new CommandResult(listSize + " candidates listed.");
+            return new CommandResult(listSize + (listSize == 1 ? " candidate" : " candidates") + " listed.");
         }
     }
 
