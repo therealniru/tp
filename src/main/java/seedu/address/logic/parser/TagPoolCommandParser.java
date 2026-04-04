@@ -37,7 +37,7 @@ public class TagPoolCommandParser implements Parser<TagPoolCommand> {
         }
 
         if (addValues.isEmpty() && deleteValues.isEmpty()) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagPoolCommand.MESSAGE_USAGE));
+            return new TagPoolCommand();
         }
 
         if (addValues.size() + deleteValues.size() > MAX_TAGS) {

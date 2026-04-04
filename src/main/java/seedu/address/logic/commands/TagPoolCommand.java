@@ -7,7 +7,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE_TAG;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import javafx.collections.ObservableList;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
@@ -24,12 +26,15 @@ public class TagPoolCommand extends Command {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Creates and/or deletes tags in the master tag pool.\n"
-            + "Parameters: [" + PREFIX_ADD_TAG + "TAG_TO_CREATE]... ["
+            + "To list all tags: " + COMMAND_WORD + "\n"
+            + "To create/delete: " + COMMAND_WORD + " [" + PREFIX_ADD_TAG + "TAG_TO_CREATE]... ["
             + PREFIX_DELETE_TAG + "TAG_TO_DELETE]...\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_ADD_TAG + "Frontend "
             + PREFIX_ADD_TAG + "Backend " + PREFIX_DELETE_TAG + "Intern";
 
     public static final String MESSAGE_SUCCESS = "Tag pool updated. Created: %d tag(s). Deleted: %d tag(s).";
+    public static final String MESSAGE_POOL_EMPTY = "Tag pool is empty. Use `tagpool a/TAG` to create tags.";
+    public static final String MESSAGE_POOL_LISTING = "Tag pool (%d tag%s): %s";
     public static final String MESSAGE_CONFLICT =
             "Error: Cannot create and delete the same tag ('%s') in one command.";
     public static final String MESSAGE_DUPLICATE_ADD =
@@ -39,6 +44,7 @@ public class TagPoolCommand extends Command {
 
     private final List<Tag> toAdd;
     private final List<Tag> toDelete;
+    private final boolean isListMode;
 
     /**
      * Creates a TagPoolCommand to add and/or delete the specified tags.
@@ -48,11 +54,34 @@ public class TagPoolCommand extends Command {
         requireNonNull(toDelete);
         this.toAdd = List.copyOf(toAdd);
         this.toDelete = List.copyOf(toDelete);
+        this.isListMode = false;
+    }
+
+    /**
+     * Creates a TagPoolCommand in list mode that displays all tags in the pool.
+     */
+    public TagPoolCommand() {
+        this.toAdd = List.of();
+        this.toDelete = List.of();
+        this.isListMode = true;
     }
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
+
+        if (isListMode) {
+            ObservableList<Tag> allTags = model.getAddressBook().getTagList();
+            if (allTags.isEmpty()) {
+                return new CommandResult(MESSAGE_POOL_EMPTY);
+            }
+            String tagNames = allTags.stream()
+                    .map(tag -> tag.tagName)
+                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                    .collect(Collectors.joining(", "));
+            return new CommandResult(String.format(MESSAGE_POOL_LISTING,
+                    allTags.size(), allTags.size() == 1 ? "" : "s", tagNames));
+        }
 
         // ── Phase 1: Pre-Execution Validation (zero mutations) ──
 
@@ -140,6 +169,7 @@ public class TagPoolCommand extends Command {
             return false;
         }
         TagPoolCommand otherCommand = (TagPoolCommand) other;
-        return toAdd.equals(otherCommand.toAdd) && toDelete.equals(otherCommand.toDelete);
+        return isListMode == otherCommand.isListMode
+                && toAdd.equals(otherCommand.toAdd) && toDelete.equals(otherCommand.toDelete);
     }
 }

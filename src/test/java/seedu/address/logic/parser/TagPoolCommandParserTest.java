@@ -39,9 +39,17 @@ public class TagPoolCommandParserTest {
     }
 
     @Test
-    public void parse_noPrefixes_throwsParseException() {
-        assertThrows(ParseException.class, String.format(MESSAGE_INVALID_COMMAND_FORMAT,
-                TagPoolCommand.MESSAGE_USAGE), () -> parser.parse(""));
+    public void parse_noPrefixes_returnsListMode() throws Exception {
+        TagPoolCommand expected = new TagPoolCommand();
+        TagPoolCommand result = parser.parse("");
+        assert(expected.equals(result));
+    }
+
+    @Test
+    public void parse_blankArgs_returnsListMode() throws Exception {
+        TagPoolCommand expected = new TagPoolCommand();
+        TagPoolCommand result = parser.parse("   ");
+        assert(expected.equals(result));
     }
 
     @Test

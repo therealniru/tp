@@ -162,18 +162,58 @@ public class TagPoolCommandTest {
     }
 
     @Test
+    public void execute_listModeEmptyPool_showsEmptyMessage() throws Exception {
+        ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
+
+        CommandResult result = new TagPoolCommand().execute(model);
+
+        assertEquals(TagPoolCommand.MESSAGE_POOL_EMPTY, result.getFeedbackToUser());
+    }
+
+    @Test
+    public void execute_listModePopulatedPool_showsSortedTags() throws Exception {
+        ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
+        model.addTag(new Tag("Frontend"));
+        model.addTag(new Tag("Backend"));
+        model.addTag(new Tag("AI"));
+
+        CommandResult result = new TagPoolCommand().execute(model);
+
+        assertEquals(String.format(TagPoolCommand.MESSAGE_POOL_LISTING, 3, "s", "AI, Backend, Frontend"),
+                result.getFeedbackToUser());
+    }
+
+    @Test
+    public void execute_listModeSingleTag_showsSingularForm() throws Exception {
+        ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
+        model.addTag(new Tag("OnlyTag"));
+
+        CommandResult result = new TagPoolCommand().execute(model);
+
+        assertEquals(String.format(TagPoolCommand.MESSAGE_POOL_LISTING, 1, "", "OnlyTag"),
+                result.getFeedbackToUser());
+    }
+
+    @Test
     public void equals() {
         Tag a = new Tag("Alpha");
         Tag b = new Tag("Beta");
         TagPoolCommand cmd1 = new TagPoolCommand(List.of(a), List.of(b));
         TagPoolCommand cmd2 = new TagPoolCommand(List.of(a), List.of(b));
         TagPoolCommand cmd3 = new TagPoolCommand(List.of(b), List.of(a));
+        TagPoolCommand listCmd1 = new TagPoolCommand();
+        TagPoolCommand listCmd2 = new TagPoolCommand();
 
         assertTrue(cmd1.equals(cmd1));
         assertTrue(cmd1.equals(cmd2));
         assertFalse(cmd1.equals(cmd3));
         assertFalse(cmd1.equals(null));
         assertFalse(cmd1.equals(5));
+
+        // list mode equality
+        assertTrue(listCmd1.equals(listCmd2));
+        assertFalse(listCmd1.equals(cmd1));
+        assertFalse(cmd1.equals(listCmd1));
     }
 
     // ─── Model Stubs ───
