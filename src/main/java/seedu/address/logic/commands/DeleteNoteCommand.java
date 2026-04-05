@@ -79,7 +79,6 @@ public class DeleteNoteCommand extends Command {
                 personToEdit.getEmail(),
                 personToEdit.getAddress(),
                 personToEdit.getTags(),
-                personToEdit.getStatus(),
                 personToEdit.getRejectionReasons(),
                 personToEdit.getDateAdded(),
                 personToEdit.getPriority(),

@@ -17,13 +17,11 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
-import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.RejectionReason;
-import seedu.address.model.person.Status;
 import seedu.address.testutil.PersonBuilder;
 
 /**
@@ -46,7 +44,6 @@ public class RejectCommandTest {
         expectedReasons.add(VALID_REASON);
 
         Person rejectedPerson = new PersonBuilder(personToReject)
-                .withStatus(Status.REJECTED)
                 .withRejectionReasonsList(expectedReasons)
                 .build();
 
@@ -81,7 +78,6 @@ public class RejectCommandTest {
         expectedReasons.add(VALID_REASON);
 
         Person rejectedPerson = new PersonBuilder(personToReject)
-                .withStatus(Status.REJECTED)
                 .withRejectionReasonsList(expectedReasons)
                 .build();
 
@@ -112,7 +108,8 @@ public class RejectCommandTest {
     }
 
     @Test
-    public void execute_personWithHiredTag_returnsConfirmationResult() throws CommandException {
+    public void execute_personWithHiredTag_succeedsWithoutConfirmation() {
+        // With status removed, a person tagged "hired" can be rejected normally — no confirmation dialog
         Person personWithHiredTag = new PersonBuilder()
                 .withName("Tagged Person")
                 .withPhone("88888888")
@@ -126,60 +123,40 @@ public class RejectCommandTest {
         Index taggedIndex = Index.fromOneBased(modelWithTagged.getFilteredPersonList().size());
 
         RejectCommand rejectCommand = new RejectCommand(taggedIndex, VALID_REASON);
-        CommandResult result = rejectCommand.execute(modelWithTagged);
-
-        assertTrue(result.isRequiresConfirmation());
-        assertTrue(result.getConfirmedAction().isPresent());
-        // Model should be unchanged — rejection not yet applied
-        assertEquals(personWithHiredTag,
-                modelWithTagged.getFilteredPersonList().get(taggedIndex.getZeroBased()));
+        try {
+            CommandResult result = rejectCommand.execute(modelWithTagged);
+            // Should succeed without confirmation
+            assertFalse(result.isRequiresConfirmation());
+            assertEquals(
+                    String.format(RejectCommand.MESSAGE_REJECT_PERSON_SUCCESS, VALID_REASON, 1),
+                    result.getFeedbackToUser());
+        } catch (Exception e) {
+            throw new AssertionError("Execution should not fail.", e);
+        }
     }
 
     @Test
-    public void execute_personWithHiredTag_confirmedActionExecutesRejection() throws CommandException {
-        Person personWithHiredTag = new PersonBuilder()
-                .withName("Tagged Person")
-                .withPhone("88888888")
-                .withEmail("tagged@example.com")
-                .withAddress("Tagged Street")
-                .withTags("hired")
+    public void execute_personWithBlacklistedTag_succeedsNormally() {
+        // With status removed, a person tagged "blacklisted" can also be rejected normally
+        Person personWithBlacklistedTag = new PersonBuilder()
+                .withName("Blacklisted Tag Person")
+                .withPhone("77777777")
+                .withEmail("bltagged@example.com")
+                .withAddress("Blacklisted Tag Street")
+                .withTags("blacklisted")
                 .build();
 
         Model modelWithTagged = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-        modelWithTagged.addPerson(personWithHiredTag);
+        modelWithTagged.addPerson(personWithBlacklistedTag);
         Index taggedIndex = Index.fromOneBased(modelWithTagged.getFilteredPersonList().size());
 
         RejectCommand rejectCommand = new RejectCommand(taggedIndex, VALID_REASON);
-        CommandResult confirmationResult = rejectCommand.execute(modelWithTagged);
-
-        // Simulate user clicking Yes
-        CommandResult finalResult = confirmationResult.getConfirmedAction().get().execute();
-
-        assertFalse(finalResult.isRequiresConfirmation());
-        assertEquals(
-                String.format(RejectCommand.MESSAGE_REJECT_PERSON_SUCCESS, VALID_REASON, 1),
-                finalResult.getFeedbackToUser());
-        assertEquals(Status.REJECTED,
-                modelWithTagged.getFilteredPersonList().get(taggedIndex.getZeroBased()).getStatus());
-    }
-
-    @Test
-    public void execute_blacklistedPerson_throwsCommandException() {
-        Person blacklistedPerson = new PersonBuilder()
-                .withName("Blacklisted Person")
-                .withPhone("99999999")
-                .withEmail("blacklisted@example.com")
-                .withAddress("Blacklisted Street")
-                .withStatus(Status.BLACKLISTED)
-                .build();
-
-        Model modelWithBlacklisted = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-        modelWithBlacklisted.addPerson(blacklistedPerson);
-
-        Index blacklistedIndex = Index.fromOneBased(modelWithBlacklisted.getFilteredPersonList().size());
-        RejectCommand rejectCommand = new RejectCommand(blacklistedIndex, VALID_REASON);
-
-        assertCommandFailure(rejectCommand, modelWithBlacklisted, RejectCommand.MESSAGE_BLACKLISTED_PERSON);
+        try {
+            CommandResult result = rejectCommand.execute(modelWithTagged);
+            assertFalse(result.isRequiresConfirmation());
+        } catch (Exception e) {
+            throw new AssertionError("Execution should not fail for person with blacklisted tag.", e);
+        }
     }
 
     @Test
@@ -191,7 +168,6 @@ public class RejectCommandTest {
         firstReasons.add(VALID_REASON);
 
         Person firstRejected = new PersonBuilder(personToReject)
-                .withStatus(Status.REJECTED)
                 .withRejectionReasonsList(firstReasons)
                 .build();
         model.setPerson(personToReject, firstRejected);
@@ -224,7 +200,6 @@ public class RejectCommandTest {
         firstReasons.add(VALID_REASON);
 
         Person firstRejected = new PersonBuilder(personToReject)
-                .withStatus(Status.REJECTED)
                 .withRejectionReasonsList(firstReasons)
                 .build();
         model.setPerson(personToReject, firstRejected);
@@ -248,22 +223,6 @@ public class RejectCommandTest {
         expectedModel.setPerson(firstRejected, secondRejected);
 
         assertCommandSuccess(duplicateReject, model, expectedMessage, expectedModel);
-    }
-
-    @Test
-    public void execute_setsStatusToRejected() {
-        Person personToReject = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        assertEquals(Status.ACTIVE, personToReject.getStatus());
-
-        RejectCommand rejectCommand = new RejectCommand(INDEX_FIRST_PERSON, VALID_REASON);
-        try {
-            rejectCommand.execute(model);
-        } catch (Exception e) {
-            throw new AssertionError("Execution should not fail.", e);
-        }
-
-        Person rejectedPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        assertEquals(Status.REJECTED, rejectedPerson.getStatus());
     }
 
     @Test

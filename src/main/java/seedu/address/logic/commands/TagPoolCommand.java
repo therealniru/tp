@@ -143,9 +143,8 @@ public class TagPoolCommand extends Command {
                     updatedTags.remove(targetTagToDelete);
                     Person editedPerson = new Person(
                             person.getName(), person.getPhone(), person.getEmail(),
-                            person.getAddress(), updatedTags, person.getStatus(),
-                            person.getRejectionReasons(), person.getDateAdded(), person.getPriority(),
-                            person.getNotes());
+                            person.getAddress(), updatedTags, person.getRejectionReasons(),
+                            person.getDateAdded(), person.getPriority(), person.getNotes());
                     model.setPerson(person, editedPerson);
                 }
             }

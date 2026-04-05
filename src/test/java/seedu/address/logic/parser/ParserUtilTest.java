@@ -18,7 +18,6 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
-import seedu.address.model.person.Status;
 import seedu.address.model.tag.Tag;
 
 public class ParserUtilTest {
@@ -195,36 +194,4 @@ public class ParserUtilTest {
         assertEquals(expectedTagSet, actualTagSet);
     }
 
-    @Test
-    public void parseStatus_null_throwsNullPointerException() {
-        assertThrows(NullPointerException.class, () -> ParserUtil.parseStatus(null));
-    }
-
-    @Test
-    public void parseStatus_invalidValue_throwsParseException() {
-        assertThrows(ParseException.class, () -> ParserUtil.parseStatus("pending"));
-        assertThrows(ParseException.class, () -> ParserUtil.parseStatus("NONE"));
-        assertThrows(ParseException.class, () -> ParserUtil.parseStatus(""));
-    }
-
-    @Test
-    public void parseStatus_validValueWithoutWhitespace_returnsStatus() throws Exception {
-        assertEquals(Status.ACTIVE, ParserUtil.parseStatus("active"));
-        assertEquals(Status.REJECTED, ParserUtil.parseStatus("rejected"));
-        assertEquals(Status.HIRED, ParserUtil.parseStatus("hired"));
-        assertEquals(Status.BLACKLISTED, ParserUtil.parseStatus("blacklisted"));
-    }
-
-    @Test
-    public void parseStatus_validValueWithWhitespace_returnsTrimmedStatus() throws Exception {
-        assertEquals(Status.ACTIVE, ParserUtil.parseStatus(WHITESPACE + "active" + WHITESPACE));
-        assertEquals(Status.HIRED, ParserUtil.parseStatus(WHITESPACE + "hired" + WHITESPACE));
-    }
-
-    @Test
-    public void parseStatus_caseInsensitive_returnsStatus() throws Exception {
-        assertEquals(Status.ACTIVE, ParserUtil.parseStatus("ACTIVE"));
-        assertEquals(Status.HIRED, ParserUtil.parseStatus("Hired"));
-        assertEquals(Status.BLACKLISTED, ParserUtil.parseStatus("BLACKLISTED"));
-    }
 }

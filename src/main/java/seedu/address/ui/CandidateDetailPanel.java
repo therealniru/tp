@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.RejectionReason;
-import seedu.address.model.person.Status;
 
 /**
  * Panel that displays the full details of a selected candidate.
@@ -39,8 +38,6 @@ public class CandidateDetailPanel extends UiPart<Region> {
     private Label detailEmail;
     @FXML
     private Label detailAddress;
-    @FXML
-    private Label detailStatus;
     @FXML
     private Label detailPriority;
     @FXML
@@ -93,12 +90,6 @@ public class CandidateDetailPanel extends UiPart<Region> {
         detailPhone.setText("Phone: " + person.getPhone().value);
         detailEmail.setText("Email: " + person.getEmail().value);
         detailAddress.setText("Address: " + person.getAddress().value);
-
-        Status status = person.getStatus();
-        detailStatus.setText("Status: " + formatStatus(status));
-        detailStatus.getStyleClass().removeIf(c -> c.startsWith("status-"));
-        detailStatus.getStyleClass().add(getStatusStyleClass(status));
-
         detailPriority.setText("Priority: " + (person.getPriority().isPriority ? "\u2b50 High" : "Normal"));
         detailDateAdded.setText("Added: " + person.getDateAdded().getDisplayFormat());
     }
@@ -155,35 +146,5 @@ public class CandidateDetailPanel extends UiPart<Region> {
         label.getStyleClass().add("detail-field");
         label.setWrapText(true);
         return label;
-    }
-
-    private String formatStatus(Status status) {
-        switch (status) {
-        case ACTIVE:
-            return "Active";
-        case REJECTED:
-            return "Rejected";
-        case HIRED:
-            return "Hired";
-        case BLACKLISTED:
-            return "Blacklisted";
-        default:
-            throw new IllegalArgumentException("Unknown status: " + status);
-        }
-    }
-
-    private String getStatusStyleClass(Status status) {
-        switch (status) {
-        case ACTIVE:
-            return "status-active";
-        case REJECTED:
-            return "status-rejected";
-        case HIRED:
-            return "status-hired";
-        case BLACKLISTED:
-            return "status-blacklisted";
-        default:
-            return "status-active";
-        }
     }
 }

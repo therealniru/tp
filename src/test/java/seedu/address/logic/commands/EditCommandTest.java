@@ -338,25 +338,6 @@ public class EditCommandTest {
     }
 
     @Test
-    public void execute_statusOnlyChange_success() {
-        // Change only the status field to cover the hasIdenticalFields branch for status
-        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Person editedPerson = new PersonBuilder(firstPerson).withStatus(
-                seedu.address.model.person.Status.REJECTED).build();
-
-        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withStatus(
-                seedu.address.model.person.Status.REJECTED).build();
-        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
-
-        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
-
-        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
-        expectedModel.setPerson(firstPerson, editedPerson);
-
-        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
-    }
-
-    @Test
     public void execute_emailOnlyChange_success() {
         // Change only the email field to cover the hasIdenticalFields branch for email
         Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
@@ -400,7 +381,6 @@ public class EditCommandTest {
                 .withEmail(firstPerson.getEmail().value)
                 .withAddress(firstPerson.getAddress().value)
                 .withPriority(firstPerson.getPriority().value)
-                .withStatus(firstPerson.getStatus())
                 .build();
         EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
 

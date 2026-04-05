@@ -1,7 +1,6 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_REASON;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +14,6 @@ import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.RejectionReason;
-import seedu.address.model.person.Status;
-import seedu.address.model.tag.Tag;
 
 /**
  * Rejects a candidate identified by index and records a rejection reason.
@@ -26,23 +23,16 @@ public class RejectCommand extends Command {
     public static final String COMMAND_WORD = "reject";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Rejects the candidate identified by the index number used in the displayed candidate list "
-            + "and records a rejection reason.\n"
-            + "Parameters: INDEX (must be a positive integer) "
-            + PREFIX_REASON + "REASON\n"
-            + "Example: " + COMMAND_WORD + " 1 " + PREFIX_REASON + "Failed technical interview";
+            + ": Records a rejection reason for the candidate identified by the index number "
+            + "in the displayed candidate list.\n"
+            + "Parameters: INDEX (must be a positive integer) REASON\n"
+            + "Example: " + COMMAND_WORD + " 1 Failed technical interview";
 
     public static final String MESSAGE_REJECT_PERSON_SUCCESS =
-            "Candidate marked as REJECTED. New Reason added: %1$s (Total rejections on record: %2$d)";
+            "Rejection reason recorded. New Reason added: %1$s (Total rejections on record: %2$d)";
     public static final String MESSAGE_REJECT_PERSON_SUCCESS_DUPLICATE_WARNING =
-            "Candidate marked as REJECTED. New Reason added: %1$s (Total rejections on record: %2$d)\n"
+            "Rejection reason recorded. New Reason added: %1$s (Total rejections on record: %2$d)\n"
             + "Note: This reason is the same as the previous rejection reason.";
-    public static final String MESSAGE_BLACKLISTED_PERSON =
-            "Error: Cannot reject a blacklisted candidate.";
-    public static final String MESSAGE_HIRED_PERSON =
-            "Error: Cannot reject a hired candidate. Edit their status first if needed.";
-    public static final String MESSAGE_CONFIRM_HIRED_TAG =
-            "Warning: This candidate has the 'hired' tag. Confirm rejection? (y/n)";
 
     private static final Logger logger = LogsCenter.getLogger(RejectCommand.class);
 
@@ -71,21 +61,6 @@ public class RejectCommand extends Command {
         }
 
         Person personToReject = lastShownList.get(targetIndex.getZeroBased());
-
-        if (personToReject.isBlacklisted()) {
-            throw new CommandException(MESSAGE_BLACKLISTED_PERSON);
-        }
-
-        if (personToReject.getStatus() == Status.HIRED) {
-            throw new CommandException(MESSAGE_HIRED_PERSON);
-        }
-
-        if (personToReject.getTags().contains(new Tag("hired"))) {
-            Person capturedPerson = personToReject;
-            CommandResult.ConfirmedAction action = () -> executeRejection(model, capturedPerson);
-            return new CommandResult(MESSAGE_CONFIRM_HIRED_TAG, action);
-        }
-
         return executeRejection(model, personToReject);
     }
 
@@ -120,8 +95,7 @@ public class RejectCommand extends Command {
     }
 
     /**
-     * Creates and returns a {@code Person} with status set to REJECTED
-     * and the new rejection reason appended.
+     * Creates and returns a {@code Person} with the new rejection reason appended.
      */
     private static Person createRejectedPerson(Person personToReject, RejectionReason reason) {
         assert personToReject != null;
@@ -136,7 +110,6 @@ public class RejectCommand extends Command {
                 personToReject.getEmail(),
                 personToReject.getAddress(),
                 personToReject.getTags(),
-                Status.REJECTED,
                 updatedReasons,
                 personToReject.getDateAdded(),
                 personToReject.getPriority(),

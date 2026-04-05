@@ -9,7 +9,6 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
-import static seedu.address.model.person.Status.HIRED;
 
 import org.junit.jupiter.api.Test;
 
@@ -55,10 +54,6 @@ public class EditPersonDescriptorTest {
         // different priority -> returns false
         editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withPriority("yes").build();
         assertFalse(DESC_AMY.equals(editedAmy));
-
-        // different status -> returns false
-        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withStatus(HIRED).build();
-        assertFalse(DESC_AMY.equals(editedAmy));
     }
 
     @Test
@@ -69,8 +64,7 @@ public class EditPersonDescriptorTest {
                 + editPersonDescriptor.getPhone().orElse(null) + ", email="
                 + editPersonDescriptor.getEmail().orElse(null) + ", address="
                 + editPersonDescriptor.getAddress().orElse(null) + ", priority="
-                + editPersonDescriptor.getPriority().orElse(null) + ", status="
-                + editPersonDescriptor.getStatus().orElse(null) + "}";
+                + editPersonDescriptor.getPriority().orElse(null) + "}";
         assertEquals(expected, editPersonDescriptor.toString());
     }
 }

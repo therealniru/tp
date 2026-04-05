@@ -26,7 +26,6 @@ public class Person {
     // Data fields
     private final Address address;
     private final Set<Tag> tags = new HashSet<>();
-    private final Status status;
     private final List<RejectionReason> rejectionReasons = new ArrayList<>();
     private final DateAdded dateAdded;
     private final Priority priority;
@@ -34,20 +33,20 @@ public class Person {
 
     /**
      * Every field must be present and not null.
-     * Status defaults to ACTIVE with an empty rejection reasons list and DateAdded as current time.
+     * Creates a person with empty rejection reasons, current DateAdded, and no priority.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        this(name, phone, email, address, tags, Status.ACTIVE, new ArrayList<>(), new DateAdded(), new Priority("no"),
+        this(name, phone, email, address, tags, new ArrayList<>(), new DateAdded(), new Priority("no"),
                 new ArrayList<>());
     }
 
     /**
-     * Constructor with status, rejection reasons, date added, and priority. Notes default to empty.
+     * Constructor with rejection reasons, date added, and priority. Notes default to empty.
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags,
-                  Status status, List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority) {
-        this(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, new ArrayList<>());
+                  List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority) {
+        this(name, phone, email, address, tags, rejectionReasons, dateAdded, priority, new ArrayList<>());
     }
 
     /**
@@ -55,15 +54,14 @@ public class Person {
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags,
-                  Status status, List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority,
+                  List<RejectionReason> rejectionReasons, DateAdded dateAdded, Priority priority,
                   List<Note> notes) {
-        requireAllNonNull(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, notes);
+        requireAllNonNull(name, phone, email, address, tags, rejectionReasons, dateAdded, priority, notes);
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
-        this.status = status;
         this.rejectionReasons.addAll(rejectionReasons);
         this.dateAdded = dateAdded;
         this.priority = priority;
@@ -94,10 +92,6 @@ public class Person {
         return Collections.unmodifiableSet(tags);
     }
 
-    public Status getStatus() {
-        return status;
-    }
-
     /**
      * Returns an immutable list of rejection reasons, which throws
      * {@code UnsupportedOperationException} if modification is attempted.
@@ -120,13 +114,6 @@ public class Person {
      */
     public List<Note> getNotes() {
         return Collections.unmodifiableList(notes);
-    }
-
-    /**
-     * Returns true if this person has a blacklisted status.
-     */
-    public boolean isBlacklisted() {
-        return status == Status.BLACKLISTED;
     }
 
     /**
@@ -163,7 +150,6 @@ public class Person {
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
                 && tags.equals(otherPerson.tags)
-                && status.equals(otherPerson.status)
                 && rejectionReasons.equals(otherPerson.rejectionReasons)
                 && dateAdded.equals(otherPerson.dateAdded)
                 && priority.equals(otherPerson.priority)
@@ -173,7 +159,7 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, notes);
+        return Objects.hash(name, phone, email, address, tags, rejectionReasons, dateAdded, priority, notes);
     }
 
     @Override
@@ -184,7 +170,6 @@ public class Person {
                 .add("email", email)
                 .add("address", address)
                 .add("tags", tags)
-                .add("status", status)
                 .add("rejectionReasons", rejectionReasons)
                 .add("dateAdded", dateAdded)
                 .add("priority", priority)

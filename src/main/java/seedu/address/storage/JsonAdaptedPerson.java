@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.core.LogsCenter;
@@ -22,12 +23,13 @@ import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.RejectionReason;
-import seedu.address.model.person.Status;
 import seedu.address.model.tag.Tag;
 
 /**
  * Jackson-friendly version of {@link Person}.
+ * Unknown JSON properties (e.g. legacy "status" field) are silently ignored for backwards compatibility.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
@@ -39,7 +41,6 @@ class JsonAdaptedPerson {
     private final String email;
     private final String address;
     private final List<JsonAdaptedTag> tags = new ArrayList<>();
-    private final String status;
     private final List<JsonAdaptedRejectionReason> rejectionReasons = new ArrayList<>();
     private final String dateAdded;
     private final String priority;
@@ -52,7 +53,6 @@ class JsonAdaptedPerson {
     public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
             @JsonProperty("email") String email, @JsonProperty("address") String address,
             @JsonProperty("tags") List<JsonAdaptedTag> tags,
-            @JsonProperty("status") String status,
             @JsonProperty("rejectionReasons") List<JsonAdaptedRejectionReason> rejectionReasons,
             @JsonProperty("dateAdded") String dateAdded,
             @JsonProperty("priority") String priority,
@@ -64,7 +64,6 @@ class JsonAdaptedPerson {
         if (tags != null) {
             this.tags.addAll(tags);
         }
-        this.status = status;
         if (rejectionReasons != null) {
             this.rejectionReasons.addAll(rejectionReasons);
         }
@@ -86,7 +85,6 @@ class JsonAdaptedPerson {
         tags.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
-        status = source.getStatus().name();
         rejectionReasons.addAll(source.getRejectionReasons().stream()
                 .map(JsonAdaptedRejectionReason::new)
                 .collect(Collectors.toList()));
@@ -151,20 +149,6 @@ class JsonAdaptedPerson {
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
 
-        final Status modelStatus;
-        if (status == null) {
-            modelStatus = Status.ACTIVE;
-        } else {
-            String normalizedStatus = status.toUpperCase();
-            if (normalizedStatus.equals("NONE")) {
-                normalizedStatus = "ACTIVE";
-            }
-            if (!Status.isValidStatus(normalizedStatus)) {
-                throw new IllegalValueException(Status.MESSAGE_CONSTRAINTS);
-            }
-            modelStatus = Status.valueOf(normalizedStatus);
-        }
-
         final List<RejectionReason> modelRejectionReasons = new ArrayList<>();
         for (JsonAdaptedRejectionReason reason : rejectionReasons) {
             modelRejectionReasons.add(reason.toModelType());
@@ -202,7 +186,7 @@ class JsonAdaptedPerson {
         }
 
         return new Person(modelName, modelPhone, modelEmail, modelAddress, modelTags,
-                modelStatus, modelRejectionReasons, modelDateAdded, modelPriority, modelNotes);
+                modelRejectionReasons, modelDateAdded, modelPriority, modelNotes);
     }
 
 }

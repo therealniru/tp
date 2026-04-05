@@ -115,7 +115,7 @@ Format: `help`
 
 Adds a new candidate to Talently.
 
-Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
+Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 
 **Parameters:**
 
@@ -126,14 +126,13 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
 | EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. |
 | ADDRESS | `a/` | Yes | Any non-empty text. Max 100 characters. |
 | PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
-| STATUS | `s/` | No | `active`, `rejected`, `hired`, `blacklisted`. Default: `active`. |
 
 <div markdown="span" class="alert alert-info">
 :information_source: **Tags are not set at add time.** First create tags with `tagpool`, then assign them with `tag`. See [Managing the tag pool](#managing-the-tag-pool--tagpool) and [Tagging a candidate](#tagging-a-candidate--tag).
 </div>
 
 <div markdown="span" class="alert alert-info">
-:information_source: **Status at add time** is intended for data migration (e.g., importing candidates from a spreadsheet). For normal workflow, leave status as the default (`active`) and use `reject` to record rejections with reasons, or `edit` to change status later. If you need to import a candidate with prior rejection history, add them first, then use `reject` once per prior rejection to build up the full history with reasons.
+:information_source: All candidates start as active when added. Use tags to track hiring stages (e.g., `tagpool a/Hired a/Shortlisted`, then `tag INDEX a/Hired`). Use `reject` to record formal rejection decisions with reasons.
 </div>
 
 <div markdown="span" class="alert alert-primary">
@@ -147,7 +146,6 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]`
 Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy O'Brien e/betsy@example.com a/Newgate Prison p/+6591234567 pr/yes`
-* `add n/Jane Smith p/91234567 e/jane@example.com a/Clementi Ave 3 s/hired`
 
 <p align="center"><img src="images/add%20command.png" alt="Expected result after running the add command" width="730"/></p>
 
@@ -170,21 +168,16 @@ Format: `list`
 
 Updates one or more fields of an existing candidate.
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/STATUS]`
+Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY]`
 
 * `INDEX` refers to the number shown in the current list. Must be a positive integer.
 * At least one field must be provided.
 * Unspecified fields are unchanged.
 * `PRIORITY`: `yes` or `no` (case-insensitive — `YES`, `Yes`, `NO` are all accepted).
-* `STATUS`: `active`, `rejected`, `hired`, `blacklisted` (case-insensitive).
 * If the new values are identical to the existing ones (including casing), a message indicating no changes were detected is shown and no modification is made. Case-only changes (e.g., `alice` → `Alice`) are treated as real edits.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** To re-activate a previously rejected candidate for a new hiring cycle, use `edit INDEX s/active`. Their rejection history is preserved for reference — the "Rejected X times" badge reflects lifetime history, not the current status. Always check the candidate's **status** field for their current stage.
-</div>
-
-<div markdown="span" class="alert alert-info">
-:information_source: **Note:** While `edit` can set any status (including `rejected`), the recommended way to reject a candidate is using the `reject` command, which records a reason alongside the status change. Using `edit INDEX s/rejected` changes the status but does not add a rejection reason — use this only for data corrections or bulk workflows.
+:bulb: **Tip:** Use tags to track hiring stages. For example, create a `Hired` tag with `tagpool a/Hired` and assign it with `tag INDEX a/Hired`.
 </div>
 
 <div markdown="span" class="alert alert-warning">
@@ -198,8 +191,6 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/ST
 Examples:
 * `edit 1 p/91234567 e/johndoe@example.com` — Updates phone and email.
 * `edit 2 n/Betsy Crower pr/yes` — Updates name and sets high priority.
-* `edit 1 s/hired` — Marks candidate as hired.
-* `edit 3 s/active` — Re-activates a rejected candidate.
 
 <p align="center"><img src="images/edit%20command.png" alt="Expected result after running the edit command" width="730"/></p>
 
@@ -212,7 +203,7 @@ Opens the full detail panel for a candidate on the right side of the screen.
 Format: `show INDEX`
 
 * `INDEX` must be a positive integer.
-* Detail panel displays: name, phone, email, address, status, priority, date added, tags, all notes (each showing the timestamp above the heading and content), and full rejection history.
+* Detail panel displays: name, phone, email, address, priority, date added, tags, all notes (each showing the timestamp above the heading and content), and full rejection history.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use `show` after `addnote` or `reject` to verify your changes.
@@ -310,51 +301,25 @@ Examples:
 
 Records a rejection against a candidate and appends a reason to their history.
 
-Format: `reject INDEX r/REASON`
+Format: `reject INDEX REASON`
 
 * `INDEX` must be a positive integer.
 * `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)` `&` `"` `#` `+` `%` `@` `*`.
-* **Automatically sets the candidate's status to `rejected`.**
 * Each `reject` call appends to the rejection history — previous entries are not overwritten.
-* The candidate's card shows a **red badge** with the total rejection count. This is a lifetime counter that persists across status changes — see [Candidate status reference](#candidate-status-reference) for details.
+* The candidate's card shows a **red badge** with the total rejection count (lifetime counter).
 * If the same reason is given consecutively, a warning is shown (the rejection is still recorded).
-* Blacklisted and hired candidates cannot be rejected. To reject a hired candidate, first change their status with `edit INDEX s/active`.
-* If the candidate has a tag named `hired`, a confirmation prompt is shown before proceeding.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
+:bulb: **Tip:** Use tags to track hiring stages (e.g., `tag INDEX a/Blacklisted`). Use `reject` to formally record the reason for rejection. Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
 </div>
 
 Examples:
-* `reject 1 r/Failed technical interview`
-* `reject 3 r/Insufficient experience`
+* `reject 1 Failed technical interview`
+* `reject 3 Insufficient experience`
 
 <p align="center"><img src="images/reject%20command.png" alt="Expected result after running the reject command" width="730"/></p>
 
 ---
-
-### Candidate status reference
-
-Talently tracks each candidate's stage using a `status` field.
-
-| Status | Colour in detail panel | Meaning |
-|---|---|---|
-| `active` | Blue | In the active pipeline |
-| `rejected` | Red | Has been rejected |
-| `hired` | Green | Successfully hired |
-| `blacklisted` | Grey | Blocked from future consideration |
-
-**How status is set:**
-* Defaults to `active` on `add`.
-* `reject` automatically sets it to `rejected` and records a reason.
-* Change status at any time with `edit INDEX s/STATUS`.
-* The detail panel auto-refreshes when a displayed candidate's data changes.
-
-**Status lifecycle across hiring cycles:**
-* A rejected candidate can be re-activated for a new role using `edit INDEX s/active`. Their rejection history is preserved.
-* The "Rejected X times" badge is a **lifetime counter** — it does not mean the candidate is currently rejected. Always check the **status** field for the candidate's current stage.
-* Even after hiring, past rejection records remain visible for reference (e.g., understanding a candidate's interview journey).
-* To permanently exclude a candidate, use `edit INDEX s/blacklisted`. Blacklisted candidates cannot be rejected.
 
 ---
 
@@ -626,7 +591,7 @@ A: Use `show INDEX`. The detail panel lists all notes with headings, content, an
 A: Yes — Talently identifies duplicates by phone **or** email, not name. Two candidates with the same name but different phone and email are allowed.
 
 **Q: What happens when I open a save file from an older version?**
-A: The legacy status value `NONE` is automatically migrated to `active`. Save files with other unrecognised status values will fail to load — back up your data file before upgrading.
+A: Save files from older versions that contain a `status` field are loaded normally — the field is silently ignored. Data from older versions is fully compatible.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -642,9 +607,9 @@ A: The legacy status value `NONE` is automatically migrated to `active`. Save fi
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY] [s/STATUS]` <br> e.g. `add n/James Ho p/22224444 e/jamesho@example.com a/123 Clementi Rd`
+**Add** | `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]` <br> e.g. `add n/James Ho p/22224444 e/jamesho@example.com a/123 Clementi Rd`
 **Clear** | `clear`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY] [s/STATUS]`<br> e.g. `edit 2 n/James Lee e/jameslee@example.com s/hired`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY]`<br> e.g. `edit 2 n/James Lee e/jameslee@example.com`
 **Exit** | `exit`
 **Filter** | `filter TAG`<br> e.g. `filter Shortlisted`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g. `find James Jake`
@@ -654,7 +619,7 @@ Action | Format, Examples
 **Delete Note** | `deletenote INDEX NOTE_INDEX`<br> e.g. `deletenote 1 2`
 **Edit Note** | `editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]`<br> e.g. `editnote 1 1 n/Updated content`
 **Redo** | `redo`
-**Reject** | `reject INDEX r/REASON`<br> e.g. `reject 1 r/Failed technical interview`
+**Reject** | `reject INDEX REASON`<br> e.g. `reject 1 Failed technical interview`
 **Remove** | `remove INDEX`<br> e.g. `remove 3`
 **Show** | `show INDEX`<br> e.g. `show 1`
 **Sort (date)** | `sort date o/ORDER`<br> e.g. `sort date o/desc`

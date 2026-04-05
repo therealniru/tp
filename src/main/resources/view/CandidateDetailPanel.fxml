@@ -32,8 +32,7 @@
 
       <Separator />
 
-      <Label text="STATUS" styleClass="detail-section-header" />
-      <Label fx:id="detailStatus" styleClass="detail-field" />
+      <Label text="INFO" styleClass="detail-section-header" />
       <Label fx:id="detailPriority" styleClass="detail-field" />
       <Label fx:id="detailDateAdded" styleClass="detail-field" />
 

@@ -87,7 +87,6 @@ public class AddCommand extends Command {
                 && toAdd.getName().equals(otherAddCommand.toAdd.getName())
                 && toAdd.getAddress().equals(otherAddCommand.toAdd.getAddress())
                 && toAdd.getTags().equals(otherAddCommand.toAdd.getTags())
-                && toAdd.getStatus().equals(otherAddCommand.toAdd.getStatus())
                 && toAdd.getPriority().equals(otherAddCommand.toAdd.getPriority())
                 && toAdd.getNotes().equals(otherAddCommand.toAdd.getNotes());
     }

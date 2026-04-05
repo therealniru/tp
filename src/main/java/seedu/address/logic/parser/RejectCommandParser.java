@@ -1,7 +1,5 @@
 package seedu.address.logic.parser;
 
-import static seedu.address.logic.parser.CliSyntax.PREFIX_REASON;
-
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.RejectCommand;
@@ -16,37 +14,41 @@ public class RejectCommandParser implements Parser<RejectCommand> {
     /**
      * Parses the given {@code String} of arguments in the context of the RejectCommand
      * and returns a RejectCommand object for execution.
+     * Format: reject INDEX REASON (no prefix for reason)
      * @throws ParseException if the user input does not conform the expected format
      */
     public RejectCommand parse(String args) throws ParseException {
-        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_REASON);
-
-        if (!isReasonPrefixPresent(argMultimap)) {
+        String trimmed = args.trim();
+        if (trimmed.isEmpty()) {
             throw new ParseException(Messages.MESSAGE_REJECT_INVALID_FORMAT);
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_REASON);
+        // Split into index token and remainder (the reason)
+        int spaceIndex = trimmed.indexOf(' ');
+        if (spaceIndex == -1) {
+            // Only an index was provided, no reason
+            throw new ParseException(Messages.MESSAGE_REJECT_INVALID_FORMAT);
+        }
+
+        String indexToken = trimmed.substring(0, spaceIndex);
+        String reasonString = trimmed.substring(spaceIndex + 1).trim();
+
+        if (reasonString.isEmpty()) {
+            throw new ParseException(Messages.MESSAGE_REJECT_INVALID_FORMAT);
+        }
 
         Index index;
         try {
-            index = ParserUtil.parseIndex(argMultimap.getPreamble());
+            index = ParserUtil.parseIndex(indexToken);
         } catch (ParseException pe) {
             throw new ParseException(Messages.MESSAGE_REJECT_INVALID_INDEX, pe);
         }
 
-        String reasonString = argMultimap.getValue(PREFIX_REASON).get().trim();
         if (!RejectionReason.isValidReason(reasonString)) {
             throw new ParseException(Messages.MESSAGE_REJECT_INVALID_REASON);
         }
 
         RejectionReason reason = new RejectionReason(reasonString);
         return new RejectCommand(index, reason);
-    }
-
-    /**
-     * Returns true if the reason prefix is present in the argument multimap.
-     */
-    private static boolean isReasonPrefixPresent(ArgumentMultimap argMultimap) {
-        return argMultimap.getValue(PREFIX_REASON).isPresent();
     }
 }

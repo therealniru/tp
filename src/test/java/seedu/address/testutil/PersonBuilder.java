@@ -13,7 +13,6 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Priority;
 import seedu.address.model.person.RejectionReason;
-import seedu.address.model.person.Status;
 import seedu.address.model.tag.Tag;
 import seedu.address.model.util.SampleDataUtil;
 
@@ -33,7 +32,6 @@ public class PersonBuilder {
     private Email email;
     private Address address;
     private Set<Tag> tags;
-    private Status status;
     private List<RejectionReason> rejectionReasons;
     private seedu.address.model.person.DateAdded dateAdded;
     private Priority priority;
@@ -48,7 +46,6 @@ public class PersonBuilder {
         email = new Email(DEFAULT_EMAIL);
         address = new Address(DEFAULT_ADDRESS);
         tags = new HashSet<>();
-        status = Status.ACTIVE;
         rejectionReasons = new ArrayList<>();
         dateAdded = new seedu.address.model.person.DateAdded(DEFAULT_DATE_ADDED);
         priority = new Priority("no");
@@ -64,7 +61,6 @@ public class PersonBuilder {
         email = personToCopy.getEmail();
         address = personToCopy.getAddress();
         tags = new HashSet<>(personToCopy.getTags());
-        status = personToCopy.getStatus();
         rejectionReasons = new ArrayList<>(personToCopy.getRejectionReasons());
         dateAdded = personToCopy.getDateAdded();
         priority = personToCopy.getPriority();
@@ -112,14 +108,6 @@ public class PersonBuilder {
     }
 
     /**
-     * Sets the {@code Status} of the {@code Person} that we are building.
-     */
-    public PersonBuilder withStatus(Status status) {
-        this.status = status;
-        return this;
-    }
-
-    /**
      * Sets the {@code DateAdded} of the {@code Person} that we are building.
      */
     public PersonBuilder withDateAdded(String dateAdded) {
@@ -163,7 +151,7 @@ public class PersonBuilder {
     }
 
     public Person build() {
-        return new Person(name, phone, email, address, tags, status, rejectionReasons, dateAdded, priority, notes);
+        return new Person(name, phone, email, address, tags, rejectionReasons, dateAdded, priority, notes);
     }
 
 }

@@ -268,33 +268,61 @@ Talently is designed for Applicant Tracking System (ATS) workflows where missing
 
 ### Rejection history design
 
-**Aspect: Why does rejection history persist across status changes?**
+**Aspect: Why does rejection history persist across hiring cycles?**
 
-In recruitment, a candidate who is rejected for one role may be reconsidered when a different role opens. The recruiter changes their status back to `active` (via `edit INDEX s/active`) and re-enters them into the pipeline. The rejection history and the "Rejected X times" badge intentionally persist through this transition for the following reasons:
+In recruitment, a candidate who is rejected for one role may be reconsidered when a different role opens. The rejection history and the "Rejected X times" badge intentionally persist across cycles for the following reasons:
 
-1. **"Rejected X times" does not mean "currently rejected."** The badge is a historical counter — the candidate's *current* stage is always indicated by their **status** field (`active`, `rejected`, `hired`, `blacklisted`). Recruiters should always look at the status, not the rejection count, to determine the candidate's current disposition.
-2. **Past rejection context is valuable even after hiring.** If a candidate was rejected twice for lack of experience, then eventually hired after gaining more, the recruiter may still want to reference those earlier notes when onboarding or evaluating performance. Erasing the history would lose this context.
-3. **Multiple rejection cycles are normal.** Startup hiring is cyclical — the same candidate may apply for three different roles over two years. Each rejection reason (e.g., "Overqualified for junior role", "Timing mismatch", "Failed system design round") provides distinct context. Blocking repeated rejections would force recruiters to use workarounds.
-4. **Blacklisting is the appropriate tool for permanent exclusion.** If a candidate should never be contacted again, the recruiter sets their status to `blacklisted` — which blocks further rejection attempts. The rejection history mechanism is not designed for permanent exclusion; it is designed for record-keeping across hiring cycles.
+1. **Past rejection context is valuable even when reconsidering.** If a candidate was rejected twice for lack of experience, that context remains useful when a recruiter reassesses them for a more senior role.
+2. **Multiple rejection cycles are normal.** The same candidate may apply for different roles over time. Each rejection reason (e.g., "Overqualified for junior role", "Timing mismatch") provides distinct context.
+3. **The badge is a lifetime counter, not a current-state indicator.** Hiring stage tracking is done via tags — the rejection count reflects history only.
 
-* **Alternative 1 (current choice):** Rejection history accumulates permanently and is visible regardless of status. Consecutive duplicate reasons trigger a warning (not a block) to catch accidental double-entry.
-  * Pros: Full audit trail. Supports multi-cycle hiring. Clear separation between "history" and "current status".
-  * Cons: A recruiter unfamiliar with the system might initially confuse "Rejected 3 times" with "currently rejected" — mitigated by always displaying the status badge alongside the count.
+* **Alternative 1 (current choice):** Rejection history accumulates permanently. Consecutive duplicate reasons trigger a warning (not a block) to catch accidental double-entry.
+  * Pros: Full audit trail. Supports multi-cycle hiring.
+  * Cons: Badge count grows unbounded; recruiters must use tags to understand current stage.
 
-* **Alternative 2:** Clear rejection history when status changes to `active` or `hired`.
+* **Alternative 2:** Clear rejection history when a candidate is re-tagged as active/hired.
   * Pros: Cleaner appearance for re-activated candidates.
-  * Cons: Permanently destroys valuable historical context. No way to recall why the candidate was previously rejected.
+  * Cons: Permanently destroys historical context with no recovery path.
 
-### Status lifecycle design
+### Removal of status field
 
-**Aspect: Why can status be freely changed via `edit`?**
+Candidate stage tracking (active, hired, rejected, blacklisted, etc.) is handled entirely through tags and the `reject` command, rather than a dedicated status field.
 
-Talently allows the recruiter to set any valid status (`active`, `rejected`, `hired`, `blacklisted`) on any candidate at any time via the `edit` command. This is intentional:
+**Aspect: Why not use a built-in status field?**
 
-* A rejected candidate being reconsidered for a new role can be set back to `active`.
-* A hired candidate who leaves the company can be set back to `active` for future roles.
-* The `reject` command is a convenience shortcut that sets status to `rejected` *and* appends a reason in one step, but the status itself is always editable independently.
-* The only restrictions are: `reject` cannot be used on `hired` or `blacklisted` candidates (the recruiter must explicitly change the status first, ensuring deliberate intent).
+* **Alternative 1 (current choice):** No status field. Tags handle stage tracking; `reject` handles rejection history.
+  * Pros: Impossible to create inconsistent state (e.g., status "rejected" with zero rejection reasons). Fully flexible — recruiters define their own workflow stages as tags (e.g., "Phone-Screen", "Onsite", "Offer-Extended"). Single mechanism for categorisation (tags) rather than two overlapping systems.
+  * Cons: No enforced state machine. This is acceptable because tag management is the recruiter's responsibility.
+
+* **Alternative 2:** Dedicated status field with four fixed values (Active, Rejected, Hired, Blacklisted).
+  * Pros: Enforced state machine, clear visual indicator.
+  * Cons: Created inconsistent states (e.g., rejected status with no rejection reason). Limited recruiters to exactly four workflow stages.
+
+### Rejection reason immutability
+
+Rejection reasons are append-only: once recorded via the `reject` command, they cannot be
+edited or deleted (except by `undo` immediately after). This contrasts with notes, which
+support full CRUD operations (addnote, editnote, deletenote).
+
+**Aspect: Why are rejection reasons immutable while notes are not?**
+
+* **Alternative 1 (current choice):** Rejection reasons are an immutable audit trail.
+  * Pros: Mirrors real-world HR practices where formal hiring decisions are recorded permanently
+    and corrections are annotated rather than overwritten. Prevents accidental or intentional
+    tampering with rejection history. The "Rejected X times" badge provides a reliable lifetime
+    count that cannot be deflated by deleting reasons. The `undo` command provides immediate
+    correction if a rejection was recorded in error.
+  * Cons: A typo in a rejection reason cannot be fixed after subsequent commands. The
+    workaround is to add a note explaining the correction.
+
+* **Alternative 2:** Full CRUD for rejection reasons (add editreject/deletereject commands).
+  * Pros: Consistent with note management, allows typo correction at any time.
+  * Cons: Undermines the audit trail. The "Rejected X times" badge would become unreliable
+    if reasons could be silently removed.
+
+The immutability is justified because rejection reasons serve a fundamentally different
+purpose from notes. Notes are a working scratchpad; rejection reasons are formal decisions
+that affect how a candidate is perceived across hiring cycles.
 
 ### Note management design
 
@@ -342,11 +370,11 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 | Priority | As a …​ | I want to …​                                                                       | So that I can…​ |
 |----------|---------|------------------------------------------------------------------------------------|-----------------|
-| `* * *` | recruiter | add a candidate with name, phone, email, address, and optional priority/status     | begin tracking them in my talent pool immediately. |
+| `* * *` | recruiter | add a candidate with name, phone, email, address, and optional priority            | begin tracking them in my talent pool immediately. |
 | `* * *` | recruiter | list all candidates alphabetically                                                 | get a full overview of everyone in my talent pool. |
-| `* * *` | recruiter | view the complete profile of a specific candidate via a detail panel                | read their full history (notes, tags, status, rejections) in one place before a call. |
+| `* * *` | recruiter | view the complete profile of a specific candidate via a detail panel                | read their full history (notes, tags, rejections) in one place before a call. |
 | `* * *` | recruiter | search for candidates by partial name, phone, email, note content, or rejection reason | instantly locate a record even if I only remember a fragment of their details. |
-| `* * *` | recruiter | edit a candidate’s name, phone, email, address, priority, or status                | keep my records accurate when details change. |
+| `* * *` | recruiter | edit a candidate’s name, phone, email, address, or priority                        | keep my records accurate when details change. |
 | `* * *` | recruiter | remove a candidate permanently                                                     | delete invalid or withdrawn contacts and stay legally compliant. |
 | `* * *` | recruiter | record a rejection with a specific reason that appends to a chronological history   | maintain a full record of why a candidate was passed over across multiple hiring cycles. |
 | `* * *` | recruiter | add timestamped notes (with optional heading) to a candidate                       | capture impressions and context immediately during or after a conversation. |
@@ -358,7 +386,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 | `* *` | recruiter | sort candidates by date added (ascending or descending)                            | quickly review the most recent or oldest leads. |
 | `* *` | recruiter | sort candidates by priority                                                        | surface high-priority candidates at the top of my list. |
 | `* *` | recruiter | set a candidate’s priority flag (high or normal)                                   | visually identify whom to contact first when opening the application. |
-| `* *` | recruiter | manage candidate status (active, rejected, hired, blacklisted) via edit            | track each candidate’s current hiring stage and prevent inappropriate outreach. |
+| `* * *` | recruiter | track hiring stages using tags                                                     | flexibly categorize candidates by any workflow stage I define. |
 | `* *` | recruiter | undo the last modifying action                                                     | instantly recover from an accidental deletion or mistyped command. |
 | `* *` | recruiter | redo a previously undone action                                                    | restore a reverted change without retyping it. |
 | `* *` | recruiter | clear all data and start fresh                                                     | reset the system when starting a new hiring cycle. |
@@ -410,14 +438,13 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 **Use case: UC3 - Recording a rejection with reason**
 
-**Preconditions:** The candidate exists in the system, is not blacklisted, and is not hired.
+**Preconditions:** The candidate exists in the system.
 
 **MSS:**
 1. User requests to reject a specific candidate by index, providing a rejection reason.
 2. System validates the index and the reason.
-3. System updates the candidate’s status to REJECTED.
-4. System appends the reason to the candidate’s rejection history.
-5. System informs the user of the successful update (including total rejection count).
+3. System appends the reason to the candidate’s rejection history.
+4. System informs the user of the successful update (including total rejection count).
    Use case ends.
 
 **Extensions:**
@@ -425,23 +452,13 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 1a1. System informs the user of the error.
     * Use case ends.
 * 2a. User provides an invalid reason (e.g., empty string, exceeds 200 characters, or contains disallowed characters).
-    * 2a1. System maintains the candidate’s original status and informs the user of the validation error.
+    * 2a1. System informs the user of the validation error.
     * Use case ends.
-* 2b. The candidate is blacklisted.
-    * 2b1. System informs the user that blacklisted candidates cannot be rejected.
-    * Use case ends.
-* 2c. The candidate has status `hired`.
-    * 2c1. System informs the user that hired candidates cannot be rejected.
-    * Use case ends.
-* 2d. The candidate has a tag named `hired`.
-    * 2d1. System shows a confirmation prompt warning about the hired tag.
-    * 2d2. User confirms the rejection.
-    * Use case resumes from step 3.
-* 5a. System detects the same rejection reason as the immediately previous one (case-insensitive).
-    * 5a1. System still records the rejection but includes a warning about the consecutive duplicate.
+* 4a. System detects the same rejection reason as the immediately previous one (case-insensitive).
+    * 4a1. System still records the rejection but includes a warning about the consecutive duplicate.
     * Use case ends.
 
-**Design justification:** The system allows rejecting a candidate multiple times (even with the same reason) because real-world hiring involves multiple rounds. Rather than blocking the operation, a warning on consecutive duplicates guards against accidental double-entry while preserving flexibility.
+**Design justification:** The system allows rejecting a candidate multiple times (even with the same reason) because real-world hiring involves multiple rounds. Rather than blocking the operation, a warning on consecutive duplicates guards against accidental double-entry while preserving flexibility. There are no guards based on the candidate’s tags — any candidate can be rejected regardless of what tags they carry. Use tags (e.g., `Blacklisted`, `Hired`) to track hiring stages; the `reject` command is solely for recording formal rejection decisions with reasons.
 
 
 **Use case: UC4 - Filtering candidates by tag**
@@ -488,7 +505,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2b1. System aborts the update and informs the user of the specific conflict (which field and which existing candidate).
     * Use case ends.
 
-**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean. The `edit` command intentionally allows setting any status (including `rejected` or `blacklisted`) without requiring a rejection reason — this enables data migration workflows and quick corrections. The `reject` command is the recommended path for recording rejections with reasons; `edit s/rejected` is a power-user shortcut for status-only changes.
+**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean. The `edit` command handles contact details and priority only; hiring stage tracking is done via tags and the `reject` command.
 
 
 **Use case: UC6 - Finding a candidate by attributes**
@@ -799,7 +816,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '` (no spaces, 1–30 characters). Comparison is case-insensitive.
 * **Tag Pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the pool cascades the removal to all candidates.
 * **Note:** A timestamped text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes are ordered chronologically and can be added, edited, or deleted.
-* **Status:** A candidate's current stage in the hiring pipeline: `active`, `rejected`, `hired`, or `blacklisted`.
+* **Hiring stage:** The current position of a candidate in the hiring pipeline, tracked via tags (e.g., `Shortlisted`, `Hired`, `Blacklisted`) assigned by the recruiter.
 * **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates can be surfaced with `sort pr o/asc`.
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
 * **Identifier:** The reference used by the recruiter to execute commands on a specific candidate (often an index number representing their position in the current list).
@@ -902,30 +919,24 @@ testers are expected to do more *exploratory* testing.
 
 1. Rejecting a candidate with valid input
 
-   1. Prerequisites: List all candidates using the `list` command. At least one active candidate.
+   1. Prerequisites: List all candidates using the `list` command. At least one candidate in the list.
 
-   1. Test case: `reject 1 r/Failed technical interview`<br>
-      Expected: Candidate's status changes to REJECTED. Rejection reason is recorded. Success message with rejection count shown.
+   1. Test case: `reject 1 Failed technical interview`<br>
+      Expected: Rejection reason is recorded. Success message with rejection count shown. The "Rejected X times" badge on the candidate's card updates.
 
    1. Test case: Reject the same candidate again with the same reason.<br>
       Expected: Rejection is recorded but a duplicate warning is shown.
 
-1. Rejecting with invalid input or status
+   1. Test case: Reject a candidate who has a tag named `hired`.<br>
+      Expected: Rejection succeeds normally — there are no guards based on tags.
 
-   1. Test case: `reject 0 r/reason`<br>
+1. Rejecting with invalid input
+
+   1. Test case: `reject 0 reason`<br>
       Expected: Error message indicating invalid index.
 
-   1. Test case: `reject 1 r/` (empty reason)<br>
-      Expected: Error message indicating invalid rejection reason.
-
-   1. Test case: Reject a candidate whose status is `hired`.<br>
-      Expected: Error message stating hired candidates cannot be rejected.
-
-   1. Test case: Reject a candidate whose status is `blacklisted`.<br>
-      Expected: Error message stating blacklisted candidates cannot be rejected.
-
-   1. Test case: Reject a candidate who has a tag named `hired` (but whose status is not `hired`).<br>
-      Expected: A confirmation prompt is shown warning about the hired tag. Confirming proceeds with the rejection.
+   1. Test case: `reject 1` (no reason)<br>
+      Expected: Error message indicating rejection reason is required.
 
 ### Adding a note to a candidate
 

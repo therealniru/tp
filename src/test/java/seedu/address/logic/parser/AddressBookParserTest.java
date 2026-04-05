@@ -127,7 +127,7 @@ public class AddressBookParserTest {
     public void parseCommand_reject() throws Exception {
         RejectionReason reason = new RejectionReason("Failed interview");
         RejectCommand command = (RejectCommand) parser.parseCommand(
-                RejectCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased() + " r/Failed interview");
+                RejectCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased() + " Failed interview");
         assertEquals(new RejectCommand(INDEX_FIRST_PERSON, reason), command);
     }
 
