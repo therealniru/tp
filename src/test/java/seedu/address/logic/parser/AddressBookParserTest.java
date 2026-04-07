@@ -18,9 +18,11 @@ import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AddRejectCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteNoteCommand;
+import seedu.address.logic.commands.DeleteRejectCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.commands.EditNoteCommand;
+import seedu.address.logic.commands.EditRejectCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.commands.FindCommand;
@@ -147,6 +149,18 @@ public class AddressBookParserTest {
         assertEquals(new TagCommand(INDEX_FIRST_PERSON,
                 java.util.List.of(new seedu.address.model.tag.Tag("Java")),
                 java.util.Collections.emptyList()), command);
+    }
+
+    @Test
+    public void parseCommand_editreject() throws Exception {
+        assertTrue(parser.parseCommand(
+                EditRejectCommand.COMMAND_WORD + " 1 1 Failed cultural fit") instanceof EditRejectCommand);
+    }
+
+    @Test
+    public void parseCommand_deletereject() throws Exception {
+        assertTrue(parser.parseCommand(
+                DeleteRejectCommand.COMMAND_WORD + " 1 1") instanceof DeleteRejectCommand);
     }
 
     @Test
