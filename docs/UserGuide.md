@@ -132,7 +132,7 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 </div>
 
 <div markdown="span" class="alert alert-info">
-:information_source: All candidates start as active when added. Use tags to track hiring stages (e.g., `tagpool a/Hired a/Shortlisted`, then `tag INDEX a/Hired`). Use `reject` to record formal rejection decisions with reasons.
+:information_source: All candidates start as active when added. Use tags to track hiring stages (e.g., `tagpool a/Hired a/Shortlisted`, then `tag INDEX a/Hired`). Use `addreject` to record formal rejection decisions with reasons.
 </div>
 
 <div markdown="span" class="alert alert-primary">
@@ -206,7 +206,7 @@ Format: `show INDEX`
 * Detail panel displays: name, phone, email, address, priority, date added, tags, all notes (each showing the timestamp above the heading and content), and full rejection history.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use `show` after `addnote` or `reject` to verify your changes.
+:bulb: **Tip:** Use `show` after `addnote` or `addreject` to verify your changes.
 </div>
 
 Examples:
@@ -297,27 +297,60 @@ Examples:
 
 ---
 
-### Rejecting a candidate : `reject`
+### Adding a rejection reason : `addreject`
 
 Records a rejection against a candidate and appends a reason to their history.
 
-Format: `reject INDEX REASON`
+Format: `addreject INDEX REASON`
 
 * `INDEX` must be a positive integer.
 * `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)` `&` `"` `#` `+` `%` `@` `*`.
-* Each `reject` call appends to the rejection history — previous entries are not overwritten.
+* Each `addreject` call appends to the rejection history — previous entries are not overwritten.
 * The candidate's card shows a **red badge** with the total rejection count (lifetime counter).
 * If the same reason is given consecutively, a warning is shown (the rejection is still recorded).
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use tags to track hiring stages (e.g., `tag INDEX a/Blacklisted`). Use `reject` to formally record the reason for rejection. Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
+:bulb: **Tip:** Use tags to track hiring stages (e.g., `tag INDEX a/Blacklisted`). Use `addreject` to formally record the reason for rejection. Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
 </div>
 
 Examples:
-* `reject 1 Failed technical interview`
-* `reject 3 Insufficient experience`
+* `addreject 1 Failed technical interview`
+* `addreject 3 Insufficient experience`
 
-<p align="center"><img src="images/reject%20command.png" alt="Expected result after running the reject command" width="730"/></p>
+<p align="center"><img src="images/reject%20command.png" alt="Expected result after running the addreject command" width="730"/></p>
+
+---
+
+### Editing a rejection reason : `editreject`
+
+Edits an existing rejection reason for a candidate.
+
+Format: `editreject INDEX REJECT_INDEX NEW_REASON`
+
+* `INDEX` is the candidate's position in the displayed list (positive integer).
+* `REJECT_INDEX` is the rejection reason's position in the candidate's rejection history (positive integer). Use `show INDEX` to see rejection numbers.
+* `NEW_REASON`: non-empty, max 200 characters. Same allowed characters as `addreject`.
+* The candidate must have at least one existing rejection reason.
+
+Examples:
+* `editreject 1 1 Failed cultural fit interview` — updates the 1st rejection reason for candidate 1.
+* `editreject 2 2 Insufficient experience for senior role` — updates the 2nd rejection reason for candidate 2.
+
+---
+
+### Deleting a rejection reason : `deletereject`
+
+Deletes a rejection reason from a candidate's record.
+
+Format: `deletereject INDEX REJECT_INDEX`
+
+* `INDEX` is the candidate's position in the displayed list (positive integer).
+* `REJECT_INDEX` is the rejection reason's position in the candidate's rejection history (positive integer). Use `show INDEX` to see rejection numbers.
+* The candidate must have at least one existing rejection reason.
+
+Examples:
+* `deletereject 1 2` — deletes the 2nd rejection reason from candidate 1.
+* `deletereject 3 1` — deletes the 1st rejection reason from candidate 3.
 
 ---
 
@@ -500,7 +533,7 @@ Reverts Talently to the state before the most recent data-changing command.
 
 Format: `undo`
 
-* Applies to: `add`, `edit`, `remove`, `reject`, `tag`, `tagpool`, `addnote`, `editnote`, `deletenote`, `sort`, `clear`.
+* Applies to: `add`, `edit`, `remove`, `addreject`, `editreject`, `deletereject`, `tag`, `tagpool`, `addnote`, `editnote`, `deletenote`, `sort`, `clear`.
 * If there is nothing to undo, an error is shown.
 
 Examples:
@@ -619,7 +652,9 @@ Action | Format, Examples
 **Delete Note** | `deletenote INDEX NOTE_INDEX`<br> e.g. `deletenote 1 2`
 **Edit Note** | `editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]`<br> e.g. `editnote 1 1 n/Updated content`
 **Redo** | `redo`
-**Reject** | `reject INDEX REASON`<br> e.g. `reject 1 Failed technical interview`
+**Add Reject** | `addreject INDEX REASON`<br> e.g. `addreject 1 Failed technical interview`
+**Delete Reject** | `deletereject INDEX REJECT_INDEX`<br> e.g. `deletereject 1 2`
+**Edit Reject** | `editreject INDEX REJECT_INDEX NEW_REASON`<br> e.g. `editreject 1 1 Failed cultural fit`
 **Remove** | `remove INDEX`<br> e.g. `remove 3`
 **Show** | `show INDEX`<br> e.g. `show 1`
 **Sort (date)** | `sort date o/ORDER`<br> e.g. `sort date o/desc`
