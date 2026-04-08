@@ -177,4 +177,18 @@ public class NoteCommandTest {
         assertTrue(result.contains("targetIndex"));
         assertTrue(result.contains("note"));
     }
+
+    @Test
+    public void execute_maxNotesReached_throwsCommandException() {
+        Person personToEdit = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        List<Note> maxNotes = new ArrayList<>();
+        for (int i = 0; i < NoteCommand.MAX_NOTES_PER_CANDIDATE; i++) {
+            maxNotes.add(new Note("Heading " + i, "Content " + i, FIXED_DATE));
+        }
+        Person personAtMax = new PersonBuilder(personToEdit).withNotes(maxNotes).build();
+        model.setPerson(personToEdit, personAtMax);
+
+        NoteCommand noteCommand = new NoteCommand(INDEX_FIRST_PERSON, VALID_NOTE);
+        assertCommandFailure(noteCommand, model, NoteCommand.MESSAGE_NOTES_LIMIT_REACHED);
+    }
 }

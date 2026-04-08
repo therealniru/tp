@@ -148,6 +148,16 @@ public class TagPoolCommandTest {
     }
 
     @Test
+    public void execute_poolFull_throwsCommandException() {
+        ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
+        for (int i = 0; i < TagPoolCommand.MAX_POOL_SIZE; i++) {
+            model.addTag(new Tag("Tag" + i));
+        }
+        TagPoolCommand cmd = new TagPoolCommand(List.of(new Tag("OneMore")), Collections.emptyList());
+        assertThrows(CommandException.class, TagPoolCommand.MESSAGE_POOL_FULL, () -> cmd.execute(model));
+    }
+
+    @Test
     public void execute_mixedAddAndDelete_success() throws Exception {
         ModelStubAcceptingTagOps model = new ModelStubAcceptingTagOps();
         Tag toDelete = new Tag("OldTag");
