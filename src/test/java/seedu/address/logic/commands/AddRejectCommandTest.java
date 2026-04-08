@@ -194,4 +194,18 @@ public class AddRejectCommandTest {
                 + "{targetIndex=" + targetIndex + ", reason=" + VALID_REASON + "}";
         assertEquals(expected, rejectCommand.toString());
     }
+
+    @Test
+    public void execute_maxRejectionsReached_throwsCommandException() {
+        Person personToReject = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        List<RejectionReason> maxReasons = new ArrayList<>();
+        for (int i = 0; i < AddRejectCommand.MAX_REJECTIONS_PER_CANDIDATE; i++) {
+            maxReasons.add(new RejectionReason("Reason " + i));
+        }
+        Person personAtMax = new PersonBuilder(personToReject).withRejectionReasonsList(maxReasons).build();
+        model.setPerson(personToReject, personAtMax);
+
+        AddRejectCommand rejectCommand = new AddRejectCommand(INDEX_FIRST_PERSON, VALID_REASON);
+        assertCommandFailure(rejectCommand, model, AddRejectCommand.MESSAGE_REJECTIONS_LIMIT_REACHED);
+    }
 }

@@ -122,7 +122,7 @@ How the parsing works:
 
 The `Model` component,
 
-* stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores Talently's candidate data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
 * stores the currently 'selected' `Person` objects (e.g., results of a search query) as a separate _filtered_ list which is exposed to outsiders as an unmodifiable `ObservableList<Person>` that can be 'observed' e.g. the UI can be bound to this list so that the UI automatically updates when the data in the list change.
 * stores a `UserPref` object that represents the user’s preferences. This is exposed to the outside as a `ReadOnlyUserPref` objects.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
@@ -148,7 +148,7 @@ The class diagram below details the internal structure of `UniqueTagList`:
 <img src="images/StorageClassDiagram.png" width="550" />
 
 The `Storage` component,
-* can save both address book data and user preference data in JSON format, and read them back into corresponding objects.
+* can save both candidate data and user preference data in JSON format, and read them back into corresponding objects.
 * inherits from both `AddressBookStorage` and `UserPrefStorage`, which means it can be treated as either one (if only the functionality of only one is needed).
 * depends on some classes in the `Model` component (because the `Storage` component's job is to save/retrieve objects that belong to the `Model`)
 
@@ -168,18 +168,18 @@ This section describes some noteworthy details on how certain features are imple
 
 The undo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with a state history, stored internally as an `addressBookStateList` and `currentStatePointer`. It implements the following operations:
 
-* `VersionedAddressBook#commit()` — Saves the current address book state in its history.
-* `VersionedAddressBook#undo()` — Restores the previous address book state from its history.
+* `VersionedAddressBook#commit()` — Saves the current data state in its history.
+* `VersionedAddressBook#undo()` — Restores the previous data state from its history.
 
 These operations are exposed in the `Model` interface as `Model#commitAddressBook()`, `Model#canUndoAddressBook()`, and `Model#undoAddressBook()`.
 
 Given below is an example usage scenario and how undo behaves at each step.
 
-Step 1. The user launches the application for the first time. `VersionedAddressBook` is initialized with the initial address book state, and `currentStatePointer` points to that single state.
+Step 1. The user launches the application for the first time. `VersionedAddressBook` is initialized with the initial data state, and `currentStatePointer` points to that single state.
 
 ![UndoRedoState0](images/UndoRedoState0.png)
 
-Step 2. The user executes a mutating command such as `remove 5`. After successful execution, `LogicManager` compares the pre- and post-command address book states. Since the state changed, it calls `Model#commitAddressBook()`. The new state is saved and `currentStatePointer` advances to the latest state.
+Step 2. The user executes a mutating command such as `remove 5`. After successful execution, `LogicManager` compares the pre- and post-command data states. Since the state changed, it calls `Model#commitAddressBook()`. The new state is saved and `currentStatePointer` advances to the latest state.
 
 ![UndoRedoState1](images/UndoRedoState1.png)
 
@@ -187,7 +187,7 @@ Step 3. The user executes another mutating command such as `add n/David ...`. Th
 
 ![UndoRedoState2](images/UndoRedoState2.png)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the address book state will not be saved into the `addressBookStateList`.
+<div markdown="span" class="alert alert-info">:information_source: **Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the data state will not be saved into the `addressBookStateList`.
 
 </div>
 
@@ -221,7 +221,7 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 **Aspect: How undo executes:**
 
-* **Alternative 1 (current choice):** Saves the entire address book.
+* **Alternative 1 (current choice):** Saves the entire data state.
   * Pros: Easy to implement.
   * Cons: May have performance issues in terms of memory usage.
 
@@ -232,9 +232,9 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 **Aspect: When to commit state:**
 
-* **Alternative 1 (current choice):** `LogicManager` compares pre- and post-command AddressBook state. If different, commits automatically.
+* **Alternative 1 (current choice):** `LogicManager` compares pre- and post-command data state. If different, commits automatically.
   * Pros: No per-command boilerplate — all mutating commands are undoable by default. Adding a new command does not require remembering to call `commit()`.
-  * Cons: Requires creating a snapshot of the entire AddressBook before every command execution, even if the command is read-only (e.g., `list`, `find`).
+  * Cons: Requires creating a snapshot of the entire data state before every command execution, even if the command is read-only (e.g., `list`, `find`).
 
 * **Alternative 2:** Each mutating command calls `model.commitAddressBook()` explicitly.
   * Pros: No unnecessary snapshots for read-only commands.
@@ -246,7 +246,7 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 Talently is designed for Applicant Tracking System (ATS) workflows where missing a qualified candidate due to a mistagged record can mean a real business loss. In recruitment, tags drive filtering and shortlisting — if a candidate is tagged `Shotlisted` instead of `Shortlisted`, they silently disappear from filtered views and may never be reviewed. A master tag pool enforces a controlled vocabulary: recruiters pick from a pre-approved list rather than free-typing, eliminating typo-created tags entirely. This is more deliberate than ad-hoc tagging, but the tradeoff is justified because the cost of one missed candidate far outweighs the small overhead of creating tags upfront.
 
-* **Alternative 1 (current choice):** Tags must be created in the tag pool (`tagpool a/TAG`) before assignment (`tag INDEX a/TAG`).
+* **Alternative 1 (current choice):** Tags must be created in the tag pool (`tagpool at/TAG`) before assignment (`tag INDEX at/TAG`).
   * Pros: Prevents typo-created tags (e.g., `Shotlisted` vs `Shortlisted`). Ensures canonical casing and a single source of truth for all valid tags. Pool deletion cascades cleanly to all candidates, maintaining referential integrity. Recruiters can view all available tags at a glance.
   * Cons: Extra step for the user — tags must be pre-created before first use.
 
@@ -324,7 +324,7 @@ All free-text fields (`Name`, `Address`, `Note` heading/content, `RejectionReaso
 
 * **Alternative 1 (current choice):** Validators reject any character outside 0x20–0x7E.
   * Pros: Eliminates an entire class of bugs: font-fallback rendering issues on different OSes, CSV/JSON round-trip corruption with BOMs or non-UTF8 encodings, inconsistent collation in `find`/`filter`, and "invisible" characters (zero-width joiners, RTL marks, smart quotes) that look identical to ASCII but compare unequal. Duplicate-detection on phone/email becomes deterministic. All rendering paths in JavaFX TextField, ListView cells, and the help-window TableView behave identically regardless of the user's locale.
-  * Cons: Users with genuinely non-ASCII names (e.g., "José", "Müller", "李明") cannot be stored verbatim. The documented workaround is ASCII transliteration (e.g., "Jose", "Mueller", "Li Ming"). This trade-off is acceptable for the target user profile (English-speaking small-team recruiters) given that the `Name` validator in the inherited AB3 codebase was already ASCII-only before this decision was formalised.
+  * Cons: Users with genuinely non-ASCII names (e.g., "José", "Müller", "李明") cannot be stored verbatim. The documented workaround is ASCII transliteration (e.g., "Jose", "Mueller", "Li Ming"). This trade-off is acceptable for the target user profile (English-speaking small-team recruiters) given that the `Name` validator in the inherited codebase was already ASCII-only before this decision was formalised.
 
 * **Alternative 2:** Allow Unicode in `Address` and `Note` only, keep `Name` ASCII.
   * Pros: More permissive for free-form fields where matching semantics are less critical.
@@ -581,7 +581,12 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2a1. System informs the user that the result set is empty.
     * Use case ends.
 
-**Design justification:** Search uses OR semantics (matching *any* keyword) and is case-insensitive, so a user who mis-remembers part of a candidate's details can still find them (e.g., `find alice richards` returns both "Alice Davidson" and "Alison Richards"). The search covers name, phone, email, notes, and rejection reasons — the fields most likely to contain recall cues — while excluding address (too noisy, many candidates share common address fragments) and tags (the `filter` command provides exact tag-based filtering, which is more precise than partial keyword matching for structured labels). Keywords are limited to 20 (max 150 characters total) to prevent accidental over-filtering.
+**Design justification:** Search uses OR semantics (matching *any* keyword) and is case-insensitive, so a user who mis-remembers part of a candidate's details can still find them (e.g., `find alice richards` returns both "Alice Davidson" and "Alison Richards"). The search covers name, phone, email, notes, and rejection reasons — the fields most likely to contain recall cues.
+
+`find` always searches the **full candidate list**, not the currently filtered or partially displayed view. Internally, `Model#updateFilteredPersonList` replaces the active predicate on the full underlying data store, so any prior `filter` is superseded. This is intentional: a recruiter using `find` is performing a fresh search across all candidates, not narrowing an existing subset. The prior filter state is discarded rather than composed to avoid confusing "where did the rest go?" surprises.
+
+**Why are addresses and tags excluded?**  
+The `address` field is intentionally excluded because addresses generate enormous noise. They contain generic block digits (e.g., Block `12`), which overlap heavily with search intents targeting phone numbers. Searching "12" to find a candidate's phone number would flood the results with everyone who lives at Block 12, destroying the utility of the search. Tags are similarly excluded because the `filter` command is already dedicated to exact tag-based subsetting, which is much more precise for structured hiring stages than partial unstructured keyword searching. Keywords are limited to 20 (max 150 characters total) to prevent accidental over-filtering.
 
 **Use case: UC7 - Assigning a tag to a candidate**
 
@@ -815,7 +820,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 1a1. System informs the user that there is nothing to undo.
     * Use case ends.
 
-**Design justification:** Undo uses full-state snapshots (the entire AddressBook is saved before each mutating command). This is simpler and more reliable than per-command inverse logic, at the cost of higher memory usage. For the expected dataset size (up to 1,000 candidates), this trade-off is acceptable.
+**Design justification:** Undo uses full-state snapshots (the entire data state is saved before each mutating command). This is simpler and more reliable than per-command inverse logic, at the cost of higher memory usage. For the expected dataset size (up to 1,000 candidates), this trade-off is acceptable.
 
 
 **Use case: UC17 - Redoing a previously undone action**
@@ -856,7 +861,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 1. The system must run without requiring an installer on any mainstream Operating System (Windows, macOS, Linux), provided that **Java 17 or above** is installed. The entire application must be packaged as a single portable JAR file not exceeding `100 MB` in size.
 2. The application must operate as a standalone, single-user system. It must not depend on any Database Management System (DBMS) or remote server. All data must be saved locally in a human-editable text file (JSON format) to allow advanced users manual access to their records.
-3. The system must be capable of holding up to `1,000` candidate records (including their rejection history lists and tags) without exceeding `250 MB` of memory footprint or showing noticeable sluggishness in search and filtering operations.
+3. The system must be capable of holding up to `1,000` candidate records without exceeding `250 MB` of memory footprint or showing noticeable sluggishness in search and filtering operations. Per-record limits: each candidate may hold up to **50 notes** and up to **20 rejection records**. The tag pool may hold up to **50 tags** in total.
 4. The application must prioritize CLI input. A target user with a fast typing speed (60+ WPM) should be able to execute core workflows (e.g., adding a candidate, recording a rejection with a reason) entirely via text commands significantly faster than executing the equivalent actions in a standard mouse-driven GUI.
 5. All standard data manipulation and retrieval commands must execute, persist to the local file, and update the UI within `200` milliseconds under normal load to prevent disruption of the user's typing flow.
 6. The system must automatically save data locally after every mutating command. If a command fails validation halfway through execution (e.g., valid identifier but invalid rejection reason), the system state must remain entirely unchanged to prevent corrupted data.
@@ -871,7 +876,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **Rejection history:** A chronological, 1-based list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles. Managed via `addreject`, `editreject`, and `deletereject`.
 * **Rejection reason:** A single entry in a candidate's rejection history. Non-empty, max 200 characters, printable ASCII only.
 * **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '` (no spaces, 1–30 characters). Comparison is case-insensitive.
-* **Tag pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the pool cascades the removal to all candidates.
+* **Tag pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool at/TAG`) before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the pool cascades the removal to all candidates.
 * **Note:** A timestamped text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes are ordered chronologically and can be added, edited, or deleted.
 * **Hiring stage:** The current position of a candidate in the hiring pipeline, tracked via tags (e.g., `Shortlisted`, `Hired`, `Blacklisted`) assigned by the recruiter.
 * **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates can be surfaced with `sort pr o/asc`.
@@ -879,7 +884,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 * **Command box:** The text input at the top of the main window where the user types commands.
 * **Result display:** The area directly below the command box that shows feedback and error messages after each command.
 * **Detail panel:** The right-side panel opened by `show INDEX`. Displays all candidate information including notes and full rejection history.
-* **Index:** The 1-based number shown next to each candidate in the currently displayed list. Commands that target a candidate refer to this index, which always reflects the **displayed** (possibly filtered) list — not the full address book.
+* **Index:** The 1-based number shown next to each candidate in the currently displayed list. Commands that target a candidate refer to this index, which always reflects the **displayed** (possibly filtered) list — not the full candidate list.
 * **Parameter:** A value supplied to a command, usually introduced by a two-character prefix (e.g. `n/`, `p/`, `e/`, `a/`, `pr/`, `h/`, `d/`).
 * **Prefix:** The short marker (e.g. `n/`) that introduces a parameter in a command. Must be preceded by a space when not at the start of the command.
 * **Identifier:** Generic term for the reference used by the recruiter to address a specific candidate, rejection, or note in a command (almost always an index).
@@ -930,7 +935,7 @@ testers are expected to do more *exploratory* testing.
    1. Open `data/talently.json` and replace its contents with `{ invalid json }`.
 
    1. Launch the app.<br>
-      Expected: The app starts with an empty address book. The corrupted file is overwritten on the next save.
+      Expected: The app starts with no candidates. The corrupted file is overwritten on the next save.
 
 ### Removing a candidate
 
@@ -982,7 +987,7 @@ testers are expected to do more *exploratory* testing.
 1. Test case: `list`<br>
    Expected: All candidates are displayed in alphabetical order. The candidate count is shown in the result display.
 
-1. Test case: `list` when the address book is empty.<br>
+1. Test case: `list` when the candidate list is empty.<br>
    Expected: An empty-list indicator appears in the main panel. No error is shown.
 
 ### Showing a candidate's details
@@ -1155,13 +1160,13 @@ testers are expected to do more *exploratory* testing.
 
 1. Adding and removing tags from the pool
 
-   1. Test case: `tagpool a/Frontend`<br>
+   1. Test case: `tagpool at/Frontend`<br>
       Expected: Tag "Frontend" is added to the pool. Success message displayed.
 
-   1. Test case: `tagpool a/Frontend` (again)<br>
+   1. Test case: `tagpool at/Frontend` (again)<br>
       Expected: Error message indicating the tag already exists in the pool.
 
-   1. Test case: `tagpool a/Frontend a/frontend`<br>
+   1. Test case: `tagpool at/Frontend at/frontend`<br>
       Expected: Error message indicating duplicate tag in the add list (case-insensitive comparison).
 
    1. Test case: `tagpool d/Frontend`<br>
@@ -1221,19 +1226,19 @@ testers are expected to do more *exploratory* testing.
 
 1. Prerequisites: `Shortlisted` and `Interviewed` exist in the tag pool. At least two candidates.
 
-1. Test case: `tag 1 a/Shortlisted`<br>
+1. Test case: `tag 1 at/Shortlisted`<br>
    Expected: `Shortlisted` is added to candidate 1. Tag badge appears on the card.
 
-1. Test case: `tag 1 a/Shortlisted` (again)<br>
+1. Test case: `tag 1 at/Shortlisted` (again)<br>
    Expected: Error message indicating the candidate already has the tag.
 
-1. Test case: `tag 1 a/UnknownTag` (tag not in pool)<br>
+1. Test case: `tag 1 at/UnknownTag` (tag not in pool)<br>
    Expected: Error message directing the user to create the tag with `tagpool` first.
 
-1. Test case: `tag 1,2 a/Shortlisted` where candidate 1 already has the tag.<br>
+1. Test case: `tag 1,2 at/Shortlisted` where candidate 1 already has the tag.<br>
    Expected: The whole command is rejected (fail-fast). No candidates are modified.
 
-1. Test case: `tag 1 a/Shortlisted d/Shortlisted`<br>
+1. Test case: `tag 1 at/Shortlisted dt/Shortlisted`<br>
    Expected: Error message indicating the same tag cannot be both added and removed.
 
 ### Undo and redo
@@ -1281,10 +1286,10 @@ testers are expected to do more *exploratory* testing.
       Expected: The app starts with sample data.
 
    1. To simulate a corrupted file: open `data/talently.json` and add invalid JSON syntax (e.g., delete a closing brace).<br>
-      Expected: The app starts with an empty address book.
+      Expected: The app starts with no candidates.
 
    1. To simulate invalid field values: open `data/talently.json` and change a note's date to `"2025-02-30T10:00:00"` (invalid date).<br>
-      Expected: The app starts with an empty address book (graceful recovery).
+      Expected: The app starts with no candidates (graceful recovery).
 
    1. To simulate a future note date: open `data/talently.json` and change a note's date to a far-future value such as `"2099-01-01T00:00:00"`.<br>
       Expected: The app loads normally. The affected note's timestamp is silently clamped to the time of loading. A warning is written to the log. No data is lost.
@@ -1293,4 +1298,4 @@ testers are expected to do more *exploratory* testing.
       Expected: The app loads normally. The affected candidate's `dateAdded` is silently clamped to the time of loading. A warning is written to the log. No data is lost.
 
    1. To simulate orphaned tags: open `data/talently.json` and add a tag to a person that does not exist in the `"tags"` pool array.<br>
-      Expected: The app starts with an empty address book (graceful recovery).
+      Expected: The app starts with no candidates (graceful recovery).

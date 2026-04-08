@@ -32,8 +32,13 @@ public class TagPoolCommand extends Command {
             + "Example: " + COMMAND_WORD + " " + PREFIX_ADD_TAG + "Frontend "
             + PREFIX_ADD_TAG + "Backend " + PREFIX_DELETE_TAG + "Intern";
 
+    public static final int MAX_POOL_SIZE = 50;
+    public static final String MESSAGE_POOL_FULL =
+            "Tag pool is full. The pool cannot hold more than " + MAX_POOL_SIZE + " tags. "
+            + "Delete unused tags with `tagpool dt/TAG` before creating new ones.";
+
     public static final String MESSAGE_SUCCESS = "Tag pool updated. Created: %d tag(s). Deleted: %d tag(s).";
-    public static final String MESSAGE_POOL_EMPTY = "Tag pool is empty. Use `tagpool a/TAG` to create tags.";
+    public static final String MESSAGE_POOL_EMPTY = "Tag pool is empty. Use `tagpool at/TAG` to create tags.";
     public static final String MESSAGE_POOL_LISTING = "Tag pool (%d tag%s): %s";
     public static final String MESSAGE_CONFLICT =
             "Error: Cannot create and delete the same tag ('%s') in one command.";
@@ -128,6 +133,10 @@ public class TagPoolCommand extends Command {
         }
 
         // ── Phase 2: Pool Additions ──
+        int currentPoolSize = model.getAddressBook().getTagList().size();
+        if (!toAdd.isEmpty() && currentPoolSize + toAdd.size() > MAX_POOL_SIZE) {
+            throw new CommandException(MESSAGE_POOL_FULL);
+        }
         for (Tag tag : toAdd) {
             model.addTag(tag);
         }

@@ -22,7 +22,12 @@ public class NoteCommand extends Command {
 
     public static final String COMMAND_WORD = "addnote";
 
-    public static final String MESSAGE_USAGE = "addnote INDEX n/CONTENT [h/HEADING]";
+    public static final String MESSAGE_USAGE = "addnote INDEX c/CONTENT [h/HEADING]";
+
+    public static final int MAX_NOTES_PER_CANDIDATE = 50;
+    public static final String MESSAGE_NOTES_LIMIT_REACHED =
+            "Cannot add note: candidate already has the maximum of " + MAX_NOTES_PER_CANDIDATE + " notes. "
+            + "Delete an existing note with `deletenote` before adding a new one.";
 
     public static final String MESSAGE_SUCCESS = "Successfully added note to candidate: %1$s";
 
@@ -52,6 +57,9 @@ public class NoteCommand extends Command {
         }
 
         Person personToEdit = lastShownList.get(targetIndex.getZeroBased());
+        if (personToEdit.getNotes().size() >= MAX_NOTES_PER_CANDIDATE) {
+            throw new CommandException(MESSAGE_NOTES_LIMIT_REACHED);
+        }
         Person editedPerson = createEditedPerson(personToEdit, note);
 
         model.setPerson(personToEdit, editedPerson);

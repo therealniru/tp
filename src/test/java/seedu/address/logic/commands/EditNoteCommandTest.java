@@ -104,6 +104,15 @@ public class EditNoteCommandTest {
     }
 
     @Test
+    public void execute_noChanges_returnsNoChangesMessage() {
+        // Edit both heading and content to be same as original
+        EditNoteCommand command = new EditNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(1),
+                ORIGINAL_NOTE.content, ORIGINAL_NOTE.heading);
+        String expectedMessage = "Note: No changes detected; note details remain the same.";
+        assertCommandSuccess(command, model, expectedMessage, model);
+    }
+
+    @Test
     public void execute_preservesTimestamp() throws Exception {
         EditNoteCommand command = new EditNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(1),
                 "Updated content", null);

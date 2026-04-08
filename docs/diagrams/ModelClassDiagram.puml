@@ -21,7 +21,6 @@ Class Email
 Class Name
 Class Phone
 Class Tag
-Class Status
 Class Priority
 Class DateAdded
 Class RejectionReason
@@ -51,7 +50,6 @@ Person *--> Name
 Person *--> Phone
 Person *--> Email
 Person *--> Address
-Person *--> Status
 Person *--> Priority
 Person *--> DateAdded
 Person --> "*" Tag
@@ -64,8 +62,7 @@ UniquePersonList -[hidden]right-> I
 Name -[hidden]right-> Phone
 Phone -[hidden]right-> Address
 Address -[hidden]right-> Email
-Email -[hidden]right-> Status
-Status -[hidden]right-> Priority
+Email -[hidden]right-> Priority
 
 ModelManager --> "~* filtered" Person
 @enduml

@@ -78,6 +78,11 @@ public class EditRejectCommand extends Command {
                     rejectIndex.getOneBased(), personToEdit.getName(), currentReasons.size()));
         }
 
+        RejectionReason originalReason = currentReasons.get(rejectIndex.getZeroBased());
+        if (originalReason.reason.equals(newReason)) {
+            return new CommandResult("Note: No changes detected; rejection reason remains the same.");
+        }
+
         List<RejectionReason> updatedReasons = new ArrayList<>(currentReasons);
         updatedReasons.set(rejectIndex.getZeroBased(), new RejectionReason(newReason));
 

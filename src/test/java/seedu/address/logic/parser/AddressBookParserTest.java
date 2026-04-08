@@ -136,7 +136,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_tagpool() throws Exception {
         TagPoolCommand command = (TagPoolCommand) parser.parseCommand(
-                TagPoolCommand.COMMAND_WORD + " a/Frontend");
+                TagPoolCommand.COMMAND_WORD + " at/Frontend");
         assertEquals(new TagPoolCommand(
                 java.util.List.of(new seedu.address.model.tag.Tag("Frontend")),
                 java.util.Collections.emptyList()), command);
@@ -145,7 +145,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_tag() throws Exception {
         TagCommand command = (TagCommand) parser.parseCommand(
-                TagCommand.COMMAND_WORD + " 1 a/Java");
+                TagCommand.COMMAND_WORD + " 1 at/Java");
         assertEquals(new TagCommand(INDEX_FIRST_PERSON,
                 java.util.List.of(new seedu.address.model.tag.Tag("Java")),
                 java.util.Collections.emptyList()), command);
@@ -183,7 +183,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_note() throws Exception {
         NoteCommand command = (NoteCommand) parser.parseCommand(
-                NoteCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased() + " n/Some content");
+                NoteCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased() + " c/Some content");
         assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
         assertEquals("General Note", command.getNote().heading);
         assertEquals("Some content", command.getNote().content);
@@ -193,7 +193,7 @@ public class AddressBookParserTest {
     public void parseCommand_noteWithHeading() throws Exception {
         NoteCommand command = (NoteCommand) parser.parseCommand(
                 NoteCommand.COMMAND_WORD + " " + INDEX_FIRST_PERSON.getOneBased()
-                        + " n/Passed interview h/Tech Round");
+                        + " c/Passed interview h/Tech Round");
         assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
         assertEquals("Tech Round", command.getNote().heading);
         assertEquals("Passed interview", command.getNote().content);
@@ -210,7 +210,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_editnote() throws Exception {
         EditNoteCommand command = (EditNoteCommand) parser.parseCommand(
-                EditNoteCommand.COMMAND_WORD + " 1 2 n/Updated content");
+                EditNoteCommand.COMMAND_WORD + " 1 2 c/Updated content");
         assertEquals(INDEX_FIRST_PERSON, command.getTargetIndex());
         assertEquals(Index.fromOneBased(2), command.getNoteIndex());
         assertEquals("Updated content", command.getNewContent());

@@ -60,6 +60,9 @@ public class NoteCommandParser implements Parser<NoteCommand> {
                     "Error: Note content must not exceed %d characters (currently %d).",
                     Note.MAX_CONTENT_LENGTH, content.length()));
         }
+        if (!Note.isValidContent(content)) {
+            throw new ParseException(Note.MESSAGE_CONTENT_CONSTRAINTS);
+        }
 
         String heading = argMultimap.getValue(PREFIX_NOTE_HEADING)
                 .map(h -> h.replaceAll("\\r\\n|\\r|\\n", " "))
@@ -71,6 +74,9 @@ public class NoteCommandParser implements Parser<NoteCommand> {
             throw new ParseException(String.format(
                     "Error: Note heading must not exceed %d characters (currently %d).",
                     Note.MAX_HEADING_LENGTH, heading.length()));
+        }
+        if (!Note.isValidHeading(heading)) {
+            throw new ParseException(Note.MESSAGE_HEADING_CONSTRAINTS);
         }
 
         logger.fine("Parsed note command: index=" + index.getOneBased()

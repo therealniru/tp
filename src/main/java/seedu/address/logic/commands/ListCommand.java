@@ -20,7 +20,8 @@ public class ListCommand extends Command {
             + ": Lists all candidates.\n"
             + "Usage: " + COMMAND_WORD;
 
-    public static final String MESSAGE_SUCCESS = "Listed %d candidate(s).";
+    public static final String MESSAGE_SUCCESS_SINGLE = "Listed 1 candidate.";
+    public static final String MESSAGE_SUCCESS = "Listed %d candidates.";
 
     public static final String MESSAGE_EMPTY = "No candidates found. Use the add command to add a new candidate.";
 
@@ -36,6 +37,7 @@ public class ListCommand extends Command {
         if (list.isEmpty()) {
             return new CommandResult(MESSAGE_EMPTY);
         }
-        return new CommandResult(String.format(MESSAGE_SUCCESS, list.size()));
+        int size = list.size();
+        return new CommandResult(size == 1 ? MESSAGE_SUCCESS_SINGLE : String.format(MESSAGE_SUCCESS, size));
     }
 }

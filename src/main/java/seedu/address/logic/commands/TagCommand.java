@@ -92,6 +92,24 @@ public class TagCommand extends Command {
             }
         }
 
+        // ── Phase 2b: Duplicate Check within arguments ──
+        for (int i = 0; i < tagsToAdd.size(); i++) {
+            for (int j = i + 1; j < tagsToAdd.size(); j++) {
+                if (tagsToAdd.get(i).equals(tagsToAdd.get(j))) {
+                    throw new CommandException(String.format(
+                            "Error: Duplicate tag '%s' in add list.", tagsToAdd.get(j).tagName));
+                }
+            }
+        }
+        for (int i = 0; i < tagsToDelete.size(); i++) {
+            for (int j = i + 1; j < tagsToDelete.size(); j++) {
+                if (tagsToDelete.get(i).equals(tagsToDelete.get(j))) {
+                    throw new CommandException(String.format(
+                            "Error: Duplicate tag '%s' in delete list.", tagsToDelete.get(j).tagName));
+                }
+            }
+        }
+
         // ── Phase 2b: Master Registry Check (all tags in both lists) ──
         for (Tag tag : tagsToAdd) {
             if (!model.hasTag(tag)) {

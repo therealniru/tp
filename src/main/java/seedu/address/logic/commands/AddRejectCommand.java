@@ -28,6 +28,11 @@ public class AddRejectCommand extends Command {
             + "Parameters: INDEX (must be a positive integer) REASON\n"
             + "Example: " + COMMAND_WORD + " 1 Failed technical interview";
 
+    public static final int MAX_REJECTIONS_PER_CANDIDATE = 20;
+    public static final String MESSAGE_REJECTIONS_LIMIT_REACHED =
+            "Cannot add rejection: candidate already has the maximum of " + MAX_REJECTIONS_PER_CANDIDATE
+            + " rejection records. Delete an old entry with `deletereject` before adding a new one.";
+
     public static final String MESSAGE_SUCCESS =
             "Rejection reason recorded. New Reason added: %1$s (Total rejections on record: %2$d)";
     public static final String MESSAGE_SUCCESS_DUPLICATE_WARNING =
@@ -60,6 +65,10 @@ public class AddRejectCommand extends Command {
         }
 
         Person personToReject = lastShownList.get(targetIndex.getZeroBased());
+
+        if (personToReject.getRejectionReasons().size() >= MAX_REJECTIONS_PER_CANDIDATE) {
+            throw new CommandException(MESSAGE_REJECTIONS_LIMIT_REACHED);
+        }
 
         boolean isDuplicateReason = isSequentialDuplicate(personToReject, reason);
         Person rejectedPerson = createRejectedPerson(personToReject, reason);

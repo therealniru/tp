@@ -80,38 +80,28 @@ public class HelpWindow extends UiPart<Stage> {
 
     private ObservableList<CommandEntry> buildCommandEntries() {
         ObservableList<CommandEntry> entries = FXCollections.observableArrayList();
-        entries.add(new CommandEntry("Add",
-                "add n/NAME p/PHONE e/EMAIL a/ADDRESS [t/TAG]..."));
-        entries.add(new CommandEntry("Edit",
-                "edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]..."));
-        entries.add(new CommandEntry("Delete",
-                "delete INDEX"));
-        entries.add(new CommandEntry("Remove",
-                "remove INDEX"));
-        entries.add(new CommandEntry("Find",
-                "find KEYWORD [MORE_KEYWORDS]"));
-        entries.add(new CommandEntry("List",
-                "list"));
-        entries.add(new CommandEntry("Show",
-                "show INDEX"));
-        entries.add(new CommandEntry("Tag",
-                "tag INDEX t/TAG [t/TAG]..."));
-        entries.add(new CommandEntry("Note (add)",
-                "note INDEX NOTE_TEXT"));
-        entries.add(new CommandEntry("Note (edit)",
-                "editnote INDEX NOTE_INDEX NEW_TEXT"));
-        entries.add(new CommandEntry("Note (delete)",
-                "deletenote INDEX NOTE_INDEX"));
-        entries.add(new CommandEntry("Add reject reason",
-                "addreject INDEX REASON"));
-        entries.add(new CommandEntry("Edit reject reason",
-                "editreject INDEX REASON"));
-        entries.add(new CommandEntry("Clear",
-                "clear"));
-        entries.add(new CommandEntry("Help",
-                "help"));
-        entries.add(new CommandEntry("Exit",
-                "exit"));
+        entries.add(new CommandEntry("Add", "add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]"));
+        entries.add(new CommandEntry("Clear", "clear"));
+        entries.add(new CommandEntry("Edit", "edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY]"));
+        entries.add(new CommandEntry("Exit", "exit"));
+        entries.add(new CommandEntry("Filter", "filter TAG"));
+        entries.add(new CommandEntry("Find", "find KEYWORD [MORE_KEYWORDS]"));
+        entries.add(new CommandEntry("Help", "help"));
+        entries.add(new CommandEntry("List", "list"));
+        entries.add(new CommandEntry("Add Note", "addnote INDEX c/CONTENT [h/HEADING]"));
+        entries.add(new CommandEntry("Delete Note", "deletenote INDEX NOTE_INDEX"));
+        entries.add(new CommandEntry("Edit Note", "editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]"));
+        entries.add(new CommandEntry("Redo", "redo"));
+        entries.add(new CommandEntry("Add Reject", "addreject INDEX REASON"));
+        entries.add(new CommandEntry("Delete Reject", "deletereject INDEX REJECT_INDEX"));
+        entries.add(new CommandEntry("Edit Reject", "editreject INDEX REJECT_INDEX NEW_REASON"));
+        entries.add(new CommandEntry("Remove", "remove INDEX"));
+        entries.add(new CommandEntry("Show", "show INDEX"));
+        entries.add(new CommandEntry("Sort (date)", "sort date o/ORDER"));
+        entries.add(new CommandEntry("Sort (priority)", "sort pr o/ORDER"));
+        entries.add(new CommandEntry("Tag", "tag INDEX[,INDEX]... [at/TAG]... [dt/TAG]..."));
+        entries.add(new CommandEntry("Tag Pool", "tagpool [at/TAG]... [dt/TAG]..."));
+        entries.add(new CommandEntry("Undo", "undo"));
         return entries;
     }
 

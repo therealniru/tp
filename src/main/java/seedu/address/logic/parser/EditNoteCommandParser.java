@@ -77,6 +77,9 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
                         "Error: Note content must not exceed %d characters (currently %d).",
                         Note.MAX_CONTENT_LENGTH, newContent.length()));
             }
+            if (!Note.isValidContent(newContent)) {
+                throw new ParseException(Note.MESSAGE_CONTENT_CONSTRAINTS);
+            }
         }
 
         if (hasHeading) {
@@ -90,6 +93,9 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
                 throw new ParseException(String.format(
                         "Error: Note heading must not exceed %d characters (currently %d).",
                         Note.MAX_HEADING_LENGTH, newHeading.length()));
+            }
+            if (!Note.isValidHeading(newHeading)) {
+                throw new ParseException(Note.MESSAGE_HEADING_CONSTRAINTS);
             }
         }
 

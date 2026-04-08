@@ -88,9 +88,9 @@ Follow these commands in order to experience a typical recruiter workflow:
 | 1 | `list` | View all candidates |
 | 2 | `add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Road` | Add a new candidate |
 | 3 | `show 1` | Open the detail panel for the first candidate |
-| 4 | `addnote 1 n/Strong portfolio, schedule follow-up. h/Initial Screen` | Attach a note |
-| 5 | `tagpool a/Shortlisted` | Create a new tag in the tag pool |
-| 6 | `tag 1 a/Shortlisted` | Assign the tag to the candidate |
+| 4 | `addnote 1 c/Strong portfolio, schedule follow-up. h/Initial Screen` | Attach a note |
+| 5 | `tagpool at/Shortlisted` | Create a new tag in the tag pool |
+| 6 | `tag 1 at/Shortlisted` | Assign the tag to the candidate |
 | 7 | `filter Shortlisted` | View only candidates with that tag |
 | 8 | `find Jane` | Search by name |
 | 9 | `undo` | Undo the last change |
@@ -108,14 +108,39 @@ Ready for more? Continue to [Features](#features).
 * Words in `UPPER_CASE` are placeholders for values you supply. e.g. `add n/NAME` means you type `add n/John Doe`.
 * `[square brackets]` = optional. e.g. `[pr/PRIORITY]` can be omitted.
 * `…` after an item = repeatable. e.g. `[a/TAG]…` can be `a/Java a/Python`.
-* Parameters can be in any order.
-* Commands with no parameters (e.g. `help`, `list`, `exit`, `clear`, `undo`, `redo`) do not take any arguments.
-* Avoid copying multi-line commands from a PDF — spaces around line breaks may be lost.
-* Prefixes like `n/`, `p/`, `e/`, `a/` are recognised when preceded by a space. If your input text naturally contains these sequences (e.g., an address containing ` a/` or ` n/`), the text after them may be mis-parsed. Rephrase if needed (e.g., `a/Blk 123 North Rd` instead of `a/Blk 123 n/orth Rd`).
+* `INDEX` must be a positive integer, e.g. `1, 2, 3`.
+* Commands that take no parameters (such as `help`, `list`, `exit`, `clear`, `undo`, and `redo`) will reject any extra text with an error. For example, `list abc` is not valid.
+* **Command words are case-insensitive** (e.g. `ADD`, `Add`, and `add` are all valid).
+* **Prefixes are strictly case-sensitive** and must be lowercase (e.g. `n/`, `at/`, `dt/`, `c/`, `h/`, `o/` are valid; `N/`, `AT/` will not be recognized).
+* If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
+
+<div markdown="span" class="alert alert-warning">
+:warning: **Caution: Manual Data Editing** <br>
+The data file `[JAR file location]/data/talently.json` is in JSON format. While you can edit it manually, it is **not recommended**.
+*   **Corrupted Data:** If the file is edited in a way that violates data constraints (e.g., an invalid email format like `user@localhost`), the application will detect the corruption and **reset to an empty state** to prevent further data loss or crashes.
+*   **Healing:** In cases of missing optional metadata (like `dateAdded`), the application may "heal" the record by assigning a default value.
+*   **Backup:** Always keep a backup of your data file before performing manual edits.
+</div>
 * **Input normalization:** Names have extra whitespace collapsed (e.g., `John    Doe` becomes `John Doe`). Emails are automatically lowercased (e.g., `John@Gmail.COM` becomes `john@gmail.com`). Phone numbers with or without the `+` prefix are treated as the same number for duplicate detection (e.g., `+6591234567` and `6591234567` are duplicates).
 * **Providing duplicate prefixes** (e.g., `n/Alice n/Bob`) in a single command is not allowed and will be rejected with an error.
 
 </div>
+
+**:information_source: Field constraints quick reference:**
+
+| Field | Prefix | Rules |
+|---|---|---|
+| NAME | `n/` | Letters, spaces, hyphens `-`, apostrophes `'`, periods `.`, slashes `/`. No digits. Max 100 characters. |
+| PHONE | `p/` | Digits only, optional `+` prefix. 3–15 digits. All-zero numbers not allowed. |
+| EMAIL | `e/` | `local@domain` format. Max 254 characters. Auto-lowercased on save. |
+| ADDRESS | `a/` | Any non-empty printable ASCII text. Max 100 characters. |
+| PRIORITY | `pr/` | `yes` (high priority) or `no` (normal). Case-insensitive. Default: `no`. |
+| TAG | `at/` / `dt/` | Letters, digits, `. + - _ ( ) @ # ! ? '`. No spaces. 1–30 characters. Case-insensitive. |
+| NOTE HEADING | `h/` | Optional. Printable ASCII only. Max 50 characters. Defaults to `General Note`. Max 50 notes per candidate. |
+| NOTE CONTENT | `c/` | Required. Printable ASCII only. Max 500 characters. |
+| REJECTION REASON | (no prefix) | Required. Max 200 characters. Allowed: letters, digits, spaces, `. , - ' / : ; ! ? ( ) & " # + % @ *`. Max 20 per candidate. |
+
+All text fields accept **printable ASCII characters only** — non-ASCII input (accented letters, emojis, CJK characters) is rejected. See [Environment assumptions](#environment-assumptions) for details.
 
 ---
 
@@ -150,7 +175,7 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 </div>
 
 <div markdown="span" class="alert alert-info">
-:information_source: All candidates start as active when added. Use tags to track hiring stages (e.g., `tagpool a/Hired a/Shortlisted`, then `tag INDEX a/Hired`). Use `addreject` to record formal rejection decisions with reasons.
+:information_source: All candidates start as active when added. Use tags to track hiring stages (e.g., `tagpool at/Hired at/Shortlisted`, then `tag INDEX at/Hired`). Use `addreject` to record formal rejection decisions with reasons.
 </div>
 
 <div markdown="span" class="alert alert-primary">
@@ -195,7 +220,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY]`
 * If the new values are identical to the existing ones (including casing), a message indicating no changes were detected is shown and no modification is made. Case-only changes (e.g., `alice` → `Alice`) are treated as real edits.
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use tags to track hiring stages. For example, create a `Hired` tag with `tagpool a/Hired` and assign it with `tag INDEX a/Hired`.
+:bulb: **Tip:** Use tags to track hiring stages. For example, create a `Hired` tag with `tagpool at/Hired` and assign it with `tag INDEX at/Hired`.
 </div>
 
 <div markdown="span" class="alert alert-warning">
@@ -260,7 +285,7 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * `find` replaces any active `filter` — the results show matches from the full candidate list, not the currently filtered view.
 
 <div markdown="span" class="alert alert-info">
-:information_source: **Note:** `find` does not search the address field or tags. To locate candidates by address, scroll through the list or use `show` on individual candidates. To search by tag, use the `filter` command instead.
+:information_source: **Note:** `find` does not search the **address field** or **tags**. Searching by address is excluded as it frequently contains common terms (e.g. "Road", "Avenue", "Street") that create excessive noise and return irrelevant results, diluting the specificity of your search. To locate candidates by tag, use the `filter` command instead.
 </div>
 
 Examples:
@@ -323,12 +348,12 @@ Format: `addreject INDEX REASON`
 
 * `INDEX` must be a positive integer.
 * `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `.` `,` `-` `'` `/` `:` `;` `!` `?` `(` `)` `&` `"` `#` `+` `%` `@` `*`.
-* Each `addreject` call appends to the rejection history — previous entries are not overwritten.
+* Each `addreject` call appends to the rejection history — previous entries are not overwritten. Max 20 rejection records per candidate.
 * The candidate's card shows a **red badge** with the total rejection count (lifetime counter).
 * If the same reason is given consecutively, a warning is shown (the rejection is still recorded).
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use tags to track hiring stages (e.g., `tag INDEX a/Blacklisted`). Use `addreject` to formally record the reason for rejection. Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
+:bulb: **Tip:** Use tags to track hiring stages (e.g., `tag INDEX at/Blacklisted`). Use `addreject` to formally record the reason for rejection. Use `show INDEX` after rejecting to view the full rejection history in the detail panel.
 </div>
 
 Examples:
@@ -428,23 +453,24 @@ Examples:
 
 Adds a timestamped note to a candidate's record.
 
-Format: `addnote INDEX n/CONTENT [h/HEADING]`
+Format: `addnote INDEX c/CONTENT [h/HEADING]`
 
 * `INDEX` must be a positive integer.
 * `CONTENT` is required, must not be blank, and must not exceed 500 characters.
 * `HEADING` is optional. Defaults to `General Note` if omitted. Must not exceed 50 characters.
+* Max 50 notes per candidate.
 * Each note is automatically stamped with the current date and time. The timestamp is displayed above the note heading in the detail panel (e.g. `02 Apr 2026, 23:15`).
 * Notes are appended in order — earlier notes are never overwritten.
 * Newline characters in pasted content are automatically converted to spaces.
-* Note content and headings must not contain the sequences ` n/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
+* Note content and headings must not contain the sequences ` c/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
 
 <div markdown="span" class="alert alert-primary">
 :bulb: **Tip:** Use descriptive headings (e.g. `h/Tech Round 1`, `h/HR Interview`) to organise notes by hiring stage. View all notes with `show INDEX`.
 </div>
 
 Examples:
-* `addnote 1 n/Passed the technical interview flawlessly. h/Tech Round 1`
-* `addnote 2 n/Strong communication skills.`
+* `addnote 1 c/Passed the technical interview flawlessly. h/Tech Round 1`
+* `addnote 2 c/Strong communication skills.`
 
 <p align="center"><img src="images/note%20command.png" alt="Expected result after running the addnote command" width="730"/></p>
 
@@ -454,20 +480,20 @@ Examples:
 
 Edits the content and/or heading of an existing note. The original timestamp is preserved.
 
-Format: `editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]`
+Format: `editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]`
 
 * `INDEX` is the candidate's position in the displayed list (positive integer).
 * `NOTE_INDEX` is the note's position in the candidate's notes list (positive integer). Use `show INDEX` to see note numbers.
-* At least one of `n/CONTENT` or `h/HEADING` must be provided.
+* At least one of `c/CONTENT` or `h/HEADING` must be provided.
 * `CONTENT` must not be blank and must not exceed 500 characters.
 * `HEADING` must not be blank and must not exceed 50 characters.
 * The note's original timestamp is preserved — only the content and/or heading are updated.
 * Newline characters in pasted content are automatically converted to spaces.
 
 Examples:
-* `editnote 1 1 n/Actually failed the interview.` — updates the content of note 1 for candidate 1, keeping the original heading and timestamp.
+* `editnote 1 1 c/Actually failed the interview.` — updates the content of note 1 for candidate 1, keeping the original heading and timestamp.
 * `editnote 2 3 h/Final Round` — updates only the heading of note 3 for candidate 2.
-* `editnote 1 2 n/New content h/New heading` — updates both content and heading.
+* `editnote 1 2 c/New content h/New heading` — updates both content and heading.
 
 ---
 
@@ -492,15 +518,15 @@ Creates or deletes tags in the master tag registry.
 
 **Tags must exist in the pool before they can be assigned to candidates.**
 
-Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
+Format: `tagpool [at/TAG_TO_CREATE]... [dt/TAG_TO_DELETE]...`
 
 * Running `tagpool` with no arguments lists all tags currently in the pool.
-* To create or delete tags, at least one `a/` or `d/` prefix is required.
-* Max 10 tags per command.
+* To create or delete tags, at least one `at/` or `dt/` prefix is required.
+* Max 10 tags per command. The pool can hold at most 50 tags total.
 * Tag names: must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
 * Cannot create a tag that already exists, or delete one that does not exist. If you try to create an existing tag, the error message will tell you it already exists — this is the quickest way to check if a tag is in the pool.
 * Cannot create and delete the same tag in one command.
-* Duplicate tags within the same add or delete list are not allowed (e.g., `tagpool a/Java a/java` is rejected because tags are case-insensitive).
+* Duplicate tags within the same add or delete list are not allowed (e.g., `tagpool at/Java at/java` is rejected because tags are case-insensitive).
 * Tags assigned to candidates are visible on their cards in the list view. Use `list` to see all candidates and their tags at a glance.
 
 <div markdown="span" class="alert alert-warning">
@@ -508,14 +534,14 @@ Format: `tagpool [a/TAG_TO_CREATE]... [d/TAG_TO_DELETE]...`
 </div>
 
 <div markdown="span" class="alert alert-primary">
-:bulb: **Workflow:** `tagpool a/Shortlisted` → `tag 1 a/Shortlisted` → `filter Shortlisted`
+:bulb: **Workflow:** `tagpool at/Shortlisted` → `tag 1 at/Shortlisted` → `filter Shortlisted`
 </div>
 
 Examples:
 * `tagpool` — Lists all tags in the pool (e.g., "Tag pool (3 tags): AI, Backend, Frontend").
-* `tagpool a/Shortlisted a/Interviewed` — Creates two new tags.
-* `tagpool d/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
-* `tagpool a/Senior d/Junior` — Creates `Senior` and deletes `Junior` in one command.
+* `tagpool at/Shortlisted at/Interviewed` — Creates two new tags.
+* `tagpool dt/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
+* `tagpool at/Senior dt/Junior` — Creates `Senior` and deletes `Junior` in one command.
 
 <p align="center"><img src="images/tagpool%20command.png" alt="Expected result after running the tagpool command" width="730"/></p>
 
@@ -525,21 +551,21 @@ Examples:
 
 Adds or removes tags on one or more candidates.
 
-Format: `tag INDEX[,INDEX]... [a/TAG_TO_ADD]... [d/TAG_TO_REMOVE]...`
+Format: `tag INDEX[,INDEX]... [at/TAG_TO_ADD]... [dt/TAG_TO_REMOVE]...`
 
 * Single index or comma-separated list (e.g. `1,2,3`). Duplicate indices not allowed.
 * Each `INDEX` must be a positive integer.
-* At least one `a/` or `d/` prefix is required.
-* Max 10 tags per command.
+* At least one `at/` or `dt/` prefix is required.
+* Max 10 tags per command. A candidate can hold at most one of each tag in the pool (no duplicates), bounded by the 50-tag pool limit.
 * Tags must already exist in the tag pool — use `tagpool` to create them first.
 * Cannot add a tag the candidate already has, or remove one they do not have.
 * Cannot add and delete the same tag in one command.
 
 Examples:
-* `tag 1 a/Shortlisted` — Adds `Shortlisted` to candidate 1.
-* `tag 2 d/Interviewed` — Removes `Interviewed` from candidate 2.
-* `tag 3 a/Senior d/Junior` — Adds `Senior` and removes `Junior` from candidate 3.
-* `tag 1,2,3 a/Shortlisted` — Adds `Shortlisted` to candidates 1, 2, and 3.
+* `tag 1 at/Shortlisted` — Adds `Shortlisted` to candidate 1.
+* `tag 2 dt/Interviewed` — Removes `Interviewed` from candidate 2.
+* `tag 3 at/Senior dt/Junior` — Adds `Senior` and removes `Junior` from candidate 3.
+* `tag 1,2,3 at/Shortlisted` — Adds `Shortlisted` to candidates 1, 2, and 3.
 
 <p align="center"><img src="images/tag%20command.png" alt="Expected result after running the tag command" width="730"/></p>
 
@@ -630,7 +656,7 @@ A: Copy `data/talently.json` from your current home folder to the same location 
 A: Yes — run `undo` immediately after `clear` to restore all candidates.
 
 **Q: Why can't I assign a tag to a candidate?**
-A: Tags must first exist in the pool. Run `tagpool a/TAG_NAME`, then `tag INDEX a/TAG_NAME`.
+A: Tags must first exist in the pool. Run `tagpool at/TAG_NAME`, then `tag INDEX at/TAG_NAME`.
 
 **Q: What does the red badge on a candidate card mean?**
 A: It shows the total number of times that candidate has been rejected. Run `show INDEX` to view the full rejection history.
@@ -668,9 +694,9 @@ Action | Format, Examples
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g. `find James Jake`
 **Help** | `help`
 **List** | `list`
-**Add Note** | `addnote INDEX n/CONTENT [h/HEADING]`<br> e.g. `addnote 1 n/Passed interview h/Tech Round 1`
+**Add Note** | `addnote INDEX c/CONTENT [h/HEADING]`<br> e.g. `addnote 1 c/Passed interview h/Tech Round 1`
 **Delete Note** | `deletenote INDEX NOTE_INDEX`<br> e.g. `deletenote 1 2`
-**Edit Note** | `editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]`<br> e.g. `editnote 1 1 n/Updated content`
+**Edit Note** | `editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]`<br> e.g. `editnote 1 1 c/Updated content`
 **Redo** | `redo`
 **Add Reject** | `addreject INDEX REASON`<br> e.g. `addreject 1 Failed technical interview`
 **Delete Reject** | `deletereject INDEX REJECT_INDEX`<br> e.g. `deletereject 1 2`
@@ -679,8 +705,8 @@ Action | Format, Examples
 **Show** | `show INDEX`<br> e.g. `show 1`
 **Sort (date)** | `sort date o/ORDER`<br> e.g. `sort date o/desc`
 **Sort (priority)** | `sort pr o/ORDER`<br> e.g. `sort pr o/asc`
-**Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g. `tag 1,2 a/Shortlisted d/Applied`
-**Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g. `tagpool` (list all), `tagpool a/Shortlisted d/Rejected`
+**Tag** | `tag INDEX[,INDEX]... [at/TAG]... [dt/TAG]...`<br> e.g. `tag 1,2 at/Shortlisted dt/Applied`
+**Tag Pool** | `tagpool [at/TAG]... [dt/TAG]...`<br> e.g. `tagpool` (list all), `tagpool at/Shortlisted dt/Rejected`
 **Undo** | `undo`
 
 --------------------------------------------------------------------------------------------------------------------

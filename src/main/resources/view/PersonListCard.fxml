@@ -25,14 +25,12 @@
             <Region fx:constant="USE_PREF_SIZE" />
           </minWidth>
         </Label>
-        <Label fx:id="name" text="\$first" styleClass="cell_big_label" wrapText="true" />
+        <Label fx:id="name" text="\$first" styleClass="cell_big_label" wrapText="true" HBox.hgrow="ALWAYS" minWidth="0" />
         <Label fx:id="priorityTag" visible="false" managed="false">
           <HBox.margin>
             <Insets left="5" />
           </HBox.margin>
         </Label>
-        <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="dateAdded" styleClass="cell_small_label" />
       </HBox>
       <FlowPane fx:id="tags" />
       <Label fx:id="phone" styleClass="cell_small_label" text="\$phone" wrapText="true" />
@@ -43,6 +41,7 @@
           <Insets top="4" />
         </VBox.margin>
       </Label>
+      <Label fx:id="dateAdded" styleClass="cell_small_label" wrapText="true" />
     </VBox>
   </GridPane>
 </HBox>

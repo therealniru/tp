@@ -5,8 +5,8 @@ skinparam ArrowFontStyle plain
 box Logic LOGIC_COLOR_T1
 participant ":LogicManager" as LogicManager LOGIC_COLOR
 participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
-participant ":RejectCommandParser" as RejectCommandParser LOGIC_COLOR
-participant "d:RejectCommand" as RejectCommand LOGIC_COLOR
+participant ":AddRejectCommandParser" as AddRejectCommandParser LOGIC_COLOR
+participant "d:AddRejectCommand" as AddRejectCommand LOGIC_COLOR
 participant "r:CommandResult" as CommandResult LOGIC_COLOR
 end box
 
@@ -14,99 +14,98 @@ box Model MODEL_COLOR_T1
 participant "m:Model" as Model MODEL_COLOR
 end box
 
-[-> LogicManager : execute("reject 1 r/Failed technical interview")
+[-> LogicManager : execute("addreject 1 Failed technical interview")
 activate LogicManager
 
-LogicManager -> AddressBookParser : parseCommand("reject 1 r/Failed technical interview")
+LogicManager -> AddressBookParser : parseCommand("addreject 1 Failed technical interview")
 activate AddressBookParser
 
-create RejectCommandParser
-AddressBookParser -> RejectCommandParser
-activate RejectCommandParser
+create AddRejectCommandParser
+AddressBookParser -> AddRejectCommandParser
+activate AddRejectCommandParser
 
-RejectCommandParser --> AddressBookParser
-deactivate RejectCommandParser
+AddRejectCommandParser --> AddressBookParser
+deactivate AddRejectCommandParser
 
-AddressBookParser -> RejectCommandParser : parse("1 r/Failed technical interview")
-activate RejectCommandParser
+AddressBookParser -> AddRejectCommandParser : parse("1 Failed technical interview")
+activate AddRejectCommandParser
 
-RejectCommandParser -> RejectCommandParser : parseIndex("1")
-activate RejectCommandParser #C8C8FA
-RejectCommandParser --> RejectCommandParser : index
-deactivate RejectCommandParser
+AddRejectCommandParser -> AddRejectCommandParser : parse arguments
+activate AddRejectCommandParser #C8C8FA
+AddRejectCommandParser --> AddRejectCommandParser : index
+deactivate AddRejectCommandParser
 
-RejectCommandParser -> RejectCommandParser : validate reason
-activate RejectCommandParser #C8C8FA
+AddRejectCommandParser -> AddRejectCommandParser : validate reason
+activate AddRejectCommandParser #C8C8FA
 
-alt#LightCoral #FFCCCC reason prefix missing
-    RejectCommandParser --> AddressBookParser : throw ParseException\n("Invalid format")
+alt#LightCoral #FFCCCC invalid format
+    AddRejectCommandParser --> AddressBookParser : throw ParseException\n("Invalid format")
 end
 
 alt#LightCoral #FFCCCC invalid reason
-    RejectCommandParser --> AddressBookParser : throw ParseException\n("Invalid reason")
+    AddRejectCommandParser --> AddressBookParser : throw ParseException\n("Invalid reason")
 end
 
-RejectCommandParser --> RejectCommandParser
-deactivate RejectCommandParser
+AddRejectCommandParser --> AddRejectCommandParser
+deactivate AddRejectCommandParser
 
-create RejectCommand
-RejectCommandParser -> RejectCommand : RejectCommand(index, reason)
-activate RejectCommand
+create AddRejectCommand
+AddRejectCommandParser -> AddRejectCommand : AddRejectCommand(index, reason)
+activate AddRejectCommand
 
-RejectCommand --> RejectCommandParser
-deactivate RejectCommand
+AddRejectCommand --> AddRejectCommandParser
+deactivate AddRejectCommand
 
-RejectCommandParser --> AddressBookParser : d
-deactivate RejectCommandParser
+AddRejectCommandParser --> AddressBookParser : d
+deactivate AddRejectCommandParser
 'Hidden arrow to position the destroy marker below the end of the activation bar.
-RejectCommandParser -[hidden]-> AddressBookParser
-destroy RejectCommandParser
+AddRejectCommandParser -[hidden]-> AddressBookParser
+destroy AddRejectCommandParser
 
 AddressBookParser --> LogicManager : d
 deactivate AddressBookParser
 
-LogicManager -> RejectCommand : execute(m)
-activate RejectCommand
+LogicManager -> AddRejectCommand : execute(m)
+activate AddRejectCommand
 
-RejectCommand -> Model : getFilteredPersonList()
+AddRejectCommand -> Model : getFilteredPersonList()
 activate Model
 
-Model --> RejectCommand : lastShownList
+Model --> AddRejectCommand : lastShownList
 deactivate Model
 
 alt#LightCoral #FFCCCC index out of range
-    RejectCommand --> LogicManager : throw CommandException\n("Index out of range")
+    AddRejectCommand --> LogicManager : throw CommandException\n("Index out of range")
 end
 
 alt#LightCoral #FFCCCC candidate is blacklisted
     RejectCommand --> LogicManager : throw CommandException\n("Cannot modify blacklisted candidate")
 end
 
-RejectCommand -> RejectCommand : createRejectedPerson(person, reason)
-activate RejectCommand #C8C8FA
+AddRejectCommand -> AddRejectCommand : createRejectedPerson(person, reason)
+activate AddRejectCommand #C8C8FA
 note right
-  Sets status to REJECTED
-  and appends reason to
+  Appends reason to
   rejection history
 end note
-RejectCommand --> RejectCommand : rejectedPerson
-deactivate RejectCommand
+AddRejectCommand --> AddRejectCommand : rejectedPerson
+deactivate AddRejectCommand
 
-RejectCommand -> Model : setPerson(person, rejectedPerson)
+AddRejectCommand -> Model : setPerson(person, rejectedPerson)
 activate Model
 
-Model --> RejectCommand
+Model --> AddRejectCommand
 deactivate Model
 
 create CommandResult
-RejectCommand -> CommandResult
+AddRejectCommand -> CommandResult
 activate CommandResult
 
-CommandResult --> RejectCommand
+CommandResult --> AddRejectCommand
 deactivate CommandResult
 
-RejectCommand --> LogicManager : r
-deactivate RejectCommand
+AddRejectCommand --> LogicManager : r
+deactivate AddRejectCommand
 
 [<--LogicManager
 deactivate LogicManager

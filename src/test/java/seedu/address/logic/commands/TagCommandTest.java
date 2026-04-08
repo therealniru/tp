@@ -97,6 +97,15 @@ public class TagCommandTest {
                 String.format(TagCommand.MESSAGE_TAG_NOT_IN_POOL, "Ghost"));
     }
 
+    @Test
+    public void execute_deleteTagNotInPool_throwsCommandException() {
+        // "Ghost" is not registered in the pool
+        TagCommand command = new TagCommand(INDEX_FIRST_PERSON,
+                List.of(), List.of(new Tag("Ghost")));
+        assertCommandFailure(command, model,
+                String.format(TagCommand.MESSAGE_TAG_NOT_IN_POOL, "Ghost"));
+    }
+
     /**
      * Fail-fast atomicity: a valid a/Java combined with an invalid d/FakeTag must
      * fail entirely — "Java" must NOT be added to the candidate.
@@ -322,5 +331,26 @@ public class TagCommandTest {
     public void equals_notTagCommand_returnsFalse() {
         TagCommand command = new TagCommand(INDEX_FIRST_PERSON, List.of(), List.of());
         assertNotEquals(command, "some string");
+    }
+
+    // ── Duplicate tag within argument list ───────────────────────────────────
+
+    @Test
+    public void execute_duplicateTagInAddList_throwsCommandException() {
+        model.addTag(new Tag("Java"));
+        // "Java" and "java" are equal (case-insensitive)
+        TagCommand command = new TagCommand(INDEX_FIRST_PERSON,
+                List.of(new Tag("Java"), new Tag("java")), List.of());
+        assertCommandFailure(command, model,
+                String.format("Error: Duplicate tag '%s' in add list.", "java"));
+    }
+
+    @Test
+    public void execute_duplicateTagInDeleteList_throwsCommandException() {
+        // ALICE already has "friends" in the pool; passing it twice in delete list
+        TagCommand command = new TagCommand(INDEX_FIRST_PERSON,
+                List.of(), List.of(new Tag("friends"), new Tag("FRIENDS")));
+        assertCommandFailure(command, model,
+                String.format("Error: Duplicate tag '%s' in delete list.", "FRIENDS"));
     }
 }

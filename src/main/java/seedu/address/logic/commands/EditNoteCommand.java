@@ -23,13 +23,13 @@ public class EditNoteCommand extends Command {
 
     public static final String COMMAND_WORD = "editnote";
 
-    public static final String MESSAGE_USAGE = "editnote INDEX NOTE_INDEX [n/CONTENT] [h/HEADING]\n"
-            + "At least one of n/CONTENT or h/HEADING must be provided.";
+    public static final String MESSAGE_USAGE = "editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]\n"
+            + "At least one of c/CONTENT or h/HEADING must be provided.";
 
     public static final String MESSAGE_SUCCESS = "Successfully edited note for candidate: %1$s";
 
     public static final String MESSAGE_NOT_EDITED =
-            "Error: At least one of n/CONTENT or h/HEADING must be provided.";
+            "Error: At least one of c/CONTENT or h/HEADING must be provided.";
 
     public static final String MESSAGE_NO_NOTES = "Error: Candidate %1$s has no notes.";
 
@@ -83,6 +83,10 @@ public class EditNoteCommand extends Command {
         Note originalNote = currentNotes.get(noteIndex.getZeroBased());
         String effectiveHeading = (newHeading != null) ? newHeading : originalNote.heading;
         String effectiveContent = (newContent != null) ? newContent : originalNote.content;
+
+        if (originalNote.heading.equals(effectiveHeading) && originalNote.content.equals(effectiveContent)) {
+            return new CommandResult("Note: No changes detected; note details remain the same.");
+        }
 
         Note editedNote = new Note(effectiveHeading, effectiveContent, originalNote.date);
 

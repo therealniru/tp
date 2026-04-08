@@ -22,7 +22,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_validSingleAdd_success() throws Exception {
-        TagCommand result = parser.parse(" 1 a/Java");
+        TagCommand result = parser.parse(" 1 at/Java");
         TagCommand expected = new TagCommand(Index.fromOneBased(1),
                 List.of(new Tag("Java")), Collections.emptyList());
         assertEquals(expected, result);
@@ -30,7 +30,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_validSingleDelete_success() throws Exception {
-        TagCommand result = parser.parse(" 1 d/Java");
+        TagCommand result = parser.parse(" 1 dt/Java");
         TagCommand expected = new TagCommand(Index.fromOneBased(1),
                 Collections.emptyList(), List.of(new Tag("Java")));
         assertEquals(expected, result);
@@ -38,7 +38,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_validMixedAddAndDelete_success() throws Exception {
-        TagCommand result = parser.parse(" 2 a/Java d/Python");
+        TagCommand result = parser.parse(" 2 at/Java dt/Python");
         TagCommand expected = new TagCommand(Index.fromOneBased(2),
                 List.of(new Tag("Java")), List.of(new Tag("Python")));
         assertEquals(expected, result);
@@ -46,7 +46,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_multipleIndices_success() throws Exception {
-        TagCommand result = parser.parse(" 1,2,3 a/Java d/Python");
+        TagCommand result = parser.parse(" 1,2,3 at/Java dt/Python");
         TagCommand expected = new TagCommand(List.of(
                 Index.fromOneBased(1), Index.fromOneBased(2), Index.fromOneBased(3)),
                 List.of(new Tag("Java")), List.of(new Tag("Python")));
@@ -55,7 +55,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_multipleAdds_success() throws Exception {
-        TagCommand result = parser.parse(" 3 a/Java a/Python");
+        TagCommand result = parser.parse(" 3 at/Java at/Python");
         TagCommand expected = new TagCommand(Index.fromOneBased(3),
                 List.of(new Tag("Java"), new Tag("Python")), Collections.emptyList());
         assertEquals(expected, result);
@@ -63,7 +63,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_multipleDeletes_success() throws Exception {
-        TagCommand result = parser.parse(" 1 d/Java d/Python");
+        TagCommand result = parser.parse(" 1 dt/Java dt/Python");
         TagCommand expected = new TagCommand(Index.fromOneBased(1),
                 Collections.emptyList(), List.of(new Tag("Java"), new Tag("Python")));
         assertEquals(expected, result);
@@ -71,7 +71,7 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_exactly10Tags_success() throws Exception {
-        String args = " 1 a/T1 a/T2 a/T3 a/T4 a/T5 d/T6 d/T7 d/T8 d/T9 d/T10";
+        String args = " 1 at/T1 at/T2 at/T3 at/T4 at/T5 dt/T6 dt/T7 dt/T8 dt/T9 dt/T10";
         // Should not throw — exactly at the limit
         parser.parse(args);
     }
@@ -82,42 +82,42 @@ public class TagCommandParserTest {
     public void parse_missingIndex_throwsParseException() {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
-                -> parser.parse(" a/Java"));
+                -> parser.parse(" at/Java"));
     }
 
     @Test
     public void parse_invalidIndex_throwsParseException() {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
-                -> parser.parse(" 0 a/Java"));
+                -> parser.parse(" 0 at/Java"));
     }
 
     @Test
     public void parse_nonNumericIndex_throwsParseException() {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
-                -> parser.parse(" abc a/Java"));
+                -> parser.parse(" abc at/Java"));
     }
 
     @Test
     public void parse_garbageAfterIndex_throwsParseException() {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
-                -> parser.parse(" 1 randomtext a/Java"));
+                -> parser.parse(" 1 randomtext at/Java"));
     }
 
     @Test
     public void parse_invalidCommaSeparatedIndices_throwsParseException() {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
-                -> parser.parse(" 1,,2 a/Java"));
+                -> parser.parse(" 1,,2 at/Java"));
     }
 
     @Test
     public void parse_duplicateIndices_throwsParseException() {
         assertThrows(ParseException.class,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
-                -> parser.parse(" 1,1 a/Java"));
+                -> parser.parse(" 1,1 at/Java"));
     }
 
     @Test
@@ -136,13 +136,13 @@ public class TagCommandParserTest {
 
     @Test
     public void parse_exceeds10Tags_throwsParseException() {
-        String args = " 1 a/T1 a/T2 a/T3 a/T4 a/T5 a/T6 a/T7 a/T8 a/T9 a/T10 a/T11";
+        String args = " 1 at/T1 at/T2 at/T3 at/T4 at/T5 at/T6 at/T7 at/T8 at/T9 at/T10 at/T11";
         assertThrows(ParseException.class, TagCommandParser.MESSAGE_EXCEEDED_LIMIT, ()
                 -> parser.parse(args));
     }
 
     @Test
     public void parse_invalidTagName_throwsParseException() {
-        assertThrows(ParseException.class, () -> parser.parse(" 1 a/#invalid"));
+        assertThrows(ParseException.class, () -> parser.parse(" 1 at/#invalid"));
     }
 }
