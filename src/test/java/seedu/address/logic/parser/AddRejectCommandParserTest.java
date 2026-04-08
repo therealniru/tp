@@ -53,7 +53,7 @@ public class AddRejectCommandParserTest {
     public void parse_reasonExceeds200Chars_failure() {
         String longReason = "a".repeat(201);
         assertParseFailure(parser, " 1 " + longReason,
-                Messages.MESSAGE_REJECT_INVALID_REASON);
+                RejectionReason.MESSAGE_CONSTRAINTS);
     }
 
     @Test

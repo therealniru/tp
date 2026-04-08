@@ -15,10 +15,28 @@ Talently is a **desktop contact-management application** for recruiters and hiri
 | **Goals** | Add, track, and search candidates quickly; maintain a clean audit trail |
 | **Challenges addressed** | Forgetting command syntax, losing candidate history, slow mouse-based tools |
 
-**Assumed knowledge:** You can open a terminal and type commands. No programming experience required.
+### Expectations
 
-* Table of Contents
-{:toc}
+* **The application assumes users prefer keyboard-driven workflows** over mouse-driven interfaces, valuing speed and accuracy in data entry and retrieval.
+* Users are expected to be familiar with basic command syntax similar to search bars or messaging apps, and need tagging capabilities to organise candidates by hiring stage, role, or project without complex navigation.
+* The application is optimised for structured, ASCII-based text entry — it is not intended as a rich-text editor or a multilingual CRM.
+
+### Assumptions about user skills
+
+* **Basic command-line familiarity:** opening a terminal, navigating folders (e.g. `cd`), and running the application with `java -jar talently.jar`. Able to copy/paste commands correctly.
+* **Understanding of simple data concepts used by the app:** 1-based indexes, tags, and candidate fields (name, phone, email, address, priority).
+* **Comfortable reading short on-screen prompts** and the result-display feedback after each command.
+* **Basic English literacy** sufficient to interpret command keywords and UI labels.
+* **Basic awareness of data privacy and backup practices:** avoid storing sensitive credentials in notes, and back up the `data/talently.json` file before manual edits.
+
+### Environment assumptions
+
+* **Display:** Talently is designed for a **single-monitor desktop setup**. It has been tested at the default launch size up to a typical 1920×1080 display. Stretching the window across multiple monitors, onto ultra-wide displays, or to extreme aspect ratios is **not supported** and may cause the candidate list, detail panel, or help window to render with awkward spacing. If this happens, resize the window back to a normal single-monitor size and the layout will recover.
+* **Minimum window size:** Talently enforces a minimum main-window size of 800×600 and a minimum help-window size of 700×500. You cannot shrink either window below these dimensions — this guarantees that the command box, result display, candidate list, and command summary remain visible at all times.
+* **Operating system:** Tested on Windows, macOS, and Linux with Java 17+.
+* **Character input:** Commands and all text fields accept **printable ASCII characters only** (letters, digits, spaces, and punctuation listed per field below). Non-ASCII characters — including accented letters (`é`, `ñ`), CJK characters (中, 日本語), emojis, right-to-left scripts, and "smart" quotes pasted from word processors — are rejected by the field validators or by the find keyword parser. If you paste text and receive a validation error, re-type the value using plain ASCII.
+
+**Assumed knowledge:** You can open a terminal and type commands. No programming experience required.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -632,6 +650,8 @@ A: Save files from older versions that contain a `status` field are loaded norma
 
 1. **Multiple screens:** If Talently was last used on a secondary screen that is now disconnected, the window may open off-screen.
    **Fix:** Delete `preferences.json` from the home folder before relaunching.
+2. **Minimised help window:** If you minimise the Help Window and then run `help` again (or press `F1`), the existing Help Window is brought back into focus but may remain minimised on some platforms. **Fix:** Restore it manually from the taskbar.
+3. **Long single-line notes:** Extremely long note content without any spaces (e.g. a single 500-character URL) will wrap visually but cannot be broken at word boundaries in the detail panel. Prefer pasting URLs separated by spaces from surrounding prose.
 
 
 --------------------------------------------------------------------------------------------------------------------
@@ -662,3 +682,30 @@ Action | Format, Examples
 **Tag** | `tag INDEX[,INDEX]... [a/TAG]... [d/TAG]...`<br> e.g. `tag 1,2 a/Shortlisted d/Applied`
 **Tag Pool** | `tagpool [a/TAG]... [d/TAG]...`<br> e.g. `tagpool` (list all), `tagpool a/Shortlisted d/Rejected`
 **Undo** | `undo`
+
+--------------------------------------------------------------------------------------------------------------------
+
+## Glossary
+
+| Term | Meaning |
+|---|---|
+| **Candidate** | A person managed in Talently, with fields name, phone, email, address, priority, date added, tags, notes, and rejection history. |
+| **Command** | A specific instruction typed into the command box to perform an action (e.g. `add`, `find`, `tag`). |
+| **Parameter** | A value supplied to a command, usually introduced by a two-character prefix such as `n/`, `p/`, `e/`, `a/`, `pr/`, `h/`, `d/`. |
+| **Prefix** | The short marker (e.g. `n/`) that introduces a parameter in a command. Must be preceded by a space when not at the start of the command. |
+| **Index** | The 1-based number shown next to each candidate in the currently displayed list. Used by commands such as `remove`, `edit`, `show`, `tag`, `addnote`, and `addreject`. The index refers to the **displayed** list, which may be filtered. |
+| **Tag** | A user-defined label attached to a candidate (e.g. `Shortlisted`). Tags are case-insensitive and must first be created in the tag pool before being assigned. |
+| **Tag pool** | The master registry of tags managed with `tagpool`. Only tags in the pool can be assigned to candidates. |
+| **Note** | A timestamped, free-form entry attached to a candidate, with optional heading. Notes are ordered and never overwritten by new additions. |
+| **Rejection reason** | A formal, audit-style record of why a candidate was rejected, added with `addreject`. Each candidate maintains a numbered history; the red badge on a candidate card shows the total count. |
+| **Priority** | A boolean flag (`yes` / `no`) that marks a candidate as high-priority. Surfaced by `sort pr o/asc`. |
+| **Detail panel** | The right-side panel opened by `show INDEX`. Displays all candidate information including notes and full rejection history. |
+| **Command box** | The text input at the top of the main window where you type commands. |
+| **Result display** | The area directly below the command box that shows feedback and error messages after each command. |
+| **Candidate list** | The scrollable list on the left of the main window showing candidate cards with index, name, contact fields, tags, and rejection badge. |
+| **Home folder** | The folder containing `talently.jar`. Talently reads and writes `data/talently.json` and `preferences.json` relative to this folder. |
+| **Save file** | `data/talently.json` — the JSON file where candidate data is autosaved after every modifying command. |
+| **Autosave** | The automatic write to the save file after any command that changes data. No manual save is needed. |
+| **Undo stack** | The internal history of data-modifying commands. `undo` pops the most recent entry; `redo` replays it until a new modifying command is executed. |
+| **Duplicate candidate** | Any new or edited candidate whose phone number **or** email matches an existing candidate. Talently rejects duplicates. Name alone does not determine uniqueness. |
+| **ASCII input** | Plain, printable characters in the US-ASCII range (letters, digits, spaces, common punctuation). Talently only accepts ASCII in text fields — non-ASCII characters are rejected. |

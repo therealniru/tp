@@ -23,13 +23,14 @@ public class AddRejectCommandParser implements Parser<AddRejectCommand> {
             throw new ParseException(Messages.MESSAGE_REJECT_INVALID_FORMAT);
         }
 
-        int spaceIndex = trimmed.indexOf(' ');
-        if (spaceIndex == -1) {
+        // Split on any whitespace (space, tab, etc.) to match EditRejectCommandParser behaviour.
+        String[] tokens = trimmed.split("\\s+", 2);
+        if (tokens.length < 2) {
             throw new ParseException(Messages.MESSAGE_REJECT_INVALID_FORMAT);
         }
 
-        String indexToken = trimmed.substring(0, spaceIndex);
-        String reasonString = trimmed.substring(spaceIndex + 1).trim();
+        String indexToken = tokens[0];
+        String reasonString = tokens[1].trim();
 
         if (reasonString.isEmpty()) {
             throw new ParseException(Messages.MESSAGE_REJECT_INVALID_FORMAT);
@@ -43,7 +44,7 @@ public class AddRejectCommandParser implements Parser<AddRejectCommand> {
         }
 
         if (!RejectionReason.isValidReason(reasonString)) {
-            throw new ParseException(Messages.MESSAGE_REJECT_INVALID_REASON);
+            throw new ParseException(RejectionReason.MESSAGE_CONSTRAINTS);
         }
 
         RejectionReason reason = new RejectionReason(reasonString);

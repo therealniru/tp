@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Note;
@@ -46,9 +47,7 @@ public class NoteCommand extends Command {
         List<Person> lastShownList = model.getFilteredPersonList();
 
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(String.format(
-                    "Error: Index %d is out of range. The current list has %d candidate(s). "
-                    + "Please provide an index between 1 and %d.",
+            throw new CommandException(String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
                     targetIndex.getOneBased(), lastShownList.size(), lastShownList.size()));
         }
 

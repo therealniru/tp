@@ -12,20 +12,16 @@ public class Messages {
 
     public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command";
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format! \n%1$s";
-    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The person index provided is invalid";
-    public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d persons listed!";
+    public static final String MESSAGE_INDEX_OUT_OF_RANGE =
+            "Error: Index %1$d is out of range. The current list has %2$d candidate(s). "
+            + "Please provide an index between 1 and %2$d.";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Error: Duplicate parameter detected \u2014 multiple values for '%s' provided.";
 
     public static final String MESSAGE_REJECT_INVALID_INDEX =
-            "Error: Invalid index. Please provide a valid positive integer. Usage: reject INDEX r/REASON";
-    public static final String MESSAGE_REJECT_INDEX_OUT_OF_RANGE =
-            "Error: Index %1$d is out of range. The current list has %2$d candidate(s). "
-            + "Please provide an index between 1 and %2$d.";
-    public static final String MESSAGE_REJECT_INVALID_REASON =
-            "Error: Rejection reason cannot be empty and must not exceed 200 characters.";
+            "Error: Invalid index. Please provide a valid positive integer. Usage: addreject INDEX REASON";
     public static final String MESSAGE_REJECT_INVALID_FORMAT =
-            "Invalid command format. Usage: reject INDEX r/REASON";
+            "Invalid command format. Usage: addreject INDEX REASON";
 
     /**
      * Returns an error message indicating the duplicate prefixes.

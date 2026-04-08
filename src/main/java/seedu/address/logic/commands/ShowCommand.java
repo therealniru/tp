@@ -38,7 +38,8 @@ public class ShowCommand extends Command {
         List<Person> lastShownList = model.getFilteredPersonList();
 
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+            throw new CommandException(String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
+                    targetIndex.getOneBased(), lastShownList.size(), lastShownList.size()));
         }
 
         Person personToShow = lastShownList.get(targetIndex.getZeroBased());

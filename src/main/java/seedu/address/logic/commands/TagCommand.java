@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 import seedu.address.commons.core.index.Index;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
@@ -76,9 +77,7 @@ public class TagCommand extends Command {
         List<Person> personsToEdit = new ArrayList<>();
         for (Index index : indices) {
             if (index.getZeroBased() >= lastShownList.size()) {
-                throw new CommandException(String.format(
-                        "Error: Index %d is out of range. The current list has %d candidate(s). "
-                        + "Please provide an index between 1 and %d.",
+                throw new CommandException(String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
                         index.getOneBased(), lastShownList.size(), lastShownList.size()));
             }
             personsToEdit.add(lastShownList.get(index.getZeroBased()));

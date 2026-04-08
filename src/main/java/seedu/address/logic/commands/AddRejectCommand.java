@@ -55,7 +55,7 @@ public class AddRejectCommand extends Command {
         List<Person> lastShownList = model.getFilteredPersonList();
 
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(String.format(Messages.MESSAGE_REJECT_INDEX_OUT_OF_RANGE,
+            throw new CommandException(String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
                     targetIndex.getOneBased(), lastShownList.size()));
         }
 

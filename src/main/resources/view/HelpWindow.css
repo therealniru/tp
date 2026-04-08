@@ -1,5 +1,17 @@
-#copyButton, #helpMessage {
+#copyButton, #helpMessage, #urlLabel {
     -fx-text-fill: white;
+}
+
+#urlLabel {
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 12px;
+    -fx-text-fill: #8ab4f8;
+}
+
+.help-heading {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
 }
 
 #copyButton {
@@ -16,4 +28,47 @@
 
 #helpMessageContainer {
     -fx-background-color: derive(#1d1d1d, 20%);
+}
+
+#commandTable {
+    -fx-background-color: derive(#1d1d1d, 20%);
+    -fx-control-inner-background: derive(#1d1d1d, 20%);
+    -fx-table-cell-border-color: derive(#1d1d1d, 50%);
+    -fx-text-fill: white;
+}
+
+#commandTable .column-header-background {
+    -fx-background-color: derive(#1d1d1d, 40%);
+}
+
+#commandTable .column-header, #commandTable .filler {
+    -fx-background-color: transparent;
+    -fx-size: 28;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: derive(#1d1d1d, 60%);
+}
+
+#commandTable .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 0 0 10;
+}
+
+#commandTable .table-cell {
+    -fx-text-fill: white;
+    -fx-padding: 6 10 6 10;
+    -fx-border-color: transparent;
+}
+
+#commandTable .table-row-cell {
+    -fx-background-color: derive(#1d1d1d, 20%);
+}
+
+#commandTable .table-row-cell:odd {
+    -fx-background-color: derive(#1d1d1d, 25%);
+}
+
+#commandTable .table-row-cell:selected {
+    -fx-background-color: derive(#1d1d1d, 45%);
 }

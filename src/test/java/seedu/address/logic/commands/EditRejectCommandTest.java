@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
+import seedu.address.logic.Messages;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -66,11 +67,8 @@ public class EditRejectCommandTest {
         EditRejectCommand command = new EditRejectCommand(outOfBoundIndex,
                 Index.fromOneBased(1), NEW_REASON);
 
-        String expectedMessage = String.format(
-                "Error: Index %d is out of range. The current list has %d candidate(s). "
-                + "Please provide an index between 1 and %d.",
-                outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
-                model.getFilteredPersonList().size());
+        String expectedMessage = String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
+                outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size());
 
         assertCommandFailure(command, model, expectedMessage);
     }

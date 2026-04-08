@@ -286,11 +286,11 @@ In recruitment, a candidate who is rejected for one role may be reconsidered whe
 
 ### Removal of status field
 
-Candidate stage tracking (active, hired, rejected, blacklisted, etc.) is handled entirely through tags and the `reject` command, rather than a dedicated status field.
+Candidate stage tracking (active, hired, rejected, blacklisted, etc.) is handled entirely through tags and the `addreject`/`editreject`/`deletereject` commands, rather than a dedicated status field.
 
 **Aspect: Why not use a built-in status field?**
 
-* **Alternative 1 (current choice):** No status field. Tags handle stage tracking; `reject` handles rejection history.
+* **Alternative 1 (current choice):** No status field. Tags handle stage tracking; the reject commands handle rejection history.
   * Pros: Impossible to create inconsistent state (e.g., status "rejected" with zero rejection reasons). Fully flexible — recruiters define their own workflow stages as tags (e.g., "Phone-Screen", "Onsite", "Offer-Extended"). Single mechanism for categorisation (tags) rather than two overlapping systems.
   * Cons: No enforced state machine. This is acceptable because tag management is the recruiter's responsibility.
 
@@ -298,31 +298,39 @@ Candidate stage tracking (active, hired, rejected, blacklisted, etc.) is handled
   * Pros: Enforced state machine, clear visual indicator.
   * Cons: Created inconsistent states (e.g., rejected status with no rejection reason). Limited recruiters to exactly four workflow stages.
 
-### Rejection reason immutability
+### Rejection reason management design
 
-Rejection reasons are append-only: once recorded via the `reject` command, they cannot be
-edited or deleted (except by `undo` immediately after). This contrasts with notes, which
-support full CRUD operations (addnote, editnote, deletenote).
+Rejection reasons support the full add/edit/delete lifecycle via `addreject`, `editreject`, and `deletereject`. Each candidate maintains a **numbered, chronological rejection history**; the red badge on a candidate card shows the total count at all times.
 
-**Aspect: Why are rejection reasons immutable while notes are not?**
+**Aspect: Why allow full CRUD on rejection reasons, and what guarantees the audit trail?**
 
-* **Alternative 1 (current choice):** Rejection reasons are an immutable audit trail.
-  * Pros: Mirrors real-world HR practices where formal hiring decisions are recorded permanently
-    and corrections are annotated rather than overwritten. Prevents accidental or intentional
-    tampering with rejection history. The "Rejected X times" badge provides a reliable lifetime
-    count that cannot be deflated by deleting reasons. The `undo` command provides immediate
-    correction if a rejection was recorded in error.
-  * Cons: A typo in a rejection reason cannot be fixed after subsequent commands. The
-    workaround is to add a note explaining the correction.
+* **Alternative 1 (current choice):** Full CRUD is exposed, but every mutating reject command is snapshotted by the undo system (same as notes and tags).
+  * Pros: Typos in rejection reasons can be corrected without workarounds. Recruiters who accidentally attach a rejection to the wrong candidate can delete the incorrect entry and re-add it on the right one. Consistent with how notes are managed, so the mental model is simple.
+  * Cons: Unlike an append-only log, history can be rewritten. This is mitigated by (a) the undo stack retaining pre-edit states during the current session, (b) the save file being a plain JSON audit artefact that external tools can snapshot, and (c) the badge always reflecting the *current* rejection count, not a lifetime counter that could be inflated or deflated.
 
-* **Alternative 2:** Full CRUD for rejection reasons (add editreject/deletereject commands).
-  * Pros: Consistent with note management, allows typo correction at any time.
-  * Cons: Undermines the audit trail. The "Rejected X times" badge would become unreliable
-    if reasons could be silently removed.
+* **Alternative 2:** Append-only reject reasons (original pre-release design).
+  * Pros: Stronger audit trail — reasons can never be rewritten once saved.
+  * Cons: Typos and misattributed rejections become permanent, forcing users to add corrective notes that dilute the signal. In practice, the team found this created more friction than value for the target user profile (small teams doing their own hiring, not regulated enterprises).
 
-The immutability is justified because rejection reasons serve a fundamentally different
-purpose from notes. Notes are a working scratchpad; rejection reasons are formal decisions
-that affect how a candidate is perceived across hiring cycles.
+**Aspect: How does edit/delete interact with the consecutive-duplicate warning on `addreject`?**
+
+`addreject` warns (but does not block) when the new reason is identical to the candidate's most recent existing reason, to catch accidental double-entry. `editreject` and `deletereject` do not re-run this warning, because an explicit edit or delete is unambiguously intentional.
+
+### ASCII-only text field design
+
+All free-text fields (`Name`, `Address`, `Note` heading/content, `RejectionReason`) and keyword inputs to `find` enforce **printable ASCII only** at the validator level. The rule is stated once here and applied uniformly across the model classes.
+
+**Aspect: Why reject non-ASCII input at the model boundary?**
+
+* **Alternative 1 (current choice):** Validators reject any character outside 0x20–0x7E.
+  * Pros: Eliminates an entire class of bugs: font-fallback rendering issues on different OSes, CSV/JSON round-trip corruption with BOMs or non-UTF8 encodings, inconsistent collation in `find`/`filter`, and "invisible" characters (zero-width joiners, RTL marks, smart quotes) that look identical to ASCII but compare unequal. Duplicate-detection on phone/email becomes deterministic. All rendering paths in JavaFX TextField, ListView cells, and the help-window TableView behave identically regardless of the user's locale.
+  * Cons: Users with genuinely non-ASCII names (e.g., "José", "Müller", "李明") cannot be stored verbatim. The documented workaround is ASCII transliteration (e.g., "Jose", "Mueller", "Li Ming"). This trade-off is acceptable for the target user profile (English-speaking small-team recruiters) given that the `Name` validator in the inherited AB3 codebase was already ASCII-only before this decision was formalised.
+
+* **Alternative 2:** Allow Unicode in `Address` and `Note` only, keep `Name` ASCII.
+  * Pros: More permissive for free-form fields where matching semantics are less critical.
+  * Cons: Creates an internally inconsistent spec (a candidate named "John Doe" with a note in Cyrillic). Would also require the `find` predicate — which searches across name, notes, and rejection reasons — to handle Unicode normalisation and case-folding, which in turn would need locale-aware collation rules. None of this buys real value for the target user.
+
+The consistency across all text fields is the load-bearing property: any command that takes a text argument can assume ASCII, so parsers, validators, matchers, and the JSON (de)serialiser all share the same invariant.
 
 ### Note management design
 
@@ -436,14 +444,14 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 **Design justification:** No confirmation prompt is required because the `undo` command can immediately reverse an accidental removal. This keeps the CLI workflow fast and avoids interrupting the recruiter's typing flow.
 
 
-**Use case: UC3 - Recording a rejection with reason**
+**Use case: UC3 - Recording a rejection with reason (`addreject`)**
 
-**Preconditions:** The candidate exists in the system.
+**Preconditions:** The candidate exists in the system and is shown in the current list.
 
 **MSS:**
 1. User requests to reject a specific candidate by index, providing a rejection reason.
 2. System validates the index and the reason.
-3. System appends the reason to the candidate’s rejection history.
+3. System appends the reason to the candidate's rejection history.
 4. System informs the user of the successful update (including total rejection count).
    Use case ends.
 
@@ -458,7 +466,54 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 4a1. System still records the rejection but includes a warning about the consecutive duplicate.
     * Use case ends.
 
-**Design justification:** The system allows rejecting a candidate multiple times (even with the same reason) because real-world hiring involves multiple rounds. Rather than blocking the operation, a warning on consecutive duplicates guards against accidental double-entry while preserving flexibility. There are no guards based on the candidate’s tags — any candidate can be rejected regardless of what tags they carry. Use tags (e.g., `Blacklisted`, `Hired`) to track hiring stages; the `reject` command is solely for recording formal rejection decisions with reasons.
+**Design justification:** The system allows rejecting a candidate multiple times (even with the same reason) because real-world hiring involves multiple rounds. Rather than blocking the operation, a warning on consecutive duplicates guards against accidental double-entry while preserving flexibility. There are no guards based on the candidate's tags — any candidate can be rejected regardless of what tags they carry. Use tags (e.g., `Blacklisted`, `Hired`) to track hiring stages; the `addreject` command is solely for recording formal rejection decisions with reasons.
+
+
+**Use case: UC3a - Editing an existing rejection reason (`editreject`)**
+
+**Preconditions:** The candidate exists in the current displayed list and has at least one recorded rejection reason.
+
+**MSS:**
+1. User requests to edit an existing rejection reason by candidate index, rejection index, and new reason text.
+2. System validates the candidate index, the rejection index, and the new reason.
+3. System replaces the reason at the specified position while preserving its ordering in the rejection history.
+4. System informs the user of success.
+   Use case ends.
+
+**Extensions:**
+* 1a. User provides an invalid candidate index or rejection index.
+    * 1a1. System informs the user of the error with the valid range.
+    * Use case ends.
+* 1b. The candidate has no rejection reasons.
+    * 1b1. System informs the user that the candidate has no rejection history to edit.
+    * Use case ends.
+* 2a. User provides an invalid new reason (empty, exceeds 200 characters, or contains disallowed characters).
+    * 2a1. System informs the user of the validation error.
+    * Use case ends.
+
+**Design justification:** `editreject` preserves the rejection's position in the chronological history — it is a correction operation, not an append. The consecutive-duplicate warning from `addreject` is deliberately not re-run because an explicit edit is unambiguously intentional.
+
+
+**Use case: UC3b - Deleting a rejection reason (`deletereject`)**
+
+**Preconditions:** The candidate exists in the current displayed list and has at least one recorded rejection reason.
+
+**MSS:**
+1. User requests to delete an existing rejection reason by candidate index and rejection index.
+2. System validates both indices.
+3. System removes the specified reason; remaining reasons shift up to preserve contiguous indexing.
+4. System informs the user of success. The candidate's red rejection-count badge updates.
+   Use case ends.
+
+**Extensions:**
+* 1a. User provides an invalid candidate index or rejection index.
+    * 1a1. System informs the user of the error with the valid range.
+    * Use case ends.
+* 1b. The candidate has no rejection reasons.
+    * 1b1. System informs the user that the candidate has no rejection history to delete from.
+    * Use case ends.
+
+**Design justification:** Deletion shifts later entries up (rather than leaving a gap) so that the rejection index displayed in `show INDEX` is always a contiguous 1-based sequence matching what the user just saw. This is consistent with how notes are deleted.
 
 
 **Use case: UC4 - Filtering candidates by tag**
@@ -505,7 +560,7 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
     * 2b1. System aborts the update and informs the user of the specific conflict (which field and which existing candidate).
     * Use case ends.
 
-**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean. The `edit` command handles contact details and priority only; hiring stage tracking is done via tags and the `reject` command.
+**Design justification:** The edit command resets the displayed list to show all candidates after a successful edit. This ensures the user can always see the edited candidate in its new position (e.g., if alphabetical sorting moved it). The no-change detection (`"No changes detected"`) prevents unnecessary state commits and keeps the undo history clean. The `edit` command handles contact details and priority only; hiring stage tracking is done via tags, and formal rejection decisions are recorded via the `addreject`/`editreject`/`deletereject` commands.
 
 
 **Use case: UC6 - Finding a candidate by attributes**
@@ -799,29 +854,42 @@ Priorities: High (must-have) - `* * *`, Medium (nice-to-have) - `* *`, Low (unli
 
 ### Non-Functional Requirements
 
-1. The system must run flawlessly without requiring an installer on any mainstream Operating System (Windows, macOS, Linux), provided that exactly **Java 17** is installed. The entire application must be packaged as a single portable JAR file not exceeding `100 MB` in size.
-2. The application must operate as a standalone, single-user system. It must strictly eschew the use of a Database Management System (DBMS) or any remote server dependencies. All data must be saved locally in a human-editable text file (JSON format) to allow advanced users manual access to their records.
-3. The system must be capable of holding up to `1,000` candidate records (including their Rejection History lists and tags) without exceeding `250 MB` of memory footprint or showing noticeable sluggishness in search and filtering operations.
-4. The application must prioritize CLI input. A target user with a fast typing speed (60+ WPM) should be able to execute core workflows (e.g., adding a candidate, rejecting a candidate with a reason) entirely via text commands significantly faster than executing the equivalent actions in a standard mouse-driven GUI.
+1. The system must run without requiring an installer on any mainstream Operating System (Windows, macOS, Linux), provided that **Java 17 or above** is installed. The entire application must be packaged as a single portable JAR file not exceeding `100 MB` in size.
+2. The application must operate as a standalone, single-user system. It must not depend on any Database Management System (DBMS) or remote server. All data must be saved locally in a human-editable text file (JSON format) to allow advanced users manual access to their records.
+3. The system must be capable of holding up to `1,000` candidate records (including their rejection history lists and tags) without exceeding `250 MB` of memory footprint or showing noticeable sluggishness in search and filtering operations.
+4. The application must prioritize CLI input. A target user with a fast typing speed (60+ WPM) should be able to execute core workflows (e.g., adding a candidate, recording a rejection with a reason) entirely via text commands significantly faster than executing the equivalent actions in a standard mouse-driven GUI.
 5. All standard data manipulation and retrieval commands must execute, persist to the local file, and update the UI within `200` milliseconds under normal load to prevent disruption of the user's typing flow.
 6. The system must automatically save data locally after every mutating command. If a command fails validation halfway through execution (e.g., valid identifier but invalid rejection reason), the system state must remain entirely unchanged to prevent corrupted data.
-7. The Graphical User Interface (GUI) must render perfectly without resolution-related artifacts for standard screen resolutions of `1920x1080` (at 100% and 125% scales) and remain fully usable at resolutions of `1280x720` (at 150% scale).
-8. The system must function completely independently of an internet connection, ensuring 100% feature availability during automated testing and offline usage.
+7. **Single-monitor desktop design.** The Graphical User Interface is designed for a single-monitor desktop setup at standard resolutions between `1280x720` and `1920x1080`. The GUI must remain fully usable (all panels visible, no cut-off controls) throughout this range and at scaling factors 100%, 125%, and 150%. Stretching the main window across multiple monitors or onto ultra-wide displays is explicitly **out of scope**; the layout is only guaranteed to recover once the window is resized back within the supported range. A minimum window size is enforced in code (main window 800×600, help window 700×500) so the user cannot shrink either below the point where essential controls would be hidden.
+8. **ASCII-only text input.** All free-text fields (name, address, note heading, note content, rejection reason) and all keyword-based search inputs accept **printable ASCII characters only** (0x20–0x7E). Non-ASCII input — accented letters, CJK characters, emojis, right-to-left scripts, and "smart" quotes pasted from word processors — must be rejected at the validator level. This constraint simplifies matching/indexing and ensures consistent rendering on all supported platforms without font-fallback artefacts.
+9. The system must function completely independently of an internet connection, ensuring 100% feature availability during automated testing and offline usage.
 
 ### Glossary
 
 * **Applicant Tracking System (ATS):** A heavy, enterprise-level software application that enables the electronic handling of recruitment and hiring needs. Talently serves as a lightweight, developer-friendly alternative to this.
 * **Candidate:** A person whose details and interaction history are tracked within the system for recruitment purposes.
-* **Rejection History:** A chronological list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles.
+* **Rejection history:** A chronological, 1-based list of reasons attached to a candidate detailing why they were previously passed over for roles, allowing recruiters to maintain context across multiple hiring cycles. Managed via `addreject`, `editreject`, and `deletereject`.
+* **Rejection reason:** A single entry in a candidate's rejection history. Non-empty, max 200 characters, printable ASCII only.
 * **Tag:** A user-defined keyword or label attached to a candidate (e.g., "Senior", "Java") used for quick categorization and filtering. Must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '` (no spaces, 1–30 characters). Comparison is case-insensitive.
-* **Tag Pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the pool cascades the removal to all candidates.
+* **Tag pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool a/TAG`) before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the pool cascades the removal to all candidates.
 * **Note:** A timestamped text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes are ordered chronologically and can be added, edited, or deleted.
 * **Hiring stage:** The current position of a candidate in the hiring pipeline, tracked via tags (e.g., `Shortlisted`, `Hired`, `Blacklisted`) assigned by the recruiter.
 * **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates can be surfaced with `sort pr o/asc`.
 * **CLI (Command Line Interface):** A text-based user interface used to interact with the software by typing commands rather than clicking graphical elements.
-* **Identifier:** The reference used by the recruiter to execute commands on a specific candidate (often an index number representing their position in the current list).
+* **Command box:** The text input at the top of the main window where the user types commands.
+* **Result display:** The area directly below the command box that shows feedback and error messages after each command.
+* **Detail panel:** The right-side panel opened by `show INDEX`. Displays all candidate information including notes and full rejection history.
+* **Index:** The 1-based number shown next to each candidate in the currently displayed list. Commands that target a candidate refer to this index, which always reflects the **displayed** (possibly filtered) list — not the full address book.
+* **Parameter:** A value supplied to a command, usually introduced by a two-character prefix (e.g. `n/`, `p/`, `e/`, `a/`, `pr/`, `h/`, `d/`).
+* **Prefix:** The short marker (e.g. `n/`) that introduces a parameter in a command. Must be preceded by a space when not at the start of the command.
+* **Identifier:** Generic term for the reference used by the recruiter to address a specific candidate, rejection, or note in a command (almost always an index).
 * **JSON (JavaScript Object Notation):** A lightweight, text-based data format used by the system to save and load candidate records locally in a human-readable format.
-* **Duplicate Candidate:** A candidate whose phone number or email address matches that of an existing candidate in the system. The `add` and `edit` commands prevent duplicates based on this definition.
+* **Duplicate candidate:** A candidate whose phone number or email address matches that of an existing candidate in the system. The `add` and `edit` commands prevent duplicates based on this definition. Name alone does not determine uniqueness.
+* **Home folder:** The folder containing `talently.jar`. Talently reads and writes `data/talently.json` and `preferences.json` relative to this folder.
+* **Save file:** `data/talently.json` — the JSON file where candidate data is autosaved after every modifying command.
+* **Autosave:** The automatic write to the save file after any command that changes data. No manual save is needed.
+* **Undo stack:** The internal history of data-modifying commands. `undo` pops the most recent entry; `redo` replays it until a new modifying command is executed.
+* **ASCII input:** Plain, printable characters in the US-ASCII range (0x20–0x7E). Talently accepts ASCII only in text fields — non-ASCII characters are rejected at validation time.
 * **Mainstream OS:** Windows, Linux, macOS.
 
 --------------------------------------------------------------------------------------------------------------------
@@ -886,6 +954,48 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `remove 1`<br>
       Expected: First candidate in the filtered list is removed. The removal applies to the correct candidate, not the first in the full list.
 
+### Adding a candidate
+
+1. Adding a candidate with valid input
+
+   1. Prerequisites: The tag pool may be empty.
+
+   1. Test case: `add n/Jane Smith p/91234567 e/jane@example.com a/10 Havelock Rd`<br>
+      Expected: A new candidate is appended with the supplied details and default priority `no`. The candidate card appears in the list. Success message shown in the result display.
+
+   1. Test case: `add n/Mary-Jane O'Brien p/+6591234567 e/mj@example.com a/Blk 123 #02-25 pr/yes`<br>
+      Expected: Candidate added with high priority. The `+` is accepted in the phone number. The hyphen, apostrophe, and period are accepted in the name.
+
+1. Adding a candidate with invalid input
+
+   1. Test case: `add n/Jane p/9 e/x a/x` (phone too short, email missing domain)<br>
+      Expected: Error message indicating the first failing field (phone or email).
+
+   1. Test case: `add n/José p/91234567 e/jose@example.com a/10 Havelock Rd` (non-ASCII accented letter in name)<br>
+      Expected: Error message indicating the name must contain only the allowed ASCII characters.
+
+   1. Test case: Add a candidate whose phone matches an existing candidate's phone.<br>
+      Expected: Error message identifying the duplicate and which existing candidate it collides with.
+
+### Listing candidates
+
+1. Test case: `list`<br>
+   Expected: All candidates are displayed in alphabetical order. The candidate count is shown in the result display.
+
+1. Test case: `list` when the address book is empty.<br>
+   Expected: An empty-list indicator appears in the main panel. No error is shown.
+
+### Showing a candidate's details
+
+1. Test case: `show 1` when at least one candidate is listed.<br>
+   Expected: The right-side detail panel opens showing the candidate's full information: name, phone, email, address, priority, date added, tags, all notes (with timestamps), and full rejection history.
+
+1. Test case: `show 99` (index out of range).<br>
+   Expected: Error message indicating the index is out of range.
+
+1. Test case: `show 1` after `find Jane` has narrowed the list to a single match.<br>
+   Expected: The detail panel opens for the matched candidate, not the first candidate in the full list.
+
 ### Editing a candidate
 
 1. Editing a candidate with valid input
@@ -915,28 +1025,57 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `edit 1 n/alice` when the first candidate's name is already "alice" (same values).<br>
       Expected: Message indicating no changes detected.
 
-### Rejecting a candidate
+### Rejecting a candidate (`addreject`, `editreject`, `deletereject`)
 
-1. Rejecting a candidate with valid input
+1. Adding a rejection reason with valid input
 
    1. Prerequisites: List all candidates using the `list` command. At least one candidate in the list.
 
-   1. Test case: `reject 1 Failed technical interview`<br>
-      Expected: Rejection reason is recorded. Success message with rejection count shown. The "Rejected X times" badge on the candidate's card updates.
+   1. Test case: `addreject 1 Failed technical interview`<br>
+      Expected: Rejection reason is recorded. Success message with rejection count shown. The red "Rejected X times" badge on the candidate's card updates.
 
-   1. Test case: Reject the same candidate again with the same reason.<br>
-      Expected: Rejection is recorded but a duplicate warning is shown.
+   1. Test case: Run `addreject 1 Failed technical interview` twice in a row.<br>
+      Expected: The second rejection is still recorded, but a consecutive-duplicate warning is shown.
 
    1. Test case: Reject a candidate who has a tag named `hired`.<br>
       Expected: Rejection succeeds normally — there are no guards based on tags.
 
-1. Rejecting with invalid input
+1. Adding a rejection reason with invalid input
 
-   1. Test case: `reject 0 reason`<br>
+   1. Test case: `addreject 0 reason`<br>
       Expected: Error message indicating invalid index.
 
-   1. Test case: `reject 1` (no reason)<br>
+   1. Test case: `addreject 1` (no reason)<br>
       Expected: Error message indicating rejection reason is required.
+
+   1. Test case: `addreject 1 ` followed by a 201-character reason.<br>
+      Expected: Error message indicating reason exceeds the 200-character limit.
+
+   1. Test case: `addreject 1 café` (non-ASCII character).<br>
+      Expected: Error message indicating invalid characters in the reason.
+
+1. Editing an existing rejection reason
+
+   1. Prerequisites: Candidate 1 has at least one rejection reason. Verify via `show 1`.
+
+   1. Test case: `editreject 1 1 Updated reason`<br>
+      Expected: The 1st rejection reason for candidate 1 is replaced with "Updated reason". The rejection count badge is unchanged.
+
+   1. Test case: `editreject 1 99 Some reason` (rejection index out of range)<br>
+      Expected: Error message indicating the rejection index is out of range.
+
+   1. Test case: `editreject 1 1` (no new reason provided)<br>
+      Expected: Error message indicating a new reason is required.
+
+1. Deleting a rejection reason
+
+   1. Prerequisites: Candidate 1 has at least two rejection reasons. Verify via `show 1`.
+
+   1. Test case: `deletereject 1 1`<br>
+      Expected: The 1st rejection reason is removed. The former 2nd reason becomes the new 1st. The red rejection badge decrements.
+
+   1. Test case: `deletereject 1 1` when candidate 1 has no rejection reasons.<br>
+      Expected: Error message indicating the candidate has no rejection history.
 
 ### Adding a note to a candidate
 
@@ -1039,6 +1178,100 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `find @#$`<br>
       Expected: Error message indicating invalid characters. Only letters, digits, and symbols ``- ' . / @ + _ : ; ! ? ( )`` are allowed.
+
+   1. Test case: `find café` (non-ASCII keyword).<br>
+      Expected: Error message indicating the keyword contains disallowed characters.
+
+### Filtering candidates by tag
+
+1. Prerequisites: At least one candidate tagged `Shortlisted`, and the `Shortlisted` tag exists in the tag pool.
+
+1. Test case: `filter Shortlisted`<br>
+   Expected: Only candidates with the `Shortlisted` tag are shown. Candidate count updates.
+
+1. Test case: `filter shortlisted` (different casing)<br>
+   Expected: Same result as above (case-insensitive match).
+
+1. Test case: `filter Java` when no candidate has that tag.<br>
+   Expected: An empty list is shown. No error.
+
+1. Test case: `filter Java JavaScript` (multiple words)<br>
+   Expected: Error message indicating `filter` takes exactly one tag.
+
+### Sorting candidates
+
+1. Prerequisites: At least two candidates with different `dateAdded` values and differing priorities.
+
+1. Test case: `sort date o/asc`<br>
+   Expected: Candidates are listed oldest-first.
+
+1. Test case: `sort date o/desc`<br>
+   Expected: Candidates are listed newest-first.
+
+1. Test case: `sort pr o/asc`<br>
+   Expected: High-priority candidates are listed first.
+
+1. Test case: `sort date o/xyz` (invalid order)<br>
+   Expected: Error message indicating valid orders are `asc` or `desc`.
+
+1. Test case: `sort date o/asc` when the candidate list is empty.<br>
+   Expected: Error message indicating there is nothing to sort.
+
+### Tagging candidates
+
+1. Prerequisites: `Shortlisted` and `Interviewed` exist in the tag pool. At least two candidates.
+
+1. Test case: `tag 1 a/Shortlisted`<br>
+   Expected: `Shortlisted` is added to candidate 1. Tag badge appears on the card.
+
+1. Test case: `tag 1 a/Shortlisted` (again)<br>
+   Expected: Error message indicating the candidate already has the tag.
+
+1. Test case: `tag 1 a/UnknownTag` (tag not in pool)<br>
+   Expected: Error message directing the user to create the tag with `tagpool` first.
+
+1. Test case: `tag 1,2 a/Shortlisted` where candidate 1 already has the tag.<br>
+   Expected: The whole command is rejected (fail-fast). No candidates are modified.
+
+1. Test case: `tag 1 a/Shortlisted d/Shortlisted`<br>
+   Expected: Error message indicating the same tag cannot be both added and removed.
+
+### Undo and redo
+
+1. Prerequisites: At least one candidate in the list.
+
+1. Test case: `remove 1` → `undo`<br>
+   Expected: The removed candidate is restored. The displayed list resets to show all candidates.
+
+1. Test case: `undo` with no prior modifying command.<br>
+   Expected: Error message indicating there is nothing to undo.
+
+1. Test case: `remove 1` → `undo` → `redo`<br>
+   Expected: The candidate is removed again.
+
+1. Test case: `remove 1` → `undo` → `add n/Bob ...` → `redo`<br>
+   Expected: Error message indicating there is nothing to redo (the new `add` cleared the redo history).
+
+### Clearing all data
+
+1. Prerequisites: At least one candidate and at least one tag in the pool.
+
+1. Test case: `clear`<br>
+   Expected: All candidates and all tags are removed. The list is empty. The tag pool is empty.
+
+1. Test case: `clear` → `undo`<br>
+   Expected: All candidates and the tag pool are fully restored.
+
+### Help window
+
+1. Test case: Press `F1` or run `help`.<br>
+   Expected: The help window opens with the user-guide URL and a Command Summary table listing all commands.
+
+1. Test case: Drag the help window's corner to shrink it.<br>
+   Expected: The window cannot be shrunk below 700×500. The command summary table remains visible.
+
+1. Test case: Click the "Copy URL" button.<br>
+   Expected: The user-guide URL is copied to the system clipboard.
 
 ### Saving data
 

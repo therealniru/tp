@@ -61,7 +61,7 @@ public class AddRejectCommandTest {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         AddRejectCommand rejectCommand = new AddRejectCommand(outOfBoundIndex, VALID_REASON);
 
-        String expectedMessage = String.format(Messages.MESSAGE_REJECT_INDEX_OUT_OF_RANGE,
+        String expectedMessage = String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size());
 
         assertCommandFailure(rejectCommand, model, expectedMessage);
@@ -100,7 +100,7 @@ public class AddRejectCommandTest {
 
         AddRejectCommand rejectCommand = new AddRejectCommand(outOfBoundIndex, VALID_REASON);
 
-        String expectedMessage = String.format(Messages.MESSAGE_REJECT_INDEX_OUT_OF_RANGE,
+        String expectedMessage = String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size());
 
         assertCommandFailure(rejectCommand, model, expectedMessage);

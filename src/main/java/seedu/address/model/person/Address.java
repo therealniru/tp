@@ -11,13 +11,16 @@ public class Address {
 
     public static final int MAX_LENGTH = 100;
     public static final String MESSAGE_CONSTRAINTS =
-            "Addresses can take any values, must not be blank, and must not exceed " + MAX_LENGTH + " characters.";
+            "Addresses must not be blank, must contain only printable ASCII characters"
+            + " (letters, digits, spaces, and common punctuation), and must not exceed "
+            + MAX_LENGTH + " characters.";
 
     /*
-     * The first character of the address must not be a whitespace,
-     * otherwise " " (a blank string) becomes a valid input.
+     * The first character of the address must not be a whitespace (otherwise " " becomes valid),
+     * and every character must be a printable ASCII character (0x21-0x7E for the first char,
+     * 0x20-0x7E for the rest). This blocks accented letters, CJK, emojis, and other non-ASCII input.
      */
-    public static final String VALIDATION_REGEX = "[^\\s].*";
+    public static final String VALIDATION_REGEX = "[\\x21-\\x7E][\\x20-\\x7E]*";
 
     public final String value;
 

@@ -44,7 +44,10 @@ public class ShowCommandTest {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         ShowCommand showCommand = new ShowCommand(outOfBoundIndex);
 
-        assertCommandFailure(showCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        String expectedMessage = String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
+                outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
+                model.getFilteredPersonList().size());
+        assertCommandFailure(showCommand, model, expectedMessage);
     }
 
     @Test

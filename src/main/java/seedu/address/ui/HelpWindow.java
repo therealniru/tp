@@ -2,9 +2,16 @@ package seedu.address.ui;
 
 import java.util.logging.Logger;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.Stage;
@@ -16,7 +23,10 @@ import seedu.address.commons.core.LogsCenter;
 public class HelpWindow extends UiPart<Stage> {
 
     public static final String USERGUIDE_URL = "https://ay2526s2-cs2103t-t17-4.github.io/tp/UserGuide.html";
-    public static final String HELP_MESSAGE = "Refer to the user guide: " + USERGUIDE_URL;
+    public static final String HELP_MESSAGE = "Refer to the user guide for full details:";
+
+    private static final int MIN_WIDTH = 700;
+    private static final int MIN_HEIGHT = 500;
 
     private static final Logger logger = LogsCenter.getLogger(HelpWindow.class);
     private static final String FXML = "HelpWindow.fxml";
@@ -27,6 +37,18 @@ public class HelpWindow extends UiPart<Stage> {
     @FXML
     private Label helpMessage;
 
+    @FXML
+    private Label urlLabel;
+
+    @FXML
+    private TableView<CommandEntry> commandTable;
+
+    @FXML
+    private TableColumn<CommandEntry, String> actionColumn;
+
+    @FXML
+    private TableColumn<CommandEntry, String> formatColumn;
+
     /**
      * Creates a new HelpWindow.
      *
@@ -35,6 +57,18 @@ public class HelpWindow extends UiPart<Stage> {
     public HelpWindow(Stage root) {
         super(FXML, root);
         helpMessage.setText(HELP_MESSAGE);
+        urlLabel.setText(USERGUIDE_URL);
+
+        // Enforce minimum window size so commands remain visible on resize.
+        root.setMinWidth(MIN_WIDTH);
+        root.setMinHeight(MIN_HEIGHT);
+
+        actionColumn.setCellValueFactory(new PropertyValueFactory<>("action"));
+        formatColumn.setCellValueFactory(new PropertyValueFactory<>("format"));
+        actionColumn.setReorderable(false);
+        formatColumn.setReorderable(false);
+        commandTable.setItems(buildCommandEntries());
+        commandTable.setPlaceholder(new Label(""));
     }
 
     /**
@@ -42,6 +76,43 @@ public class HelpWindow extends UiPart<Stage> {
      */
     public HelpWindow() {
         this(new Stage());
+    }
+
+    private ObservableList<CommandEntry> buildCommandEntries() {
+        ObservableList<CommandEntry> entries = FXCollections.observableArrayList();
+        entries.add(new CommandEntry("Add",
+                "add n/NAME p/PHONE e/EMAIL a/ADDRESS [t/TAG]..."));
+        entries.add(new CommandEntry("Edit",
+                "edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]..."));
+        entries.add(new CommandEntry("Delete",
+                "delete INDEX"));
+        entries.add(new CommandEntry("Remove",
+                "remove INDEX"));
+        entries.add(new CommandEntry("Find",
+                "find KEYWORD [MORE_KEYWORDS]"));
+        entries.add(new CommandEntry("List",
+                "list"));
+        entries.add(new CommandEntry("Show",
+                "show INDEX"));
+        entries.add(new CommandEntry("Tag",
+                "tag INDEX t/TAG [t/TAG]..."));
+        entries.add(new CommandEntry("Note (add)",
+                "note INDEX NOTE_TEXT"));
+        entries.add(new CommandEntry("Note (edit)",
+                "editnote INDEX NOTE_INDEX NEW_TEXT"));
+        entries.add(new CommandEntry("Note (delete)",
+                "deletenote INDEX NOTE_INDEX"));
+        entries.add(new CommandEntry("Add reject reason",
+                "addreject INDEX REASON"));
+        entries.add(new CommandEntry("Edit reject reason",
+                "editreject INDEX REASON"));
+        entries.add(new CommandEntry("Clear",
+                "clear"));
+        entries.add(new CommandEntry("Help",
+                "help"));
+        entries.add(new CommandEntry("Exit",
+                "exit"));
+        return entries;
     }
 
     /**
@@ -100,5 +171,37 @@ public class HelpWindow extends UiPart<Stage> {
         final ClipboardContent url = new ClipboardContent();
         url.putString(USERGUIDE_URL);
         clipboard.setContent(url);
+    }
+
+    /**
+     * A row in the help window's command summary table.
+     */
+    public static class CommandEntry {
+        private final StringProperty action;
+        private final StringProperty format;
+
+        /**
+         * Constructs a {@code CommandEntry} for display in the help command summary table.
+         */
+        public CommandEntry(String action, String format) {
+            this.action = new SimpleStringProperty(action);
+            this.format = new SimpleStringProperty(format);
+        }
+
+        public String getAction() {
+            return action.get();
+        }
+
+        public String getFormat() {
+            return format.get();
+        }
+
+        public StringProperty actionProperty() {
+            return action;
+        }
+
+        public StringProperty formatProperty() {
+            return format;
+        }
     }
 }

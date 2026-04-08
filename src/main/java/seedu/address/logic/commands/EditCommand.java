@@ -77,9 +77,7 @@ public class EditCommand extends Command {
         List<Person> lastShownList = model.getFilteredPersonList();
 
         if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(String.format(
-                    "Error: Index %d is out of range. The current list has %d candidate(s). "
-                    + "Please provide an index between 1 and %d.",
+            throw new CommandException(String.format(Messages.MESSAGE_INDEX_OUT_OF_RANGE,
                     index.getOneBased(), lastShownList.size(), lastShownList.size()));
         }
 
