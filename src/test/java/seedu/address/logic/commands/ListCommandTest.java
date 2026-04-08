@@ -13,6 +13,7 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.testutil.TypicalPersons;
 
 /**
  * Contains integration tests (interaction with the Model) and unit tests for ListCommand.
@@ -65,5 +66,20 @@ public class ListCommandTest {
             assertEquals(true, current.compareTo(next) <= 0,
                     "List should be sorted alphabetically: " + current + " should come before " + next);
         }
+    }
+
+    @Test
+    public void execute_singlePersonList_showsSingleCandidateMessage() {
+        AddressBook ab = new AddressBook();
+        try {
+            ab.addPerson(TypicalPersons.ALICE);
+        } catch (Exception e) {
+            throw new AssertionError("Adding Alice should not fail.");
+        }
+        Model singlePersonModel = new ModelManager(ab, new UserPrefs());
+        Model expectedSinglePersonModel = new ModelManager(ab, new UserPrefs());
+
+        String expectedMessage = ListCommand.MESSAGE_SUCCESS_SINGLE;
+        assertCommandSuccess(new ListCommand(), singlePersonModel, expectedMessage, expectedSinglePersonModel);
     }
 }

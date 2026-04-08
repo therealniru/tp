@@ -62,6 +62,23 @@ public class EditRejectCommandTest {
     }
 
     @Test
+    public void execute_noChanges_returnsNoChangesMessage() {
+        Person personToEdit = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        List<RejectionReason> reasons = new ArrayList<>();
+        reasons.add(REASON_ONE);
+        Person personWithRejection = new PersonBuilder(personToEdit)
+                .withRejectionReasonsList(reasons).build();
+        model.setPerson(personToEdit, personWithRejection);
+
+        EditRejectCommand command = new EditRejectCommand(INDEX_FIRST_PERSON,
+                Index.fromOneBased(1), REASON_ONE.reason);
+
+        String expectedMessage = "Note: No changes detected; rejection reason remains the same.";
+
+        assertCommandSuccess(command, model, expectedMessage, model);
+    }
+
+    @Test
     public void execute_personIndexOutOfRange_throwsCommandException() {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         EditRejectCommand command = new EditRejectCommand(outOfBoundIndex,

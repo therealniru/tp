@@ -137,4 +137,19 @@ public class EditNoteCommandParserTest {
         EditNoteCommand command = parser.parse(" 1 2 h/" + maxHeading);
         assertEquals(maxHeading, command.getNewHeading());
     }
+
+    @Test
+    public void parse_invalidCharacters_throwsParseException() {
+        // Non-ASCII characters should be rejected
+        assertParseFailure(parser, " 1 2 c/Invalid content ©", Note.MESSAGE_CONTENT_CONSTRAINTS);
+        assertParseFailure(parser, " 1 2 h/Invalid heading ™", Note.MESSAGE_HEADING_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_preambleWrongTokenCount_throwsParseException() {
+        // Only 1 token in preamble (need 2: index and noteIndex)
+        assertParseFailure(parser, " 1 c/content", EditNoteCommandParser.MESSAGE_INVALID_FORMAT);
+        // 3 tokens in preamble
+        assertParseFailure(parser, " 1 2 3 c/content", EditNoteCommandParser.MESSAGE_INVALID_FORMAT);
+    }
 }

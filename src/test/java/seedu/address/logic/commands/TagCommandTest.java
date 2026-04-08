@@ -97,6 +97,15 @@ public class TagCommandTest {
                 String.format(TagCommand.MESSAGE_TAG_NOT_IN_POOL, "Ghost"));
     }
 
+    @Test
+    public void execute_deleteTagNotInPool_throwsCommandException() {
+        // "Ghost" is not registered in the pool
+        TagCommand command = new TagCommand(INDEX_FIRST_PERSON,
+                List.of(), List.of(new Tag("Ghost")));
+        assertCommandFailure(command, model,
+                String.format(TagCommand.MESSAGE_TAG_NOT_IN_POOL, "Ghost"));
+    }
+
     /**
      * Fail-fast atomicity: a valid a/Java combined with an invalid d/FakeTag must
      * fail entirely — "Java" must NOT be added to the candidate.

@@ -285,7 +285,7 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * `find` replaces any active `filter` — the results show matches from the full candidate list, not the currently filtered view.
 
 <div markdown="span" class="alert alert-info">
-:information_source: **Note:** `find` does not search the address field or tags. To locate candidates by address, scroll through the list or use `show` on individual candidates. To search by tag, use the `filter` command instead.
+:information_source: **Note:** `find` does not search the **address field** or **tags**. Searching by address is excluded as it frequently contains common terms (e.g. "Road", "Avenue", "Street") that create excessive noise and return irrelevant results, diluting the specificity of your search. To locate candidates by tag, use the `filter` command instead.
 </div>
 
 Examples:

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Note;
 
 public class NoteCommandParserTest {
 
@@ -146,5 +147,12 @@ public class NoteCommandParserTest {
     public void parse_headingWithNewlines_strippedToSpaces() throws Exception {
         NoteCommand cmd = parser.parse(" 1 c/content h/Tech\nRound");
         assertEquals("Tech Round", cmd.getNote().heading);
+    }
+
+    @Test
+    public void parse_invalidCharacters_throwsParseException() {
+        // Non-ASCII characters should be rejected
+        assertParseFailure(parser, " 1 c/Invalid content ©", Note.MESSAGE_CONTENT_CONSTRAINTS);
+        assertParseFailure(parser, " 1 c/content h/Invalid heading ™", Note.MESSAGE_HEADING_CONSTRAINTS);
     }
 }
