@@ -38,6 +38,16 @@ public class AddressTest {
     }
 
     @Test
+    public void isEmpty_emptyAddress_returnsTrue() {
+        assertTrue(Address.EMPTY.isEmpty());
+    }
+
+    @Test
+    public void isEmpty_nonEmptyAddress_returnsFalse() {
+        assertFalse(new Address("123 Main St").isEmpty());
+    }
+
+    @Test
     public void equals() {
         Address address = new Address("Valid Address");
 
