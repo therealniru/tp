@@ -191,7 +191,6 @@ Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy O'Brien e/betsy@example.com a/Newgate Prison p/+6591234567 pr/yes`
 
-<p align="center"><img src="images/add%20command.png" alt="Expected result after running the add command" width="730"/></p>
 
 ---
 
@@ -205,7 +204,6 @@ Format: `list`
 * If Talently is empty, a prompt appears to add candidates.
 * Restores the default alphabetical listing, removing any previous `sort` or `find` results.
 
-<p align="center"><img src="images/list%20command.png" alt="Expected result after running the list command" width="730"/></p>
 
 ---
 
@@ -237,7 +235,6 @@ Examples:
 * `edit 1 p/91234567 e/johndoe@example.com` — Updates phone and email.
 * `edit 2 n/Betsy Crower pr/yes` — Updates name and sets high priority.
 
-<p align="center"><img src="images/edit%20command.png" alt="Expected result after running the edit command" width="730"/></p>
 
 ---
 
