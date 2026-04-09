@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,9 @@ public class AddRejectCommand extends Command {
 
         model.setPerson(personToReject, rejectedPerson);
         logger.info("Rejected candidate: " + personToReject.getName() + " with reason: " + reason);
+
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
 
         int totalReasons = rejectedPerson.getRejectionReasons().size();
         String resultMessage = isDuplicateReason

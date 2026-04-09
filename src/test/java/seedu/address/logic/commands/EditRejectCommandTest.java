@@ -88,7 +88,7 @@ public class EditRejectCommandTest {
     }
 
     @Test
-    public void execute_caseInsensitiveNoChanges_returnsNoChangesMessage() {
+    public void execute_caseInsensitiveChange_success() {
         Person personToEdit = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         List<RejectionReason> reasons = new ArrayList<>();
         reasons.add(REASON_ONE);
@@ -100,9 +100,17 @@ public class EditRejectCommandTest {
         EditRejectCommand command = new EditRejectCommand(INDEX_FIRST_PERSON,
                 Index.fromOneBased(1), REASON_ONE.reason.toUpperCase());
 
-        String expectedMessage = "Note: No changes detected; rejection reason remains the same.";
+        String expectedMessage = String.format(EditRejectCommand.MESSAGE_SUCCESS,
+                personWithRejection.getName());
 
-        assertCommandSuccess(command, model, expectedMessage, model);
+        List<RejectionReason> expectedReasons = new ArrayList<>();
+        expectedReasons.add(new RejectionReason(REASON_ONE.reason.toUpperCase()));
+        Person expectedPerson = new PersonBuilder(personToEdit)
+                .withRejectionReasonsList(expectedReasons).build();
+        ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(personWithRejection, expectedPerson);
+
+        assertCommandSuccess(command, model, expectedMessage, expectedModel);
     }
 
     @Test

@@ -23,7 +23,7 @@ public class FindCommandParserTest {
     @Test
     public void parse_invalidChars_throwsParseException() {
         String expectedMessage = "Error: Invalid characters detected. "
-                + "Keywords can only contain letters, numbers, and symbols: - ' . / @ + _ : ; ! ? ( ) & % \" # *";
+                + "Keywords can only contain letters, numbers, and symbols: - ' . / @ + _ : ; ! ? ( ) & % \" # * ,";
         // $ is still not in the whitelist
         assertParseFailure(parser, " john$doe", expectedMessage);
         assertParseFailure(parser, " john^doe", expectedMessage);

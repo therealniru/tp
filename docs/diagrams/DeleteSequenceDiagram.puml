@@ -55,6 +55,16 @@ activate Model
 Model --> RemoveCommand
 deactivate Model
 
+RemoveCommand -> Model : updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)
+activate Model
+Model --> RemoveCommand
+deactivate Model
+
+RemoveCommand -> Model : sortFilteredPersonList(DEFAULT_SORT)
+activate Model
+Model --> RemoveCommand
+deactivate Model
+
 create CommandResult
 RemoveCommand -> CommandResult
 activate CommandResult

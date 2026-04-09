@@ -30,9 +30,10 @@ public class FindCommandParser implements Parser<FindCommand> {
                     + "Usage: find KEYWORD [MORE_KEYWORDS]...");
         }
 
-        if (!trimmedArgs.matches("^[a-zA-Z0-9\\-'./@+_:;!?()&%\"#*\\s]+$")) {
+        if (!trimmedArgs.matches("^[a-zA-Z0-9\\-'./@+_:;!?()&%\"#*,\\s]+$")) {
             throw new ParseException("Error: Invalid characters detected. "
-                    + "Keywords can only contain letters, numbers, and symbols: - ' . / @ + _ : ; ! ? ( ) & % \" # *");
+                    + "Keywords can only contain letters, numbers, and symbols: "
+                    + "- ' . / @ + _ : ; ! ? ( ) & % \" # * ,");
         }
 
         String[] nameKeywords = trimmedArgs.split("\\s+");

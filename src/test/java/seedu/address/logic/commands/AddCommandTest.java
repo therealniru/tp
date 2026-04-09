@@ -201,12 +201,10 @@ public class AddCommandTest {
 
         @Override
         public void updateFilteredPersonList(Predicate<Person> predicate) {
-            throw new AssertionError("This method should not be called.");
         }
 
         @Override
         public void sortFilteredPersonList(java.util.Comparator<Person> comparator) {
-            throw new AssertionError("This method should not be called.");
         }
     }
 

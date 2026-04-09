@@ -1070,14 +1070,9 @@ prevents confusing branching states and is consistent with how most mainstream a
 2. The application must operate as a standalone, single-user system. It must not depend on any Database Management
    System (DBMS) or remote server. All data must be saved locally in a human-editable text file (JSON format) to allow
    advanced users manual access to their records.
-3. The system must be capable of holding up to `1,000` candidate records without exceeding `250 MB` of memory footprint
-   or showing noticeable sluggishness in search and filtering operations. Per-record limits: each candidate may hold up
-   to **50 notes** and up to **20 rejection records**. The tag pool may hold up to **50 tags** in total.
-4. The application must prioritize CLI input. A target user with a fast typing speed (60+ WPM) should be able to execute
-   core workflows (e.g., adding a candidate, recording a rejection with a reason) entirely via text commands
-   significantly faster than executing the equivalent actions in a standard mouse-driven GUI.
-5. All standard data manipulation and retrieval commands must execute, persist to the local file, and update the UI
-   within `200` milliseconds under normal load to prevent disruption of the user's typing flow.
+3. The system must be capable of holding up to 1,000 candidate records without exceeding 250 MB of JVM heap memory at peak. find and filter operations must return results within 1 second when searching across all 1,000 records on standard consumer hardware (Intel Core i5 equivalent, 8 GB RAM). Per-record limits: each candidate may hold up to 50 notes and up to 20 rejection records. The tag pool may hold up to 50 tags in total.
+4. All core workflows — adding a candidate, recording a rejection, assigning a tag, searching by keyword — must be completable entirely via keyboard, without requiring any mouse interaction. No mandatory click, drag, or mouse-hover must be present in any part of these workflows.
+5. The application must not become unresponsive (UI freeze or hang lasting more than 2 seconds) during any command execution when the address book contains up to 1,000 candidate records. Data is persisted to disk after every mutating command; persistence latency is hardware-dependent and is not user-visible or subject to a timing guarantee.
 6. The system must automatically save data locally after every mutating command. If a command fails validation halfway
    through execution (e.g., valid identifier but invalid rejection reason), the system state must remain entirely
    unchanged to prevent corrupted data.
@@ -1088,7 +1083,7 @@ prevents confusing branching states and is consistent with how most mainstream a
    resized back within the supported range. A minimum window size is enforced in code (main window 800×600, help window
    700×500) so the user cannot shrink either below the point where essential controls would be hidden. On startup, if
    the saved window position falls outside the bounds of any currently connected screen (e.g. a secondary monitor has
-   been disconnected), the application automatically repositions the window to the primary screen.
+   been disconnected), the application automatically repositions the window to the primary screen. (Verification of 125% and 150% display scaling compliance is performed by manual visual inspection only and is not covered by automated tests.)
 8. **ASCII-only text input.** All free-text fields (name, address, note heading, note content, rejection reason) and all
    keyword-based search inputs accept **printable ASCII characters only** (0x20–0x7E). Non-ASCII input — accented
    letters, CJK characters, emojis, right-to-left scripts, and "smart" quotes pasted from word processors — must be

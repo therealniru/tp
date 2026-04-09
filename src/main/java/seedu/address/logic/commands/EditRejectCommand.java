@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class EditRejectCommand extends Command {
         }
 
         RejectionReason originalReason = currentReasons.get(rejectIndex.getZeroBased());
-        if (originalReason.reason.equalsIgnoreCase(newReason)) {
+        if (originalReason.reason.equals(newReason)) {
             return new CommandResult("Note: No changes detected; rejection reason remains the same.");
         }
 
@@ -103,6 +104,8 @@ public class EditRejectCommand extends Command {
         );
 
         model.setPerson(personToEdit, editedPerson);
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
         logger.info("Edited rejection " + rejectIndex.getOneBased()
                 + " for candidate: " + personToEdit.getName());
         return new CommandResult(String.format(MESSAGE_SUCCESS, personToEdit.getName()));

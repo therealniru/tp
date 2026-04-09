@@ -82,11 +82,12 @@ public class NoteCommandParserTest {
     }
 
     @Test
-    public void parse_blankHeading_throwsParseException() {
-        // Heading provided but blank (h/   ) should be rejected
-        assertParseFailure(parser, " 1 c/Some content h/   ",
-                "Error: Note heading cannot be blank. "
-                        + "Provide a heading or omit the h/ prefix entirely.");
+    public void parse_blankHeading_usesDefaultHeading() throws Exception {
+        // Blank h/ prefix should fall back to the default heading "General Note"
+        NoteCommand cmd = parser.parse(" 1 c/Some content h/   ");
+        assertEquals("General Note", cmd.getNote().heading);
+        assertEquals("Some content", cmd.getNote().content);
+        assertEquals(Index.fromOneBased(1), cmd.getTargetIndex());
     }
 
     @Test

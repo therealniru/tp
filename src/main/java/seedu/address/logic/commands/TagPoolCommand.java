@@ -166,6 +166,12 @@ public class TagPoolCommand extends Command {
             model.deleteTag(tag);
         }
 
+        // ── Phase 4.5: Reset display ──
+        if (!toAdd.isEmpty() || !toDelete.isEmpty()) {
+            model.updateFilteredPersonList(Model.PREDICATE_SHOW_ALL_PERSONS);
+            model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
+        }
+
         // ── Phase 5: UI Feedback ──
         return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd.size(), toDelete.size()));
     }

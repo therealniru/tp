@@ -74,8 +74,7 @@ public class NoteCommandParser implements Parser<NoteCommand> {
             heading = argMultimap.getValue(PREFIX_NOTE_HEADING).get()
                     .replaceAll("\\r\\n|\\r|\\n", " ").trim();
             if (heading.isEmpty()) {
-                throw new ParseException("Error: Note heading cannot be blank. "
-                        + "Provide a heading or omit the h/ prefix entirely.");
+                heading = DEFAULT_HEADING;
             }
         } else {
             heading = DEFAULT_HEADING;
