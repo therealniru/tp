@@ -110,8 +110,8 @@ public class TagPoolCommandTest {
         Tag backendUpper = new Tag("BACKEND"); // same tag, different case
         TagPoolCommand cmd = new TagPoolCommand(Collections.emptyList(), List.of(backend, backendUpper));
         assertThrows(CommandException.class,
-                String.format("Error: Duplicate tag '%s' in delete list.", "BACKEND"),
-                () -> cmd.execute(model));
+                String.format("Error: Duplicate tag '%s' in delete list.", "BACKEND"), () ->
+                        cmd.execute(model));
     }
 
     @Test
