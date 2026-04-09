@@ -101,7 +101,7 @@ The `UI` component,
 * executes user commands using the `Logic` component.
 * listens for changes to `Model` data so that the UI can be updated with the modified data.
 * keeps a reference to the `Logic` component, because the `UI` relies on the `Logic` to execute commands.
-* depends on some classes in the `Model` component, as it displays `Person` object residing in the `Model`.
+* depends on some classes in the `Model` component, as it displays `Candidate` records residing in the `Model`.
 
 ### Logic component
 
@@ -126,7 +126,7 @@ How the `Logic` component works:
    a parser that matches the command (e.g., `RemoveCommandParser`) and uses it to parse the command.
 1. This results in a `Command` object (more precisely, an object of one of its subclasses e.g., `RemoveCommand`) which
    is executed by the `LogicManager`.
-1. The command can communicate with the `Model` when it is executed (e.g. to delete a person).<br>
+1. The command can communicate with the `Model` when it is executed (e.g. to delete a candidate).<br>
    Note that although this is shown as a single step in the diagram above (for simplicity), in the code it can take
    several interactions (between the command object and the `Model`) to achieve.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned back from `Logic`.
@@ -154,8 +154,8 @@ How the parsing works:
 
 The `Model` component,
 
-* stores Talently's candidate data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
-* stores the currently 'selected' `Person` objects (e.g., results of a search query) as a separate _filtered_ list which
+* stores Talently's candidate data i.e., all `Candidate` records (which are contained in a `UniquePersonList` object).
+* stores the currently 'selected' `Candidate` records (e.g., results of a search query) as a separate _filtered_ list which
   is exposed to outsiders as an unmodifiable `ObservableList<Person>` that can be 'observed' e.g. the UI can be bound to
   this list so that the UI automatically updates when the data in the list change.
 * stores a `UserPref` object that represents the user’s preferences. This is exposed to the outside as a
@@ -163,7 +163,7 @@ The `Model` component,
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they
   should make sense on their own without depending on other components)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** An alternative (arguably, a more OOP) model is given below. It has a `Tag` list in the `AddressBook`, which `Person` references. This allows `AddressBook` to only require one `Tag` object per unique tag, instead of each `Person` needing their own `Tag` objects.<br>
+<div markdown="span" class="alert alert-info">:information_source: **Note:** An alternative (arguably, a more OOP) model is given below. It has a `Tag` list in the `Talently database`, which `Candidate` records reference. This allows the database to only require one `Tag` object per unique tag, instead of each `Candidate` needing their own `Tag` objects.<br>
 
 <img src="images/BetterModelClassDiagram.png" width="450" />
 
@@ -280,7 +280,7 @@ The following activity diagram summarizes what happens when a user executes a ne
 
 * **Alternative 2:** Individual command knows how to undo by
   itself.
-    * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
+    * Pros: Will use less memory (e.g. for `delete`, just save the candidate being deleted).
     * Cons: We must ensure that the implementation of each individual command are correct.
 
 **Aspect: When to commit state:**
@@ -333,7 +333,7 @@ because the cost of one missed candidate far outweighs the small overhead of cre
 
 * **Alternative 2:** Require both phone **and** email to match.
     * Pros: Fewer false positives.
-    * Cons: Misses obvious duplicates where only one field was entered differently (e.g., same person with a new email).
+    * Cons: Misses obvious duplicates where only one field was entered differently (e.g., same candidate with a new email).
 
 ### Data Verification Design
 
@@ -344,7 +344,7 @@ because the cost of one missed candidate far outweighs the small overhead of cre
   if they have different contact details, and the system is not responsible for reconciling them.
     * Pros: Fast, offline-first behavior. No dependency on external APIs or internet connection.
     * Cons: Users could enter fake contact details or create duplicated entities that represent the same real-world
-      person. Real-world validation is deferred to a future enhancement.
+      candidate. Real-world validation is deferred to a future enhancement.
 * **Alternative 2:** Verify emails and phone numbers via external services.
     * Pros: Ensures high data quality.
     * Cons: Requires internet, slows down commands, and introduces external API dependencies.
@@ -1072,7 +1072,7 @@ prevents confusing branching states and is consistent with how most mainstream a
    advanced users manual access to their records.
 3. The system must be capable of holding up to 1,000 candidate records without exceeding 250 MB of JVM heap memory at peak. find and filter operations must return results within 1 second when searching across all 1,000 records on standard consumer hardware (Intel Core i5 equivalent, 8 GB RAM). Per-record limits: each candidate may hold up to 50 notes and up to 20 rejection records. The tag pool may hold up to 50 tags in total.
 4. All core workflows — adding a candidate, recording a rejection, assigning a tag, searching by keyword — must be completable entirely via keyboard, without requiring any mouse interaction. No mandatory click, drag, or mouse-hover must be present in any part of these workflows.
-5. The application must not become unresponsive (UI freeze or hang lasting more than 2 seconds) during any command execution when the address book contains up to 1,000 candidate records. Data is persisted to disk after every mutating command; persistence latency is hardware-dependent and is not user-visible or subject to a timing guarantee.
+5. The application must not become unresponsive (UI freeze or hang lasting more than 2 seconds) during any command execution when the candidate database contains up to 1,000 candidate records. Data is persisted to disk after every mutating command; persistence latency is hardware-dependent and is not user-visible or subject to a timing guarantee.
 6. The system must automatically save data locally after every mutating command. If a command fails validation halfway
    through execution (e.g., valid identifier but invalid rejection reason), the system state must remain entirely
    unchanged to prevent corrupted data.
@@ -1571,6 +1571,6 @@ testers are expected to do more *exploratory* testing.
        Expected: The app loads normally. The affected candidate's `dateAdded` is silently clamped to the time of
        loading. A warning is written to the log. No data is lost.
 
-    1. To simulate orphaned tags: open `data/talently.json` and add a tag to a person that does not exist in the
+    1. To simulate orphaned tags: open `data/talently.json` and add a tag to a candidate that does not exist in the
        `"tags"` pool array.<br>
        Expected: The app starts with no candidates (graceful recovery).

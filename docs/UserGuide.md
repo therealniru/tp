@@ -107,7 +107,7 @@ Ready for more? Continue to [Features](#features).
 
 * Words in `UPPER_CASE` are placeholders for values you supply. e.g. `add n/NAME` means you type `add n/John Doe`.
 * `[square brackets]` = optional. e.g. `[pr/PRIORITY]` can be omitted.
-* `…` after an item = repeatable. e.g. `[a/TAG]…` can be `a/Java a/Python`.
+* `…` after an item = repeatable. e.g. `[at/TAG]…` can be `at/Java at/Python`.
 * `INDEX` must be a positive integer, e.g. `1, 2, 3`.
 * Commands that take no parameters (such as `help`, `list`, `exit`, `clear`, `undo`, and `redo`) will reject any extra text with an error. For example, `list abc` is not valid.
 * **Command words are case-insensitive** (e.g. `ADD`, `Add`, and `add` are all valid).
@@ -155,7 +155,7 @@ Opens a help window with a link to this User Guide. Note that the help window al
 
 Format: `help`
 
-![help message](images/helpMessage.png)
+<p align="center"><img src="images/help%20Command.png" alt="help message" width="730"/></p>
 
 ---
 
@@ -195,7 +195,7 @@ Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy O'Brien e/betsy@example.com a/Newgate Prison p/+6591234567 pr/yes`
 
-<p align="center"><img src="images/add%20command.png" alt="Expected result after running the add command" width="730"/></p>
+<p align="center"><img src="images/add%20Command.png" alt="Expected result after running the add command" width="730"/></p>
 
 ---
 
@@ -209,7 +209,7 @@ Format: `list`
 * If Talently is empty, a prompt appears to add candidates.
 * Restores the default alphabetical listing, removing any previous `sort` or `find` results.
 
-<p align="center"><img src="images/list%20command.png" alt="Expected result after running the list command" width="730"/></p>
+<p align="center"><img src="images/list%20Command.png" alt="Expected result after running the list command" width="730"/></p>
 
 ---
 
@@ -241,7 +241,7 @@ Examples:
 * `edit 1 p/91234567 e/johndoe@example.com` — Updates phone and email.
 * `edit 2 n/Betsy Crower pr/yes` — Updates name and sets high priority.
 
-<p align="center"><img src="images/edit%20command.png" alt="Expected result after running the edit command" width="730"/></p>
+<p align="center"><img src="images/edit%20Command.png" alt="Expected result after running the edit command" width="730"/></p>
 
 ---
 
@@ -262,7 +262,6 @@ Examples:
 * `show 1` — Opens details for the 1st candidate.
 * `find John` then `show 1` — Opens details for the first match.
 
-<p align="center"><img src="images/show%20command.png" alt="Expected result after running the show command" width="730"/></p>
 
 ---
 
@@ -300,7 +299,6 @@ Examples:
 * `find overqualified` — Matches candidates whose rejection reasons include "overqualified".
 * `find technical interview` — Matches candidates with notes or rejection reasons mentioning `technical` or `interview`.
 
-<p align="center"><img src="images/find%20command.png" alt="Expected result after running the find command" width="730"/></p>
 
 ---
 
@@ -322,7 +320,6 @@ Examples:
 * `filter Shortlisted` — Shows all candidates tagged `Shortlisted`.
 * `filter Java` — Shows candidates tagged `Java`, not `JavaScript`.
 
-<p align="center"><img src="images/filter%20command.png" alt="Expected result after running the filter command" width="730"/></p>
 
 ---
 
@@ -342,7 +339,6 @@ Examples:
 * `list` then `remove 2` — Removes the 2nd candidate in the full list.
 * `find Betsy` then `remove 1` — Removes the first result from the search.
 
-<p align="center"><img src="images/remove%20command.png" alt="Expected result after running the remove command" width="730"/></p>
 
 ---
 
@@ -366,7 +362,6 @@ Examples:
 * `addreject 1 Failed technical interview`
 * `addreject 3 Insufficient experience`
 
-<p align="center"><img src="images/reject%20command.png" alt="Expected result after running the addreject command" width="730"/></p>
 
 ---
 
@@ -424,7 +419,6 @@ Examples:
 * `sort date o/asc` — Oldest candidates first.
 * `sort date o/desc` — Newest candidates first.
 
-<p align="center"><img src="images/sort%20command.png" alt="Expected result after running sort date" width="730"/></p>
 
 ---
 
@@ -451,7 +445,6 @@ Examples:
 * `sort pr o/asc` — Low-priority candidates first.
 * `sort pr o/desc` — High-priority candidates first.
 
-<p align="center"><img src="images/sort%20pr%20command.png" alt="Expected result after running sort pr" width="730"/></p>
 
 ---
 
@@ -478,7 +471,6 @@ Examples:
 * `addnote 1 c/Passed the technical interview flawlessly. h/Tech Round 1`
 * `addnote 2 c/Strong communication skills.`
 
-<p align="center"><img src="images/note%20command.png" alt="Expected result after running the addnote command" width="730"/></p>
 
 ---
 
@@ -549,7 +541,6 @@ Examples:
 * `tagpool dt/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
 * `tagpool at/Senior dt/Junior` — Creates `Senior` and deletes `Junior` in one command.
 
-<p align="center"><img src="images/tagpool%20command.png" alt="Expected result after running the tagpool command" width="730"/></p>
 
 ---
 
@@ -573,7 +564,6 @@ Examples:
 * `tag 3 at/Senior dt/Junior` — Adds `Senior` and removes `Junior` from candidate 3.
 * `tag 1,2,3 at/Shortlisted` — Adds `Shortlisted` to candidates 1, 2, and 3.
 
-<p align="center"><img src="images/tag%20command.png" alt="Expected result after running the tag command" width="730"/></p>
 
 ---
 
@@ -589,7 +579,6 @@ Format: `undo`
 Examples:
 * `remove 2` then `undo` — Restores the removed candidate.
 
-<p align="center"><img src="images/undo%20command.png" alt="Expected result after running the undo command" width="730"/></p>
 
 ---
 
@@ -605,7 +594,6 @@ Format: `redo`
 Examples:
 * `remove 2` → `undo` → `redo` — Re-applies the removal.
 
-<p align="center"><img src="images/redo%20command.png" alt="Expected result after running the redo command" width="730"/></p>
 
 ---
 
@@ -619,7 +607,6 @@ Format: `clear`
 :warning: **Warning:** Removes all candidate data **and the entire tag pool**. Use `undo` immediately to recover.
 </div>
 
-<p align="center"><img src="images/clear%20command.png" alt="Expected result after running the clear command" width="730"/></p>
 
 ---
 
