@@ -11,6 +11,8 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.RedoCommand;
+import seedu.address.logic.commands.SortDateCommand;
+import seedu.address.logic.commands.SortPriorityCommand;
 import seedu.address.logic.commands.UndoCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
@@ -54,8 +56,10 @@ public class LogicManager implements Logic {
         AddressBook previousAddressBookState = new AddressBook(model.getAddressBook());
         commandResult = command.execute(model);
 
+        boolean isSortOnNonEmptyList = (command instanceof SortDateCommand || command instanceof SortPriorityCommand)
+                && !model.getFilteredPersonList().isEmpty();
         if (!(command instanceof UndoCommand) && !(command instanceof RedoCommand)
-                && !previousAddressBookState.equals(model.getAddressBook())) {
+                && (!previousAddressBookState.equals(model.getAddressBook()) || isSortOnNonEmptyList)) {
             model.commitAddressBook();
         }
 

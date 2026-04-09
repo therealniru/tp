@@ -74,11 +74,11 @@ public class SortPriorityCommand extends Command {
         if (ascending) {
             return Comparator.comparing((Person p) -> p.getPriority().isPriority() ? 1 : 0)
                     .thenComparing(Person::getDateAdded, Comparator.reverseOrder())
-                    .thenComparing(p -> p.getName().fullName);
+                    .thenComparing(p -> p.getName().fullName.toLowerCase());
         }
         return Comparator.comparing((Person p) -> p.getPriority().isPriority() ? 0 : 1)
                 .thenComparing(Person::getDateAdded, Comparator.reverseOrder())
-                .thenComparing(p -> p.getName().fullName);
+                .thenComparing(p -> p.getName().fullName.toLowerCase());
     }
 
     @Override

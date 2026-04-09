@@ -2,6 +2,7 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORMAT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
@@ -23,6 +24,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.RejectionReason;
 import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
@@ -195,6 +197,59 @@ public class JsonAdaptedPersonTest {
         BENSON.getTags().forEach(ab::addTag);
         Person restored = person.toModelType(ab);
         assertFalse(restored.getDateAdded().date.isAfter(ZonedDateTime.now(ZoneId.systemDefault())));
+    }
+
+    @Test
+    public void toModelType_tooManyRejectionReasons_truncatesToLimit() throws Exception {
+        List<JsonAdaptedRejectionReason> manyReasons = new ArrayList<>();
+        for (int i = 0; i < 25; i++) {
+            manyReasons.add(new JsonAdaptedRejectionReason("Reason " + i));
+        }
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
+                VALID_TAGS, manyReasons, VALID_DATE_ADDED, VALID_PRIORITY, null);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        Person restored = person.toModelType(ab);
+        assertTrue(restored.getRejectionReasons().size() <= 20);
+    }
+
+    @Test
+    public void toModelType_tooManyNotes_truncatesToLimit() throws Exception {
+        List<JsonAdaptedNote> manyNotes = new ArrayList<>();
+        for (int i = 0; i < 55; i++) {
+            manyNotes.add(new JsonAdaptedNote(new Note("Heading " + i, "Content " + i,
+                    java.time.LocalDateTime.of(2025, 1, 1, 0, 0))));
+        }
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
+                VALID_TAGS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY, manyNotes);
+        AddressBook ab = new AddressBook();
+        BENSON.getTags().forEach(ab::addTag);
+        Person restored = person.toModelType(ab);
+        assertTrue(restored.getNotes().size() <= 50);
+    }
+
+    // ── JsonAdaptedRejectionReason tests ──
+
+    @Test
+    public void jsonAdaptedRejectionReason_fromString_roundTrip() throws Exception {
+        JsonAdaptedRejectionReason adapted = new JsonAdaptedRejectionReason("Failed technical round");
+        assertEquals("Failed technical round", adapted.getReason());
+        RejectionReason model = adapted.toModelType();
+        assertEquals("Failed technical round", model.reason);
+    }
+
+    @Test
+    public void jsonAdaptedRejectionReason_fromSource_roundTrip() throws Exception {
+        RejectionReason source = new RejectionReason("Overqualified");
+        JsonAdaptedRejectionReason adapted = new JsonAdaptedRejectionReason(source);
+        assertEquals("Overqualified", adapted.getReason());
+        assertEquals(source, adapted.toModelType());
+    }
+
+    @Test
+    public void jsonAdaptedRejectionReason_invalidReason_throwsIllegalValueException() {
+        JsonAdaptedRejectionReason adapted = new JsonAdaptedRejectionReason("");
+        assertThrows(IllegalValueException.class, adapted::toModelType);
     }
 
 }

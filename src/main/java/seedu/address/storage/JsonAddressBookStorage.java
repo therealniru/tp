@@ -52,7 +52,16 @@ public class JsonAddressBookStorage implements AddressBookStorage {
         }
 
         try {
-            return Optional.of(jsonAddressBook.get().toModelType());
+            ReadOnlyAddressBook addressBook = jsonAddressBook.get().toModelType();
+            // Persist any in-memory healing (e.g. clamped future dateAdded values) back to disk
+            // immediately, so the file does not retain stale/invalid data across restarts.
+            try {
+                saveAddressBook(addressBook, filePath);
+            } catch (IOException ioe) {
+                logger.warning("Could not persist healed address book data to " + filePath
+                        + ": " + ioe.getMessage());
+            }
+            return Optional.of(addressBook);
         } catch (IllegalValueException ive) {
             logger.info("Illegal values found in " + filePath + ": " + ive.getMessage());
             throw new DataLoadingException(ive);

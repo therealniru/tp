@@ -28,6 +28,9 @@ public class FindCommandParserTest {
         assertParseFailure(parser, " john$doe", expectedMessage);
         assertParseFailure(parser, " john^doe", expectedMessage);
         assertParseFailure(parser, " john~doe", expectedMessage);
+        // tabs and newlines are rejected (only spaces allowed as whitespace)
+        assertParseFailure(parser, "alice\tbob", expectedMessage);
+        assertParseFailure(parser, "alice\nbob", expectedMessage);
     }
 
     @Test
@@ -60,8 +63,8 @@ public class FindCommandParserTest {
         // duplicate suppression and lowercase conversion by parser
         assertParseSuccess(parser, " Alice Bob alice", expectedFindCommand);
 
-        // multiple whitespaces between keywords
-        assertParseSuccess(parser, " \n Alice \n \t Bob  \t", expectedFindCommand);
+        // multiple spaces between keywords
+        assertParseSuccess(parser, " Alice   Bob  ", expectedFindCommand);
 
         // Allowed symbols
         FindCommand symbolsExpected =

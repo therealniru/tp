@@ -48,7 +48,8 @@ public class NameTest {
         assertTrue(Name.isValidName("Smith, Jane @ HR")); // comma and @
         assertTrue(Name.isValidName("John `Johnny` Doe")); // backticks
         assertTrue(Name.isValidName("John (Johnny) Doe")); // parenthesis
-        assertTrue(Name.isValidName("Jean’Luc")); // curved apostrophe
+        assertFalse(Name.isValidName("Jean\u2019Luc")); // U+2019 curly apostrophe is non-ASCII, rejected
+        assertTrue(Name.isValidName("Jean\u0027Luc")); // ASCII apostrophe (U+0027) is valid
         assertTrue(Name.isValidName("a".repeat(100))); // exactly 100 chars
     }
 
