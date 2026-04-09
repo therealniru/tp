@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -68,6 +69,12 @@ public class EmailTest {
         // invalid emails due to length > 254
         String longEmail = "a".repeat(245) + "@example.com";
         assertFalse(Email.isValidEmail(longEmail));
+    }
+
+    @Test
+    public void constructor_trimsAndLowercases() {
+        assertEquals("user@example.com", new Email("  USER@Example.COM  ").value);
+        assertEquals("user@example.com", new Email("USER@EXAMPLE.COM").value);
     }
 
     @Test

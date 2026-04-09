@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -49,6 +50,12 @@ public class NameTest {
     }
 
     @Test
+    public void constructor_normalizesWhitespace() {
+        assertEquals("John Doe", new Name("John  Doe").fullName); // multiple spaces collapsed
+        assertEquals("John Doe", new Name("  John Doe  ").fullName); // leading/trailing trimmed
+    }
+
+    @Test
     public void equals() {
         Name name = new Name("Valid Name");
 
@@ -66,5 +73,15 @@ public class NameTest {
 
         // different values -> returns false
         assertFalse(name.equals(new Name("Other Valid Name")));
+
+        // case-insensitive -> returns true
+        assertTrue(name.equals(new Name("valid name")));
+        assertTrue(name.equals(new Name("VALID NAME")));
+    }
+
+    @Test
+    public void hashCode_caseInsensitive() {
+        assertEquals(new Name("Valid Name").hashCode(), new Name("valid name").hashCode());
+        assertEquals(new Name("Valid Name").hashCode(), new Name("VALID NAME").hashCode());
     }
 }
