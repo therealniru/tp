@@ -9,6 +9,9 @@ src/gradle.properties
 /out/
 /*.iml
 
+# VSCode files
+/.vscode/
+
 # Storage/log files
 /data/
 /config.json
