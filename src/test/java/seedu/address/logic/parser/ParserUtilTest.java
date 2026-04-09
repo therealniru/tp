@@ -18,6 +18,8 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Priority;
+import seedu.address.model.person.RejectionReason;
 import seedu.address.model.tag.Tag;
 
 public class ParserUtilTest {
@@ -192,6 +194,53 @@ public class ParserUtilTest {
         Set<Tag> expectedTagSet = new HashSet<Tag>(Arrays.asList(new Tag(VALID_TAG_1), new Tag(VALID_TAG_2)));
 
         assertEquals(expectedTagSet, actualTagSet);
+    }
+
+    @Test
+    public void parsePriority_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parsePriority(null));
+    }
+
+    @Test
+    public void parsePriority_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parsePriority("maybe"));
+    }
+
+    @Test
+    public void parsePriority_validYes_returnsPriority() throws Exception {
+        assertEquals(new Priority("yes"), ParserUtil.parsePriority("yes"));
+    }
+
+    @Test
+    public void parsePriority_validNo_returnsPriority() throws Exception {
+        assertEquals(new Priority("no"), ParserUtil.parsePriority("no"));
+    }
+
+    @Test
+    public void parsePriority_validValueWithWhitespace_returnsTrimmedPriority() throws Exception {
+        assertEquals(new Priority("yes"), ParserUtil.parsePriority("  yes  "));
+    }
+
+    @Test
+    public void parseRejectionReason_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseRejectionReason(null));
+    }
+
+    @Test
+    public void parseRejectionReason_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, () -> ParserUtil.parseRejectionReason(""));
+    }
+
+    @Test
+    public void parseRejectionReason_validValue_returnsRejectionReason() throws Exception {
+        assertEquals(new RejectionReason("Failed technical round"),
+                ParserUtil.parseRejectionReason("Failed technical round"));
+    }
+
+    @Test
+    public void parseRejectionReason_validValueWithWhitespace_returnsTrimmedReason() throws Exception {
+        assertEquals(new RejectionReason("Overqualified"),
+                ParserUtil.parseRejectionReason("  Overqualified  "));
     }
 
 }

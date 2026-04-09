@@ -36,6 +36,11 @@ class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
 
+    // Hard limits enforced by NoteCommand and AddRejectCommand — duplicated here to avoid
+    // a storage→logic dependency. Keep in sync if the command-layer limits change.
+    private static final int MAX_NOTES_PER_PERSON = 50;
+    private static final int MAX_REJECTIONS_PER_PERSON = 20;
+
     private static final Logger logger = LogsCenter.getLogger(JsonAdaptedPerson.class);
 
     private final String name;
@@ -155,7 +160,14 @@ class JsonAdaptedPerson {
         final Set<Tag> modelTags = new HashSet<>(personTags);
 
         final List<RejectionReason> modelRejectionReasons = new ArrayList<>();
-        for (JsonAdaptedRejectionReason reason : rejectionReasons) {
+        List<JsonAdaptedRejectionReason> effectiveRejections = rejectionReasons;
+        if (rejectionReasons.size() > MAX_REJECTIONS_PER_PERSON) {
+            logger.warning("Candidate '" + name + "' has " + rejectionReasons.size()
+                    + " rejection reasons, exceeding the limit of " + MAX_REJECTIONS_PER_PERSON
+                    + ". Truncating to " + MAX_REJECTIONS_PER_PERSON + ".");
+            effectiveRejections = rejectionReasons.subList(0, MAX_REJECTIONS_PER_PERSON);
+        }
+        for (JsonAdaptedRejectionReason reason : effectiveRejections) {
             modelRejectionReasons.add(reason.toModelType());
         }
 
@@ -165,7 +177,14 @@ class JsonAdaptedPerson {
         final Priority modelPriority = parsePriority();
 
         final List<Note> modelNotes = new ArrayList<>();
-        for (JsonAdaptedNote note : notes) {
+        List<JsonAdaptedNote> effectiveNotes = notes;
+        if (notes.size() > MAX_NOTES_PER_PERSON) {
+            logger.warning("Candidate '" + name + "' has " + notes.size()
+                    + " notes, exceeding the limit of " + MAX_NOTES_PER_PERSON
+                    + ". Truncating to " + MAX_NOTES_PER_PERSON + ".");
+            effectiveNotes = notes.subList(0, MAX_NOTES_PER_PERSON);
+        }
+        for (JsonAdaptedNote note : effectiveNotes) {
             modelNotes.add(note.toModelType());
         }
 

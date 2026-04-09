@@ -134,16 +134,15 @@ public class TagPoolCommand extends Command {
             }
         }
 
-        // ── Phase 2: Pool Additions ──
+        // 1f. Capacity check (net change: additions minus deletions)
         int currentPoolSize = model.getAddressBook().getTagList().size();
-        if (!toAdd.isEmpty() && currentPoolSize + toAdd.size() > MAX_POOL_SIZE) {
+        if (!toAdd.isEmpty() && currentPoolSize - toDelete.size() + toAdd.size() > MAX_POOL_SIZE) {
             throw new CommandException(MESSAGE_POOL_FULL);
         }
-        for (Tag tag : toAdd) {
-            model.addTag(tag);
-        }
 
-        // ── Phase 3: Cascading Sweep ──
+        // ── Phase 2: Cascading Sweep ──
+        // Remove toDelete tags from all persons before touching the pool, so pool state
+        // is only mutated after all person edits succeed (validate-all-then-mutate).
         List<Person> allCandidates = model.getAddressBook().getPersonList();
         for (Tag targetTagToDelete : toDelete) {
             // Iterate over a snapshot to avoid ConcurrentModificationException
@@ -161,18 +160,23 @@ public class TagPoolCommand extends Command {
             }
         }
 
-        // ── Phase 4: Pool Deletions ──
+        // ── Phase 3: Pool Deletions ──
         for (Tag tag : toDelete) {
             model.deleteTag(tag);
         }
 
-        // ── Phase 4.5: Reset display ──
+        // ── Phase 4: Pool Additions ──
+        for (Tag tag : toAdd) {
+            model.addTag(tag);
+        }
+
+        // ── Phase 5: Reset display ──
         if (!toAdd.isEmpty() || !toDelete.isEmpty()) {
             model.updateFilteredPersonList(Model.PREDICATE_SHOW_ALL_PERSONS);
             model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
         }
 
-        // ── Phase 5: UI Feedback ──
+        // ── Phase 6: UI Feedback ──
         return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd.size(), toDelete.size()));
     }
 

@@ -64,10 +64,10 @@ public class SortDateCommand extends Command {
     private static Comparator<Person> buildComparator(boolean ascending) {
         if (ascending) {
             return Comparator.comparing(Person::getDateAdded)
-                             .thenComparing(p -> p.getName().fullName);
+                             .thenComparing(p -> p.getName().fullName.toLowerCase());
         }
         return Comparator.comparing(Person::getDateAdded, Comparator.reverseOrder())
-                         .thenComparing(p -> p.getName().fullName);
+                         .thenComparing(p -> p.getName().fullName.toLowerCase());
     }
 
     @Override

@@ -41,6 +41,7 @@ public class MainWindow extends UiPart<Stage> {
     private HelpWindow helpWindow;
     private CandidateDetailPanel candidateDetailPanel;
     private Person currentlyShownPerson = null;
+    private Person lastRemovedPerson = null;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -244,8 +245,22 @@ public class MainWindow extends UiPart<Stage> {
                     currentlyShownPerson = updatedPerson.get();
                     candidateDetailPanel.updatePerson(currentlyShownPerson);
                 } else {
+                    lastRemovedPerson = currentlyShownPerson;
                     currentlyShownPerson = null;
                     candidateDetailPanel.clear();
+                }
+            }
+
+            // Restore detail panel if undo brought back the last removed person
+            if (currentlyShownPerson == null && lastRemovedPerson != null) {
+                ObservableList<Person> currentList = logic.getFilteredPersonList();
+                Optional<Person> restoredPerson = currentList.stream()
+                        .filter(p -> p.isSamePerson(lastRemovedPerson))
+                        .findFirst();
+                if (restoredPerson.isPresent()) {
+                    currentlyShownPerson = restoredPerson.get();
+                    lastRemovedPerson = null;
+                    candidateDetailPanel.showPerson(currentlyShownPerson);
                 }
             }
 

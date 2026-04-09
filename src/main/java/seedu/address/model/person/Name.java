@@ -10,17 +10,17 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Error: Invalid name. Name must contain only letters, digits, spaces, hyphens, "
-            + "apostrophes, periods, slashes, commas, parentheses, and @ symbols, "
+            "Error: Invalid name. Name must contain only ASCII letters, digits, spaces, hyphens, "
+            + "apostrophes, periods, slashes, commas, parentheses, backticks, and @ symbols, "
             + "and must be between 1 and 100 characters.";
 
     public static final int MAX_LENGTH = 100;
 
     /*
-     * Allows alphabetical characters, spaces, hyphens, apostrophes (both ' and ’), periods, slashes,
+     * Allows alphabetical characters, spaces, hyphens, apostrophes (‘), periods, slashes,
      * commas, @ symbols, backticks (`), and parentheses (). Must start with a letter.
      */
-    public static final String VALIDATION_REGEX = "[A-Za-z][A-Za-z0-9 ,@\\-'.()/`’]*";
+    public static final String VALIDATION_REGEX = "[A-Za-z][A-Za-z0-9 ,@\\-\u0027.()/`]*";
 
     public final String fullName;
 

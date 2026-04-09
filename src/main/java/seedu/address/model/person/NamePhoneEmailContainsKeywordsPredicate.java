@@ -22,8 +22,10 @@ public class NamePhoneEmailContainsKeywordsPredicate implements Predicate<Person
         return keywords.stream()
                 .anyMatch(keyword -> {
                     String lowerCaseKeyword = keyword.toLowerCase();
+                    String normalizedPhone = person.getPhone().value.replaceAll("[^\\d]", "");
                     boolean matchesBasicFields = person.getName().fullName.toLowerCase().contains(lowerCaseKeyword)
                             || person.getPhone().value.toLowerCase().contains(lowerCaseKeyword)
+                            || normalizedPhone.contains(lowerCaseKeyword)
                             || person.getEmail().value.toLowerCase().contains(lowerCaseKeyword);
                     boolean matchesNotes = person.getNotes().stream()
                             .anyMatch(note -> note.heading.toLowerCase().contains(lowerCaseKeyword)
