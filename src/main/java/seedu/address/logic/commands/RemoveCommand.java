@@ -43,6 +43,8 @@ public class RemoveCommand extends Command {
 
         Person personToRemove = lastShownList.get(targetIndex.getZeroBased());
         model.deletePerson(personToRemove);
+        model.updateFilteredPersonList(Model.PREDICATE_SHOW_ALL_PERSONS);
+        model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
         return new CommandResult(String.format(MESSAGE_REMOVE_PERSON_SUCCESS, Messages.format(personToRemove)));
     }
 

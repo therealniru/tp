@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +111,8 @@ public class EditNoteCommand extends Command {
         );
 
         model.setPerson(personToEdit, editedPerson);
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
         logger.info("Edited note " + noteIndex.getOneBased() + " for candidate: " + personToEdit.getName());
         return new CommandResult(String.format(MESSAGE_SUCCESS, personToEdit.getName()));
     }

@@ -97,6 +97,16 @@ activate Model
 Model --> AddRejectCommand
 deactivate Model
 
+AddRejectCommand -> Model : updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)
+activate Model
+Model --> AddRejectCommand
+deactivate Model
+
+AddRejectCommand -> Model : sortFilteredPersonList(DEFAULT_SORT)
+activate Model
+Model --> AddRejectCommand
+deactivate Model
+
 create CommandResult
 AddRejectCommand -> CommandResult
 activate CommandResult

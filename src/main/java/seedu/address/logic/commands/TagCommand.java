@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADD_TAG;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DELETE_TAG;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -168,6 +169,8 @@ public class TagCommand extends Command {
         }
 
         // ── Phase 4: UI Feedback ──
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        model.sortFilteredPersonList(ListCommand.DEFAULT_SORT);
         return new CommandResult(buildSuccessMessage(personsToEdit));
     }
 

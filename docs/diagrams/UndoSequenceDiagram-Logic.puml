@@ -36,6 +36,11 @@ activate Model
 Model --> UndoCommand
 deactivate Model
 
+UndoCommand -> Model : updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)
+activate Model
+Model --> UndoCommand
+deactivate Model
+
 UndoCommand --> LogicManager : result
 deactivate UndoCommand
 UndoCommand -[hidden]-> LogicManager : result

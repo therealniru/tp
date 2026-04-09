@@ -21,7 +21,7 @@ import seedu.address.model.person.Phone;
 import seedu.address.model.tag.Tag;
 
 public class ParserUtilTest {
-    private static final String INVALID_NAME = "R@chel123"; // digits are not allowed in names
+    private static final String INVALID_NAME = "R@chel%"; // special characters not allowed in names
     private static final String INVALID_PHONE = "911a";
     private static final String INVALID_ADDRESS = " ";
     private static final String INVALID_EMAIL = "example.com";

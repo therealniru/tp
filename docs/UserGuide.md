@@ -132,9 +132,9 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 | Field | Prefix | Rules |
 |---|---|---|
 | NAME | `n/` | Letters, spaces, hyphens `-`, apostrophes (both `'` and `’`), periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. No digits. Max 100 characters. |
-| PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must contain 3–15 digits (separators excluded). All-zero formatting (e.g. `000`) is allowed. Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
+| PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must contain 3–15 digits (separators excluded). All-zero formatting (e.g. `000`) is allowed. Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. Include country codes for reliable duplicate matching. |
 | EMAIL | `e/` | `local@domain` format. Max 254 characters. Auto-lowercased on save. |
-| ADDRESS | `a/` | Required. Any non-empty printable ASCII text. Max 100 characters. |
+| ADDRESS | `a/` | Required. Any non-empty printable ASCII text. Max 200 characters. |
 | PRIORITY | `pr/` | `yes` (high priority) or `no` (normal). Case-insensitive. Default: `no`. |
 | TAG | `at/` / `dt/` | Letters, digits, `. + - _ ( ) @ # ! ? '`. No spaces. 1–30 characters. Case-insensitive. |
 | NOTE HEADING | `h/` | Optional. Printable ASCII only. Max 50 characters. Defaults to `General Note`. Max 50 notes per candidate. |
@@ -170,9 +170,9 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 | Parameter | Prefix | Required | Rules |
 |---|---|---|---|
 | NAME | `n/` | Yes | Letters, spaces, hyphens `-`, apostrophes (both `'` and `’`), periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. No digits. Max 100 characters. |
-| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must contain 3–15 digits (separators excluded). All-zero formatting (e.g. `000`) is allowed. Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+62 812 5555 1234`, `+1 (415) 555-2671`. |
+| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must contain 3–15 digits (separators excluded). All-zero formatting (e.g. `000`) is allowed. Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+62 812 5555 1234`, `+1 (415) 555-2671`. Include country codes for reliable duplicate matching. |
 | EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. |
-| ADDRESS | `a/` | Yes | Any non-empty text. Max 100 characters. |
+| ADDRESS | `a/` | Yes | Any non-empty text. Max 200 characters. |
 | PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
 
 <div markdown="span" class="alert alert-info">

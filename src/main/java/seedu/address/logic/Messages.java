@@ -10,8 +10,8 @@ import seedu.address.model.person.Person;
  */
 public class Messages {
 
-    public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command";
-    public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format! \n%1$s";
+    public static final String MESSAGE_UNKNOWN_COMMAND = "Error: Unknown command";
+    public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Error: Invalid command format! \n%1$s";
     public static final String MESSAGE_INDEX_OUT_OF_RANGE =
             "Error: Index %1$d is out of range. The current list has %2$d candidate(s). "
             + "Please provide an index between 1 and %2$d.";
@@ -24,7 +24,7 @@ public class Messages {
     public static final String MESSAGE_REJECT_INVALID_INDEX =
             "Error: Invalid index. Please provide a valid positive integer. Usage: addreject INDEX REASON";
     public static final String MESSAGE_REJECT_INVALID_FORMAT =
-            "Invalid command format. Usage: addreject INDEX REASON";
+            "Error: Invalid command format. Usage: addreject INDEX REASON";
 
     /**
      * Returns an error message indicating the duplicate prefixes.
