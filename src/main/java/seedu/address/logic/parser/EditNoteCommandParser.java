@@ -86,8 +86,7 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
             newHeading = argMultimap.getValue(PREFIX_NOTE_HEADING).get()
                     .replaceAll("\\r\\n|\\r|\\n", " ").trim();
             if (newHeading.isEmpty()) {
-                throw new ParseException("Error: Note heading cannot be blank. "
-                        + "Usage: editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]");
+                newHeading = NoteCommandParser.DEFAULT_HEADING;
             }
             if (newHeading.length() > Note.MAX_HEADING_LENGTH) {
                 throw new ParseException(String.format(

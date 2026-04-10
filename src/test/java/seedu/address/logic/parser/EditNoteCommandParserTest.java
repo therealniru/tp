@@ -80,10 +80,10 @@ public class EditNoteCommandParserTest {
     }
 
     @Test
-    public void parse_blankHeading_throwsParseException() {
-        assertParseFailure(parser, " 1 2 h/   ",
-                "Error: Note heading cannot be blank. "
-                + "Usage: editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]");
+    public void parse_blankHeading_usesDefaultHeading() throws Exception {
+        // Blank h/ should silently default to "General Note", consistent with addnote behaviour.
+        EditNoteCommand command = parser.parse(" 1 2 h/   ");
+        assertEquals(NoteCommandParser.DEFAULT_HEADING, command.getNewHeading());
     }
 
     @Test

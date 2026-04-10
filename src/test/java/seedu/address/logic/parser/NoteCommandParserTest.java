@@ -35,6 +35,14 @@ public class NoteCommandParserTest {
     }
 
     @Test
+    public void parse_noContentPrefixWithValidIndex_throwsParseException() {
+        assertParseFailure(parser, " 1",
+                NoteCommandParser.MESSAGE_MISSING_CONTENT);
+        assertParseFailure(parser, " 1 h/Some Heading",
+                NoteCommandParser.MESSAGE_MISSING_CONTENT);
+    }
+
+    @Test
     public void parse_invalidIndex_throwsParseException() {
         assertParseFailure(parser, " 0 c/content",
                 NoteCommandParser.MESSAGE_INVALID_INDEX);

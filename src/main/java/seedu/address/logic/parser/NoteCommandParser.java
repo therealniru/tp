@@ -17,14 +17,16 @@ import seedu.address.model.person.Note;
  */
 public class NoteCommandParser implements Parser<NoteCommand> {
 
+    public static final String MESSAGE_MISSING_CONTENT =
+            "Error: Note content is required. Usage: addnote INDEX c/CONTENT [h/HEADING]";
     public static final String MESSAGE_INVALID_FORMAT =
             "Error: Note content cannot be empty. Usage: addnote INDEX c/CONTENT [h/HEADING]";
     public static final String MESSAGE_INVALID_INDEX =
             "Error: Invalid index. Please provide a valid positive integer.\n"
                     + "Usage: addnote INDEX c/CONTENT [h/HEADING]";
+    public static final String DEFAULT_HEADING = "General Note";
 
     private static final Logger logger = LogsCenter.getLogger(NoteCommandParser.class);
-    private static final String DEFAULT_HEADING = "General Note";
 
     /**
      * Parses the given {@code String} of arguments in the context of the NoteCommand
@@ -52,7 +54,7 @@ public class NoteCommandParser implements Parser<NoteCommand> {
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE_CONTENT, PREFIX_NOTE_HEADING);
 
         if (argMultimap.getValue(PREFIX_NOTE_CONTENT).isEmpty()) {
-            throw new ParseException(MESSAGE_INVALID_FORMAT);
+            throw new ParseException(MESSAGE_MISSING_CONTENT);
         }
 
         String content = argMultimap.getValue(PREFIX_NOTE_CONTENT).get()

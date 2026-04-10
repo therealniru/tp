@@ -106,29 +106,21 @@ public class HelpWindow extends UiPart<Stage> {
     }
 
     /**
-     * Shows the help window.
-     * @throws IllegalStateException
-     *     <ul>
-     *         <li>
-     *             if this method is called on a thread other than the JavaFX Application Thread.
-     *         </li>
-     *         <li>
-     *             if this method is called during animation or layout processing.
-     *         </li>
-     *         <li>
-     *             if this method is called on the primary stage.
-     *         </li>
-     *         <li>
-     *             if {@code dialogStage} is already showing.
-     *         </li>
-     *     </ul>
+     * Shows the help window. If the window is not yet visible it is sized and centred first.
+     * If the window is already showing (including when it is minimised/iconified), it is
+     * restored and brought to the front without resetting the user's chosen dimensions.
      */
     public void show() {
         logger.fine("Showing help page about the application.");
-        getRoot().setWidth(MIN_WIDTH);
-        getRoot().setHeight(MIN_HEIGHT);
-        getRoot().show();
-        getRoot().centerOnScreen();
+        getRoot().setIconified(false);
+        if (!getRoot().isShowing()) {
+            getRoot().setWidth(MIN_WIDTH);
+            getRoot().setHeight(MIN_HEIGHT);
+            getRoot().show();
+            getRoot().centerOnScreen();
+        }
+        getRoot().toFront();
+        getRoot().requestFocus();
     }
 
     /**
