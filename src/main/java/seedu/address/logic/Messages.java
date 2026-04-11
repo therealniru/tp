@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
-
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import seedu.address.logic.parser.Prefix;
 import seedu.address.model.person.Person;
@@ -19,7 +20,7 @@ public class Messages {
             "Error: The candidate list is currently empty. "
             + "There are no candidates to perform this action on.";
     public static final String MESSAGE_DUPLICATE_FIELDS =
-                "Error: Duplicate parameter detected \u2014 multiple values for '%s' provided.";
+                "Error: Duplicate parameter detected \u2014 multiple values for %s provided.";
 
     public static final String MESSAGE_REJECT_INVALID_INDEX =
             "Error: Invalid index. Please provide a valid positive integer. Usage: addreject INDEX REASON";
@@ -32,9 +33,11 @@ public class Messages {
     public static String getErrorMessageForDuplicatePrefixes(Prefix... duplicatePrefixes) {
         assert duplicatePrefixes.length > 0;
 
-        String duplicateField = duplicatePrefixes[0].toString();
+        String duplicateFields = Arrays.stream(duplicatePrefixes)
+                .map(prefix -> "'" + prefix + "'")
+                .collect(Collectors.joining(", "));
 
-        return String.format(MESSAGE_DUPLICATE_FIELDS, duplicateField);
+        return String.format(MESSAGE_DUPLICATE_FIELDS, duplicateFields);
     }
 
     /**
