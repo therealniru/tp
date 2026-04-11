@@ -57,7 +57,7 @@ The bulk of the app's work is done by the following four components:
 **How the architecture components interact with each other**
 
 The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues
-the command `remove 1`.
+the command `delete 1`.
 
 <img src="images/ArchitectureSequenceDiagram.png" width="574" />
 
@@ -140,7 +140,7 @@ How the parsing works:
 
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
 
-<img src="images/ModelClassDiagram.png" width="450" />
+<img src="images/ModelClassDiagram.png" width="800" />
 
 
 The `Model` component,
@@ -156,7 +156,7 @@ The `Model` component,
 
 <div markdown="span" class="alert alert-info">:information_source: **Note:** An alternative (arguably, a more OOP) model is given below. It has a `Tag` list in the `Talently database`, which `Candidate` records reference. This allows the database to only require one `Tag` object per unique tag, instead of each `Candidate` needing their own `Tag` objects.<br>
 
-<img src="images/BetterModelClassDiagram.png" width="450" />
+<img src="images/BetterModelClassDiagram.png" width="800" />
 
 </div>
 
@@ -1566,7 +1566,7 @@ testers are expected to do more *exploratory* testing.
        Expected: The app starts with no candidates (graceful recovery).
 
     1. To simulate a future candidate date: open `data/talently.json` and change a candidate's `dateAdded` to a
-       far-future value such as `"01/01/2099 00:00 +0800"`.<br>
+       far-future value such as `"01/01/2099 00:00"`.<br>
        Expected: The app loads normally. The affected candidate's `dateAdded` is silently clamped to the time of
        loading. The corrected data is written back to disk immediately. A warning is written to the log. No data is lost.
 

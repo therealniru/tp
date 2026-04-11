@@ -159,7 +159,7 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 *   **Backup:** Always keep a backup of your data file before performing manual edits.
 </div>
 
-* **Input normalization:** Names have extra whitespace collapsed (e.g., `John    Doe` becomes `John Doe`). Emails are automatically lowercased (e.g., `John@Gmail.COM` becomes `john@gmail.com`). Addresses have leading and trailing whitespace stripped (e.g., `  123 Main St  ` is accepted as `123 Main St`). Phone numbers are compared by their digits only — the `+` prefix, spaces, hyphens, and parentheses are stripped before comparing, so `+65-9123-4567`, `+6591234567`, and `6591234567` are all treated as the same number for duplicate detection.
+* **Input normalization:** Names have extra whitespace collapsed (e.g., <code>John&nbsp;&nbsp;&nbsp;Doe</code> becomes `John Doe`). Emails are automatically lowercased (e.g., `John@Gmail.COM` becomes `john@gmail.com`). Addresses have leading and trailing whitespace stripped (e.g., `  123 Main St  ` is accepted as `123 Main St`). Phone numbers are compared by their digits only — the `+` prefix, spaces, hyphens, and parentheses are stripped before comparing, so `+65-9123-4567`, `+6591234567`, and `6591234567` are all treated as the same number for duplicate detection.
 * **Providing duplicate prefixes** (e.g., `n/Alice n/Bob`) in a single command is not allowed and will be rejected with an error.
 * **Display resets:** After any command that adds, edits, removes, or otherwise changes candidate data (`add`, `edit`, `remove`, `tag`, `addnote`, `editnote`, `deletenote`, `addreject`, `editreject`, `deletereject`), the candidate list returns to the default alphabetical order and any active filter or search is cleared.
 
@@ -171,7 +171,7 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 
 | Field | Prefix | Rules |
 |---|---|---|
-| NAME | `n/` | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Max 100 characters. |
+| NAME | `n/` | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter (cannot be strictly numeric). Between 1 and 100 characters. |
 | PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must begin and end with a digit. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
 | EMAIL | `e/` | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`. The domain must have at least one `.` and a TLD of at least two letters. Examples: `john@example.com`, `john+work@example.co.uk`. |
 | ADDRESS | `a/` | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Leading and trailing whitespace is stripped. Max 200 characters. |
@@ -213,7 +213,7 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 
 | Parameter | Prefix | Required | Rules |
 |---|---|---|---|
-| NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Max 100 characters. |
+| NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter (cannot be strictly numeric). Between 1 and 100 characters. |
 | PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must begin and end with a digit. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
 | EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. Automatically lowercased. |
 | ADDRESS | `a/` | Yes | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Leading and trailing whitespace is stripped. Max 200 characters. |
@@ -510,7 +510,7 @@ Examples:
 * `sort pr o/asc` — Low-priority candidates first.
 * `sort pr o/desc` — High-priority candidates first.
 
-> **Expected output:** `Sorted all candidates by priority (descending).`
+> **Expected output:** `Sorted all candidates by priority status (high-priority first).`
 
 ---
 

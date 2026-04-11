@@ -3,8 +3,7 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -17,21 +16,21 @@ import java.time.temporal.ChronoUnit;
 public class DateAdded implements Comparable<DateAdded> {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "DateAdded should be in the format DD/MM/YYYY HH:mm Z (e.g. 12/03/2026 20:13 +0800)";
+            "DateAdded should be in the format DD/MM/YYYY HH:mm (e.g. 12/03/2026 20:13)";
 
-    // We strictly follow the 'DD/MM/YYYY HH:mm Z' format
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm Z")
+    // We strictly follow the 'DD/MM/YYYY HH:mm' format
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm")
             .withResolverStyle(ResolverStyle.STRICT);
     public static final DateTimeFormatter DISPLAY_FORMATTER = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     public final String value;
-    public final ZonedDateTime date; // for comparisons and sorting
+    public final LocalDateTime date; // for comparisons and sorting
 
     /**
      * Constructs a {@code DateAdded} using the current system time.
      */
     public DateAdded() {
-        this.date = ZonedDateTime.now(ZoneId.systemDefault())
+        this.date = LocalDateTime.now()
                 .truncatedTo(ChronoUnit.MINUTES);
         this.value = this.date.format(FORMATTER);
     }
@@ -45,7 +44,7 @@ public class DateAdded implements Comparable<DateAdded> {
         requireNonNull(dateAdded);
         checkArgument(isValidDateAdded(dateAdded), MESSAGE_CONSTRAINTS);
         this.value = dateAdded;
-        this.date = ZonedDateTime.parse(dateAdded, FORMATTER);
+        this.date = LocalDateTime.parse(dateAdded, FORMATTER);
     }
 
     /**
@@ -53,7 +52,7 @@ public class DateAdded implements Comparable<DateAdded> {
      */
     public static boolean isValidDateAdded(String test) {
         try {
-            ZonedDateTime.parse(test, FORMATTER);
+            LocalDateTime.parse(test, FORMATTER);
             return true;
         } catch (DateTimeParseException e) {
             return false;
@@ -89,11 +88,11 @@ public class DateAdded implements Comparable<DateAdded> {
         }
 
         DateAdded otherDateAdded = (DateAdded) other;
-        return this.date.toInstant().equals(otherDateAdded.date.toInstant());
+        return this.date.equals(otherDateAdded.date);
     }
 
     @Override
     public int hashCode() {
-        return date.toInstant().hashCode();
+        return date.hashCode();
     }
 }

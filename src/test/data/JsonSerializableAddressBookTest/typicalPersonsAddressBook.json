@@ -9,7 +9,7 @@
     "tags" : [ "friends" ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   }, {
     "name" : "Benson Meier",
@@ -19,7 +19,7 @@
     "tags" : [ "owesMoney", "friends" ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   }, {
     "name" : "Carl Kurz",
@@ -29,7 +29,7 @@
     "tags" : [ ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   }, {
     "name" : "Daniel Meier",
@@ -39,7 +39,7 @@
     "tags" : [ "friends" ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   }, {
     "name" : "Elle Meyer",
@@ -49,7 +49,7 @@
     "tags" : [ ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   }, {
     "name" : "Fiona Kunz",
@@ -59,7 +59,7 @@
     "tags" : [ ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   }, {
     "name" : "George Best",
@@ -69,7 +69,7 @@
     "tags" : [ ],
     "status" : "NONE",
     "rejectionReasons" : [ ],
-    "dateAdded" : "12/03/2026 20:11 +0800",
+    "dateAdded" : "12/03/2026 20:11",
     "priority" : "no"
   } ]
 }

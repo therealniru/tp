@@ -25,7 +25,7 @@ public class PersonBuilder {
     public static final String DEFAULT_PHONE = "85355255";
     public static final String DEFAULT_EMAIL = "amy@gmail.com";
     public static final String DEFAULT_ADDRESS = "123, Jurong West Ave 6, #08-111";
-    public static final String DEFAULT_DATE_ADDED = "12/03/2026 20:11 +0800";
+    public static final String DEFAULT_DATE_ADDED = "12/03/2026 20:11";
 
     private Name name;
     private Phone phone;
@@ -78,7 +78,7 @@ public class PersonBuilder {
     /**
      * Parses the {@code tags} into a {@code Set<Tag>} and set it to the {@code Person} that we are building.
      */
-    public PersonBuilder withTags(String ... tags) {
+    public PersonBuilder withTags(String... tags) {
         this.tags = SampleDataUtil.getTagSet(tags);
         return this;
     }
@@ -118,7 +118,7 @@ public class PersonBuilder {
     /**
      * Sets the {@code rejectionReasons} of the {@code Person} that we are building.
      */
-    public PersonBuilder withRejectionReasons(String ... reasons) {
+    public PersonBuilder withRejectionReasons(String... reasons) {
         this.rejectionReasons = new ArrayList<>();
         for (String reason : reasons) {
             this.rejectionReasons.add(new RejectionReason(reason));

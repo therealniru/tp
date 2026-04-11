@@ -1,7 +1,6 @@
 package seedu.address.storage;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -209,8 +208,8 @@ class JsonAdaptedPerson {
         if (!DateAdded.isValidDateAdded(dateAdded)) {
             throw new IllegalValueException(DateAdded.MESSAGE_CONSTRAINTS);
         }
-        ZonedDateTime parsedDateAdded = ZonedDateTime.parse(dateAdded, DateAdded.FORMATTER);
-        if (parsedDateAdded.isAfter(ZonedDateTime.now(ZoneId.systemDefault()))) {
+        LocalDateTime parsedDateAdded = LocalDateTime.parse(dateAdded, DateAdded.FORMATTER);
+        if (parsedDateAdded.isAfter(LocalDateTime.now())) {
             logger.warning("Candidate dateAdded is in the future ("
                     + parsedDateAdded + "). Clamping to current time. Name=" + name);
             return new DateAdded();

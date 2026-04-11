@@ -84,13 +84,13 @@ public class SortPriorityCommandTest {
     public void execute_sortAscendingSecondary_priorityThenDateThenAlpha() {
         // Create candidates with identical priority but different dates
         Person aPerson = new PersonBuilder().withName("Alice").withPhone("11111111")
-                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("yes").build();
+                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00").withPriority("yes").build();
         Person zPerson = new PersonBuilder().withName("Zack").withPhone("22222222")
-                .withEmail("z@z.com").withDateAdded("02/01/2024 10:00 +0800").withPriority("yes").build();
+                .withEmail("z@z.com").withDateAdded("02/01/2024 10:00").withPriority("yes").build();
         Person cPerson = new PersonBuilder().withName("Charlie").withPhone("33333333")
-                .withEmail("c@c.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("yes").build();
+                .withEmail("c@c.com").withDateAdded("01/01/2024 10:00").withPriority("yes").build();
         Person dPerson = new PersonBuilder().withName("Dan").withPhone("44444444")
-                .withEmail("d@d.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("no").build();
+                .withEmail("d@d.com").withDateAdded("01/01/2024 10:00").withPriority("no").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(aPerson);
@@ -115,11 +115,11 @@ public class SortPriorityCommandTest {
     public void execute_sortDescendingSecondary_highPriorityFirst() {
         // desc order: high priority first, non-priority last
         Person aPerson = new PersonBuilder().withName("Alice").withPhone("11111111")
-                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("yes").build();
+                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00").withPriority("yes").build();
         Person bPerson = new PersonBuilder().withName("Bob").withPhone("22222222")
-                .withEmail("b@b.com").withDateAdded("02/01/2024 10:00 +0800").withPriority("no").build();
+                .withEmail("b@b.com").withDateAdded("02/01/2024 10:00").withPriority("no").build();
         Person cPerson = new PersonBuilder().withName("Carol").withPhone("33333333")
-                .withEmail("c@c.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("no").build();
+                .withEmail("c@c.com").withDateAdded("01/01/2024 10:00").withPriority("no").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(aPerson);
@@ -140,9 +140,9 @@ public class SortPriorityCommandTest {
     @Test
     public void execute_allHighPriority_sortedByDateThenName() {
         Person aPerson = new PersonBuilder().withName("Alpha").withPhone("11111111")
-                .withEmail("alpha@test.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("yes").build();
+                .withEmail("alpha@test.com").withDateAdded("01/01/2024 10:00").withPriority("yes").build();
         Person bPerson = new PersonBuilder().withName("Beta").withPhone("22222222")
-                .withEmail("beta@test.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("yes").build();
+                .withEmail("beta@test.com").withDateAdded("01/01/2024 10:00").withPriority("yes").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(bPerson);
@@ -158,9 +158,9 @@ public class SortPriorityCommandTest {
     @Test
     public void execute_allNoPriority_sortedByDateDescThenName() {
         Person older = new PersonBuilder().withName("Alpha").withPhone("11111111")
-                .withEmail("alpha@test.com").withDateAdded("01/01/2023 10:00 +0800").withPriority("no").build();
+                .withEmail("alpha@test.com").withDateAdded("01/01/2023 10:00").withPriority("no").build();
         Person newer = new PersonBuilder().withName("Beta").withPhone("22222222")
-                .withEmail("beta@test.com").withDateAdded("01/01/2024 10:00 +0800").withPriority("no").build();
+                .withEmail("beta@test.com").withDateAdded("01/01/2024 10:00").withPriority("no").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(older);

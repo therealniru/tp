@@ -82,9 +82,9 @@ public class SortDateCommandTest {
     public void execute_sortAscendingSecondaryByName_alphabeticalOnSameDate() {
         // Candidates with same date should be sorted alphabetically
         Person aPerson = new PersonBuilder().withName("Alice").withPhone("11111111")
-                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00 +0800").build();
+                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00").build();
         Person zPerson = new PersonBuilder().withName("Zack").withPhone("22222222")
-                .withEmail("z@z.com").withDateAdded("01/01/2024 10:00 +0800").build();
+                .withEmail("z@z.com").withDateAdded("01/01/2024 10:00").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(zPerson);
@@ -100,9 +100,9 @@ public class SortDateCommandTest {
     public void execute_sortDescendingSecondaryByName_alphabeticalOnSameDate() {
         // Candidates with same date in descending sort should still be sorted alphabetically
         Person aPerson = new PersonBuilder().withName("Alice").withPhone("11111111")
-                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00 +0800").build();
+                .withEmail("a@a.com").withDateAdded("01/01/2024 10:00").build();
         Person zPerson = new PersonBuilder().withName("Zack").withPhone("22222222")
-                .withEmail("z@z.com").withDateAdded("01/01/2024 10:00 +0800").build();
+                .withEmail("z@z.com").withDateAdded("01/01/2024 10:00").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(zPerson);
@@ -119,9 +119,9 @@ public class SortDateCommandTest {
     public void execute_sortDateDescendingOrder_newerFirst() {
         // Candidates with different dates — descending should show newest first
         Person older = new PersonBuilder().withName("Older").withPhone("11111111")
-                .withEmail("older@test.com").withDateAdded("01/01/2022 10:00 +0800").build();
+                .withEmail("older@test.com").withDateAdded("01/01/2022 10:00").build();
         Person newer = new PersonBuilder().withName("Newer").withPhone("22222222")
-                .withEmail("newer@test.com").withDateAdded("01/01/2024 10:00 +0800").build();
+                .withEmail("newer@test.com").withDateAdded("01/01/2024 10:00").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(older);
@@ -137,9 +137,9 @@ public class SortDateCommandTest {
     public void execute_sortDateAscendingOrder_olderFirst() {
         // Ascending sort should show oldest first
         Person older = new PersonBuilder().withName("Older").withPhone("11111111")
-                .withEmail("older@test.com").withDateAdded("01/01/2022 10:00 +0800").build();
+                .withEmail("older@test.com").withDateAdded("01/01/2022 10:00").build();
         Person newer = new PersonBuilder().withName("Newer").withPhone("22222222")
-                .withEmail("newer@test.com").withDateAdded("01/01/2024 10:00 +0800").build();
+                .withEmail("newer@test.com").withDateAdded("01/01/2024 10:00").build();
 
         Model customModel = new ModelManager();
         customModel.addPerson(newer);
