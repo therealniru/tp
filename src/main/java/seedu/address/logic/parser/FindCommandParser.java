@@ -32,7 +32,7 @@ public class FindCommandParser implements Parser<FindCommand> {
 
         if (!trimmedArgs.matches("^[a-zA-Z0-9\\-'./@+_:;!?()&%\"#*,\\ ]+$")) {
             throw new ParseException("Error: Invalid characters detected. "
-                    + "Keywords can only contain letters, numbers, and symbols: "
+                    + "Keywords can only contain letters, numbers, spaces, and symbols: "
                     + "- ' . / @ + _ : ; ! ? ( ) & % \" # * ,");
         }
 

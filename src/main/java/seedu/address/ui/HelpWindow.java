@@ -90,7 +90,7 @@ public class HelpWindow extends UiPart<Stage> {
         entries.add(new CommandEntry("List", "list"));
         entries.add(new CommandEntry("Add Note", "addnote INDEX c/CONTENT [h/HEADING]"));
         entries.add(new CommandEntry("Delete Note", "deletenote INDEX NOTE_INDEX"));
-        entries.add(new CommandEntry("Edit Note", "editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING] (at least one)"));
+        entries.add(new CommandEntry("Edit Note", "editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING] (c/ or h/ required)"));
         entries.add(new CommandEntry("Redo", "redo"));
         entries.add(new CommandEntry("Add Reject", "addreject INDEX REASON"));
         entries.add(new CommandEntry("Delete Reject", "deletereject INDEX REJECT_INDEX"));

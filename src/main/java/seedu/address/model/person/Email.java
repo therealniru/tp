@@ -49,11 +49,7 @@ public class Email {
     }
 
     private static boolean isWithinLengthLimits(String test) {
-        if (test.length() > MAX_LENGTH) {
-            return false;
-        }
-        int atIdx = test.indexOf('@');
-        return atIdx < 0 || atIdx <= MAX_LOCAL_PART_LENGTH;
+        return test.length() <= MAX_LENGTH;
     }
 
     @Override

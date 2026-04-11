@@ -180,7 +180,7 @@ public class TagPoolCommand extends Command {
         String result = String.format(MESSAGE_SUCCESS, toAdd.size(), toDelete.size());
         if (!toDelete.isEmpty()) {
             result += "\nWarning: Cascade deletion — candidates assigned to the deleted tag(s)"
-                    + " will lose those tags (if any such candidates exist).";
+                    + " have had those tags removed (if any such candidates exist).";
         }
         return new CommandResult(result);
     }

@@ -78,7 +78,8 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
                         Note.MAX_CONTENT_LENGTH, newContent.length()));
             }
             if (!Note.isValidContent(newContent)) {
-                throw new ParseException(Note.MESSAGE_CONTENT_CONSTRAINTS);
+                throw new ParseException("Error: Note content must contain only printable ASCII characters "
+                        + "(no accented letters, emojis, or other non-ASCII input).");
             }
         }
 
@@ -94,7 +95,8 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
                         Note.MAX_HEADING_LENGTH, newHeading.length()));
             }
             if (!Note.isValidHeading(newHeading)) {
-                throw new ParseException(Note.MESSAGE_HEADING_CONSTRAINTS);
+                throw new ParseException("Error: Note heading must contain only printable ASCII characters "
+                        + "(no accented letters, emojis, or other non-ASCII input).");
             }
         }
 
