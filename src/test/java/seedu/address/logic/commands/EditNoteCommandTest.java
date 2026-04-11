@@ -10,7 +10,6 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +29,7 @@ import seedu.address.testutil.PersonBuilder;
  */
 public class EditNoteCommandTest {
 
-    private static final LocalDateTime FIXED_DATE = LocalDateTime.of(2026, 1, 1, 10, 0, 0);
-    private static final Note ORIGINAL_NOTE = new Note("Tech Round 1", "Passed interview", FIXED_DATE);
+    private static final Note ORIGINAL_NOTE = new Note("Tech Round 1", "Passed interview");
 
     private Model model;
 
@@ -61,7 +59,7 @@ public class EditNoteCommandTest {
                 "Failed interview", null);
 
         Person personWithNote = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Note editedNote = new Note("Tech Round 1", "Failed interview", FIXED_DATE);
+        Note editedNote = new Note("Tech Round 1", "Failed interview");
         List<Note> updatedNotes = new ArrayList<>();
         updatedNotes.add(editedNote);
         Person expectedPerson = new PersonBuilder(personWithNote).withNotes(updatedNotes).build();
@@ -80,7 +78,7 @@ public class EditNoteCommandTest {
                 null, "HR Round");
 
         Person personWithNote = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Note editedNote = new Note("HR Round", "Passed interview", FIXED_DATE);
+        Note editedNote = new Note("HR Round", "Passed interview");
         List<Note> updatedNotes = new ArrayList<>();
         updatedNotes.add(editedNote);
         Person expectedPerson = new PersonBuilder(personWithNote).withNotes(updatedNotes).build();
@@ -99,7 +97,7 @@ public class EditNoteCommandTest {
                 "New content", "New heading");
 
         Person personWithNote = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Note editedNote = new Note("New heading", "New content", FIXED_DATE);
+        Note editedNote = new Note("New heading", "New content");
         List<Note> updatedNotes = new ArrayList<>();
         updatedNotes.add(editedNote);
         Person expectedPerson = new PersonBuilder(personWithNote).withNotes(updatedNotes).build();
@@ -119,21 +117,6 @@ public class EditNoteCommandTest {
                 ORIGINAL_NOTE.content, ORIGINAL_NOTE.heading);
         String expectedMessage = "Note: No changes detected; note details remain the same.";
         assertCommandSuccess(command, model, expectedMessage, model);
-    }
-
-    @Test
-    public void execute_preservesTimestamp() throws Exception {
-        EditNoteCommand command = new EditNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(1),
-                "Updated content", null);
-        command.execute(model);
-
-        Person result = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Note editedNote = result.getNotes().get(0);
-
-        // Timestamp must be preserved from the original note
-        assertEquals(FIXED_DATE, editedNote.date);
-        assertEquals("Updated content", editedNote.content);
-        assertEquals("Tech Round 1", editedNote.heading);
     }
 
     @Test
@@ -178,7 +161,7 @@ public class EditNoteCommandTest {
                 "Edited content", null);
 
         Person personWithNote = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Note editedNote = new Note("Tech Round 1", "Edited content", FIXED_DATE);
+        Note editedNote = new Note("Tech Round 1", "Edited content");
         List<Note> updatedNotes = new ArrayList<>();
         updatedNotes.add(editedNote);
         Person expectedPerson = new PersonBuilder(personWithNote).withNotes(updatedNotes).build();

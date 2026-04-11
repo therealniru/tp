@@ -177,7 +177,12 @@ public class TagPoolCommand extends Command {
         }
 
         // ── Phase 6: UI Feedback ──
-        return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd.size(), toDelete.size()));
+        String result = String.format(MESSAGE_SUCCESS, toAdd.size(), toDelete.size());
+        if (!toDelete.isEmpty()) {
+            result += "\nWarning: Cascade deletion — candidates assigned to the deleted tag(s)"
+                    + " have had those tags removed (if any such candidates exist).";
+        }
+        return new CommandResult(result);
     }
 
     @Override

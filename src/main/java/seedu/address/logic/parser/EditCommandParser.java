@@ -36,8 +36,7 @@ public class EditCommandParser implements Parser<EditCommand> {
         } catch (ParseException pe) {
             String preamble = argMultimap.getPreamble().trim();
             if (preamble.matches("^\\d+\\s+.+")) {
-                throw new ParseException("Invalid command format. Did you forget a prefix? (e.g. n/) \n"
-                        + EditCommand.MESSAGE_USAGE);
+                throw new ParseException("Invalid command format!\n" + EditCommand.MESSAGE_USAGE);
             }
             throw new ParseException("Error: Invalid index. Please provide a valid positive integer. "
                     + "Usage: edit INDEX", pe);

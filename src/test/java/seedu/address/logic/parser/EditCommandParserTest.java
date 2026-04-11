@@ -46,8 +46,7 @@ public class EditCommandParserTest {
     private static final String MESSAGE_INVALID_FORMAT =
             "Error: Invalid index. Please provide a valid positive integer. Usage: edit INDEX";
     private static final String MESSAGE_MISSING_PREFIX =
-            "Invalid command format. Did you forget a prefix? (e.g. n/) \n"
-                    + EditCommand.MESSAGE_USAGE;
+            "Invalid command format!\n" + EditCommand.MESSAGE_USAGE;
 
     private EditCommandParser parser = new EditCommandParser();
 

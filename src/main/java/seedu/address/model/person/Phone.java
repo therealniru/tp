@@ -19,7 +19,7 @@ public class Phone {
      * Matches an optional leading '+', then a digit, then any mix of digits/spaces/hyphens/parentheses.
      * Digit-count check is performed separately in {@link #isValidPhone(String)}.
      */
-    public static final String VALIDATION_REGEX = "\\+?\\d[\\d ()\\-]*";
+    public static final String VALIDATION_REGEX = "\\+?\\d([\\d ()\\-]*\\d)?";
     public final String value;
 
     /**

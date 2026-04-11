@@ -10,7 +10,6 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +28,8 @@ import seedu.address.testutil.PersonBuilder;
  */
 public class DeleteNoteCommandTest {
 
-    private static final LocalDateTime FIXED_DATE = LocalDateTime.of(2026, 1, 1, 10, 0, 0);
-    private static final Note NOTE_ONE = new Note("Tech Round 1", "Passed interview", FIXED_DATE);
-    private static final Note NOTE_TWO = new Note("HR Round", "Good culture fit", FIXED_DATE);
+    private static final Note NOTE_ONE = new Note("Tech Round 1", "Passed interview");
+    private static final Note NOTE_TWO = new Note("HR Round", "Good culture fit");
 
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 

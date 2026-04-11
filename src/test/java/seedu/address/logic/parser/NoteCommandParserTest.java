@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.NoteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Note;
 
 public class NoteCommandParserTest {
 
@@ -29,9 +28,9 @@ public class NoteCommandParserTest {
 
     @Test
     public void parse_missingContentPrefix_throwsParseException() {
+        // "1 some content" has no c/ prefix so the whole thing is treated as preamble → invalid index
         assertParseFailure(parser, " 1 some content",
-                "Invalid command format. Did you forget a prefix? (e.g. c/) \n"
-                        + "Usage: addnote INDEX c/CONTENT [h/HEADING]");
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
     }
 
     @Test
@@ -56,8 +55,7 @@ public class NoteCommandParserTest {
     public void parse_trailingGarbageInPreamble_throwsParseException() {
         // preamble "1 oops" is not a valid index
         assertParseFailure(parser, " 1 oops c/text",
-                "Invalid command format. Did you forget a prefix? (e.g. c/) \n"
-                        + "Usage: addnote INDEX c/CONTENT [h/HEADING]");
+                NoteCommandParser.MESSAGE_INVALID_INDEX);
     }
 
     @Test
@@ -163,7 +161,11 @@ public class NoteCommandParserTest {
     @Test
     public void parse_invalidCharacters_throwsParseException() {
         // Non-ASCII characters should be rejected
-        assertParseFailure(parser, " 1 c/Invalid content ©", Note.MESSAGE_CONTENT_CONSTRAINTS);
-        assertParseFailure(parser, " 1 c/content h/Invalid heading ™", Note.MESSAGE_HEADING_CONSTRAINTS);
+        assertParseFailure(parser, " 1 c/Invalid content ©",
+                "Error: Note content must contain only printable ASCII characters "
+                + "(no accented letters, emojis, or other non-ASCII input).");
+        assertParseFailure(parser, " 1 c/content h/Invalid heading ™",
+                "Error: Note heading must contain only printable ASCII characters "
+                + "(no accented letters, emojis, or other non-ASCII input).");
     }
 }

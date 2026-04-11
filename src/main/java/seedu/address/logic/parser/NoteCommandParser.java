@@ -20,7 +20,7 @@ public class NoteCommandParser implements Parser<NoteCommand> {
     public static final String MESSAGE_MISSING_CONTENT =
             "Error: Note content is required. Usage: addnote INDEX c/CONTENT [h/HEADING]";
     public static final String MESSAGE_INVALID_FORMAT =
-            "Error: Note content cannot be empty. Usage: addnote INDEX c/CONTENT [h/HEADING]";
+            "Error: Note content cannot be blank. Usage: addnote INDEX c/CONTENT [h/HEADING]";
     public static final String MESSAGE_INVALID_INDEX =
             "Error: Invalid index. Please provide a valid positive integer.\n"
                     + "Usage: addnote INDEX c/CONTENT [h/HEADING]";
@@ -43,11 +43,6 @@ public class NoteCommandParser implements Parser<NoteCommand> {
         try {
             index = ParserUtil.parseIndex(argMultimap.getPreamble());
         } catch (ParseException pe) {
-            String preamble = argMultimap.getPreamble().trim();
-            if (preamble.matches("^\\d+\\s+.+")) {
-                throw new ParseException("Invalid command format. Did you forget a prefix? (e.g. c/) \n"
-                        + "Usage: addnote INDEX c/CONTENT [h/HEADING]");
-            }
             throw new ParseException(MESSAGE_INVALID_INDEX, pe);
         }
 
@@ -68,7 +63,8 @@ public class NoteCommandParser implements Parser<NoteCommand> {
                     Note.MAX_CONTENT_LENGTH, content.length()));
         }
         if (!Note.isValidContent(content)) {
-            throw new ParseException(Note.MESSAGE_CONTENT_CONSTRAINTS);
+            throw new ParseException("Error: Note content must contain only printable ASCII characters "
+                    + "(no accented letters, emojis, or other non-ASCII input).");
         }
 
         String heading;
@@ -88,7 +84,8 @@ public class NoteCommandParser implements Parser<NoteCommand> {
                     Note.MAX_HEADING_LENGTH, heading.length()));
         }
         if (!Note.isValidHeading(heading)) {
-            throw new ParseException(Note.MESSAGE_HEADING_CONSTRAINTS);
+            throw new ParseException("Error: Note heading must contain only printable ASCII characters "
+                    + "(no accented letters, emojis, or other non-ASCII input).");
         }
 
         logger.fine("Parsed note command: index=" + index.getOneBased()

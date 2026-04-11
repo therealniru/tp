@@ -1,6 +1,5 @@
 package seedu.address.ui;
 
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -21,8 +20,6 @@ import seedu.address.model.person.RejectionReason;
 public class CandidateDetailPanel extends UiPart<Region> {
 
     private static final String FXML = "CandidateDetailPanel.fxml";
-    private static final DateTimeFormatter NOTE_DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     @FXML
     private ScrollPane detailScrollPane;
@@ -121,15 +118,13 @@ public class CandidateDetailPanel extends UiPart<Region> {
             Note note = notes.get(i);
             VBox noteBox = new VBox(2);
             noteBox.getStyleClass().add("detail-note-box");
-            Label dateLabel = new Label(note.date.format(NOTE_DATE_FORMATTER));
-            dateLabel.getStyleClass().add("detail-note-date");
             Label heading = new Label((i + 1) + ". " + note.heading);
             heading.getStyleClass().add("detail-note-heading");
             heading.setWrapText(true);
             Label content = new Label(note.content);
             content.getStyleClass().add("detail-field");
             content.setWrapText(true);
-            noteBox.getChildren().addAll(dateLabel, heading, content);
+            noteBox.getChildren().addAll(heading, content);
             detailNotes.getChildren().add(noteBox);
         });
     }

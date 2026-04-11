@@ -11,8 +11,8 @@ public class Address {
 
     public static final int MAX_LENGTH = 200;
     public static final String MESSAGE_CONSTRAINTS =
-            "Addresses must not be blank, must contain only printable ASCII characters"
-            + " (letters, digits, spaces, and common punctuation), and must not exceed "
+            "Error: Invalid address. Must not be blank, contain only printable ASCII characters"
+            + " (no accented letters, emojis, or other non-ASCII input), and must not exceed "
             + MAX_LENGTH + " characters.";
 
     /*
@@ -31,8 +31,9 @@ public class Address {
      */
     public Address(String address) {
         requireNonNull(address);
-        checkArgument(isValidAddress(address), MESSAGE_CONSTRAINTS);
-        value = address;
+        String trimmedAddress = address.trim();
+        checkArgument(isValidAddress(trimmedAddress), MESSAGE_CONSTRAINTS);
+        value = trimmedAddress;
     }
 
     /**

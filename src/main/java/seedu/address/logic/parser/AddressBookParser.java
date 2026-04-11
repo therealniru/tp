@@ -129,8 +129,7 @@ public class AddressBookParser {
         case ExitCommand.COMMAND_WORD:
             if (!arguments.trim().isEmpty()) {
                 throw new ParseException(
-                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, ExitCommand.COMMAND_WORD
-                                + ": Exits the application. This command does not take any arguments."));
+                        String.format(MESSAGE_INVALID_COMMAND_FORMAT, ExitCommand.MESSAGE_USAGE));
             }
             return new ExitCommand();
 

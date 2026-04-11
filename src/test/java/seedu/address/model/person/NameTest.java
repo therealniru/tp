@@ -78,14 +78,14 @@ public class NameTest {
         // different values -> returns false
         assertFalse(name.equals(new Name("Other Valid Name")));
 
-        // case-insensitive -> returns true
-        assertTrue(name.equals(new Name("valid name")));
-        assertTrue(name.equals(new Name("VALID NAME")));
+        // case-sensitive -> returns false for different cases
+        assertFalse(name.equals(new Name("valid name")));
+        assertFalse(name.equals(new Name("VALID NAME")));
     }
 
     @Test
-    public void hashCode_caseInsensitive() {
-        assertEquals(new Name("Valid Name").hashCode(), new Name("valid name").hashCode());
-        assertEquals(new Name("Valid Name").hashCode(), new Name("VALID NAME").hashCode());
+    public void hashCode_caseSensitive() {
+        assertFalse(new Name("Valid Name").hashCode() == new Name("valid name").hashCode());
+        assertFalse(new Name("Valid Name").hashCode() == new Name("VALID NAME").hashCode());
     }
 }

@@ -10,7 +10,7 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 public class Priority {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Priority status must be either 'yes' or 'no' (case-insensitive).";
+            "Error: Priority value must be either 'yes' or 'no' (case-insensitive).";
 
     /*
      * The priority string should be "yes" or "no".

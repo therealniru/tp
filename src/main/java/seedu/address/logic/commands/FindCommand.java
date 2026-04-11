@@ -10,7 +10,8 @@ import seedu.address.model.Model;
 import seedu.address.model.person.NamePhoneEmailContainsKeywordsPredicate;
 
 /**
- * Finds and lists all persons in address book whose name, phone, or email contains any of the argument keywords.
+ * Finds and lists all persons in address book whose name, phone, email, note headings/contents,
+ * or rejection reasons contain any of the argument keywords.
  * Keyword matching is case insensitive.
  */
 public class FindCommand extends Command {

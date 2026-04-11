@@ -141,8 +141,12 @@ public class EditNoteCommandParserTest {
     @Test
     public void parse_invalidCharacters_throwsParseException() {
         // Non-ASCII characters should be rejected
-        assertParseFailure(parser, " 1 2 c/Invalid content ©", Note.MESSAGE_CONTENT_CONSTRAINTS);
-        assertParseFailure(parser, " 1 2 h/Invalid heading ™", Note.MESSAGE_HEADING_CONSTRAINTS);
+        assertParseFailure(parser, " 1 2 c/Invalid content ©",
+                "Error: Note content must contain only printable ASCII characters "
+                + "(no accented letters, emojis, or other non-ASCII input).");
+        assertParseFailure(parser, " 1 2 h/Invalid heading ™",
+                "Error: Note heading must contain only printable ASCII characters "
+                + "(no accented letters, emojis, or other non-ASCII input).");
     }
 
     @Test

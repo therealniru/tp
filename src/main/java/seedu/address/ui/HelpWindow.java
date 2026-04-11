@@ -90,7 +90,8 @@ public class HelpWindow extends UiPart<Stage> {
         entries.add(new CommandEntry("List", "list"));
         entries.add(new CommandEntry("Add Note", "addnote INDEX c/CONTENT [h/HEADING]"));
         entries.add(new CommandEntry("Delete Note", "deletenote INDEX NOTE_INDEX"));
-        entries.add(new CommandEntry("Edit Note", "editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]"));
+        entries.add(new CommandEntry("Edit Note",
+                "editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING] (c/ or h/ required)"));
         entries.add(new CommandEntry("Redo", "redo"));
         entries.add(new CommandEntry("Add Reject", "addreject INDEX REASON"));
         entries.add(new CommandEntry("Delete Reject", "deletereject INDEX REJECT_INDEX"));
@@ -112,11 +113,14 @@ public class HelpWindow extends UiPart<Stage> {
      */
     public void show() {
         logger.fine("Showing help page about the application.");
+        boolean wasShowing = getRoot().isShowing();
         getRoot().setIconified(false);
-        if (!getRoot().isShowing()) {
-            getRoot().setWidth(MIN_WIDTH);
-            getRoot().setHeight(MIN_HEIGHT);
+        if (!wasShowing) {
             getRoot().show();
+        }
+        getRoot().setWidth(MIN_WIDTH);
+        getRoot().setHeight(MIN_HEIGHT);
+        if (!wasShowing) {
             getRoot().centerOnScreen();
         }
         getRoot().toFront();

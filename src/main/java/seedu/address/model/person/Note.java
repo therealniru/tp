@@ -3,7 +3,6 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -26,34 +25,20 @@ public class Note {
 
     public final String heading;
     public final String content;
-    public final LocalDateTime date;
 
     /**
-     * Main constructor.
-     *
-     * @param heading Non-null, non-blank heading for the note.
-     * @param content Non-null, non-blank content for the note.
-     * @param date    Non-null timestamp for the note.
-     */
-    public Note(String heading, String content, LocalDateTime date) {
-        requireNonNull(heading, "Heading must not be null");
-        requireNonNull(content, "Content must not be null");
-        requireNonNull(date, "Date must not be null");
-        checkArgument(isValidHeading(heading), MESSAGE_HEADING_CONSTRAINTS);
-        checkArgument(isValidContent(content), MESSAGE_CONTENT_CONSTRAINTS);
-        this.heading = heading;
-        this.content = content;
-        this.date = date;
-    }
-
-    /**
-     * Convenience constructor that auto-stamps the current time.
+     * Constructs a {@code Note}.
      *
      * @param heading Non-null, non-blank heading for the note.
      * @param content Non-null, non-blank content for the note.
      */
     public Note(String heading, String content) {
-        this(heading, content, LocalDateTime.now());
+        requireNonNull(heading, "Heading must not be null");
+        requireNonNull(content, "Content must not be null");
+        checkArgument(isValidHeading(heading), MESSAGE_HEADING_CONSTRAINTS);
+        checkArgument(isValidContent(content), MESSAGE_CONTENT_CONSTRAINTS);
+        this.heading = heading;
+        this.content = content;
     }
 
     /**
@@ -101,17 +86,16 @@ public class Note {
         }
         Note otherNote = (Note) other;
         return heading.equals(otherNote.heading)
-                && content.equals(otherNote.content)
-                && date.equals(otherNote.date);
+                && content.equals(otherNote.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(heading, content, date);
+        return Objects.hash(heading, content);
     }
 
     @Override
     public String toString() {
-        return "[" + date + "] " + heading + ": " + content;
+        return heading + ": " + content;
     }
 }

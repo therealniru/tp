@@ -187,7 +187,6 @@ class JsonAdaptedPerson {
         for (JsonAdaptedNote note : effectiveNotes) {
             modelNotes.add(note.toModelType());
         }
-
         return new Person(modelName, modelPhone, modelEmail, modelAddress, modelTags,
                 modelRejectionReasons, modelDateAdded, modelPriority, modelNotes);
     }

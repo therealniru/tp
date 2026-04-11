@@ -18,7 +18,6 @@ import seedu.address.model.person.Person;
 
 /**
  * Edits a note of a person in the address book.
- * The original timestamp of the note is preserved.
  */
 public class EditNoteCommand extends Command {
 
@@ -93,7 +92,7 @@ public class EditNoteCommand extends Command {
             return new CommandResult("Note: No changes detected; note details remain the same.");
         }
 
-        Note editedNote = new Note(effectiveHeading, effectiveContent, originalNote.date);
+        Note editedNote = new Note(effectiveHeading, effectiveContent);
 
         List<Note> updatedNotes = new ArrayList<>(currentNotes);
         updatedNotes.set(noteIndex.getZeroBased(), editedNote);

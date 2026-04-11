@@ -7,7 +7,6 @@ import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORM
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -142,8 +141,7 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void toModelType_personWithNotes_roundTripPreservesNotes() throws Exception {
-        LocalDateTime fixedDate = LocalDateTime.of(2026, 3, 23, 14, 30, 0);
-        Note note = new Note("Tech Round", "Passed interview", fixedDate);
+        Note note = new Note("Tech Round", "Passed interview");
         Person personWithNote = new PersonBuilder(BENSON).withNotes(List.of(note)).build();
 
         JsonAdaptedPerson adapted = new JsonAdaptedPerson(personWithNote);
@@ -157,10 +155,8 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void toModelType_personWithMultipleNotes_preservesOrder() throws Exception {
-        LocalDateTime date1 = LocalDateTime.of(2026, 1, 1, 9, 0, 0);
-        LocalDateTime date2 = LocalDateTime.of(2026, 2, 1, 10, 0, 0);
-        Note note1 = new Note("First", "content one", date1);
-        Note note2 = new Note("Second", "content two", date2);
+        Note note1 = new Note("First", "content one");
+        Note note2 = new Note("Second", "content two");
         Person personWithNotes = new PersonBuilder(BENSON).withNotes(List.of(note1, note2)).build();
 
         JsonAdaptedPerson adapted = new JsonAdaptedPerson(personWithNotes);
@@ -217,8 +213,7 @@ public class JsonAdaptedPersonTest {
     public void toModelType_tooManyNotes_truncatesToLimit() throws Exception {
         List<JsonAdaptedNote> manyNotes = new ArrayList<>();
         for (int i = 0; i < 55; i++) {
-            manyNotes.add(new JsonAdaptedNote(new Note("Heading " + i, "Content " + i,
-                    java.time.LocalDateTime.of(2025, 1, 1, 0, 0))));
+            manyNotes.add(new JsonAdaptedNote(new Note("Heading " + i, "Content " + i)));
         }
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
                 VALID_TAGS, VALID_REJECTION_REASONS, VALID_DATE_ADDED, VALID_PRIORITY, manyNotes);

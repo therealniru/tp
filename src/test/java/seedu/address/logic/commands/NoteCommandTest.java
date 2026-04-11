@@ -10,7 +10,6 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +28,8 @@ import seedu.address.testutil.PersonBuilder;
  */
 public class NoteCommandTest {
 
-    private static final LocalDateTime FIXED_DATE = LocalDateTime.of(2026, 1, 1, 10, 0, 0);
-    private static final Note VALID_NOTE = new Note("Tech Round 1", "Passed interview", FIXED_DATE);
-    private static final Note ANOTHER_NOTE = new Note("HR Round", "Good culture fit", FIXED_DATE);
+    private static final Note VALID_NOTE = new Note("Tech Round 1", "Passed interview");
+    private static final Note ANOTHER_NOTE = new Note("HR Round", "Good culture fit");
 
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
@@ -190,7 +188,7 @@ public class NoteCommandTest {
         Person personToEdit = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         List<Note> maxNotes = new ArrayList<>();
         for (int i = 0; i < NoteCommand.MAX_NOTES_PER_CANDIDATE; i++) {
-            maxNotes.add(new Note("Heading " + i, "Content " + i, FIXED_DATE));
+            maxNotes.add(new Note("Heading " + i, "Content " + i));
         }
         Person personAtMax = new PersonBuilder(personToEdit).withNotes(maxNotes).build();
         model.setPerson(personToEdit, personAtMax);

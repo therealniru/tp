@@ -55,7 +55,10 @@ public class TagPoolCommandTest {
                 Collections.emptyList(), List.of(intern)).execute(model);
 
         assertFalse(model.tagsAdded.contains(intern));
-        assertEquals(String.format(TagPoolCommand.MESSAGE_SUCCESS, 0, 1), result.getFeedbackToUser());
+        String expectedMessage = String.format(TagPoolCommand.MESSAGE_SUCCESS, 0, 1)
+                + "\nWarning: Cascade deletion — candidates assigned to the deleted tag(s) "
+                + "have had those tags removed (if any such candidates exist).";
+        assertEquals(expectedMessage, result.getFeedbackToUser());
     }
 
     @Test
@@ -171,7 +174,10 @@ public class TagPoolCommandTest {
 
         assertTrue(model.tagsAdded.contains(toAdd));
         assertFalse(model.tagsAdded.contains(toDelete));
-        assertEquals(String.format(TagPoolCommand.MESSAGE_SUCCESS, 1, 1), result.getFeedbackToUser());
+        String expectedMessage = String.format(TagPoolCommand.MESSAGE_SUCCESS, 1, 1)
+                + "\nWarning: Cascade deletion — candidates assigned to the deleted tag(s) "
+                + "have had those tags removed (if any such candidates exist).";
+        assertEquals(expectedMessage, result.getFeedbackToUser());
     }
 
     @Test

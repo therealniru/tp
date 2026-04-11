@@ -13,7 +13,6 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -97,7 +96,7 @@ public class PersonTest {
 
     @Test
     public void equals_differentNotes_returnsFalse() {
-        Note note = new Note("Heading", "Content", LocalDateTime.of(2026, 1, 1, 10, 0));
+        Note note = new Note("Heading", "Content");
         Person aliceWithNote = new PersonBuilder(ALICE).withNotes(List.of(note)).build();
         assertFalse(ALICE.equals(aliceWithNote));
     }
@@ -110,7 +109,7 @@ public class PersonTest {
 
     @Test
     public void hashCode_differentNotes_notEqual() {
-        Note note = new Note("Heading", "Content", LocalDateTime.of(2026, 1, 1, 10, 0));
+        Note note = new Note("Heading", "Content");
         Person aliceWithNote = new PersonBuilder(ALICE).withNotes(List.of(note)).build();
         assertNotEquals(ALICE.hashCode(), aliceWithNote.hashCode());
     }
@@ -119,7 +118,7 @@ public class PersonTest {
     public void getNotes_returnsUnmodifiableList() {
         Person person = new PersonBuilder().build();
         assertThrows(UnsupportedOperationException.class, () -> person.getNotes().add(
-                new Note("h", "c", LocalDateTime.now())));
+                new Note("h", "c")));
     }
 
     @Test

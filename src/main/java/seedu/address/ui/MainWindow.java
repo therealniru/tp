@@ -18,6 +18,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Person;
@@ -85,6 +86,14 @@ public class MainWindow extends UiPart<Stage> {
 
     private void setAccelerators() {
         setAccelerator(helpMenuItem, KeyCombination.valueOf("F1"));
+
+        KeyCombination exitKeyCombination = KeyCombination.keyCombination("Shortcut+Q");
+        getRoot().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (exitKeyCombination.match(event)) {
+                handleExit();
+                event.consume();
+            }
+        });
     }
 
     /**
@@ -178,6 +187,7 @@ public class MainWindow extends UiPart<Stage> {
     @FXML
     public void handleHelp() {
         helpWindow.show();
+        resultDisplay.setFeedbackToUser(HelpCommand.SHOWING_HELP_MESSAGE);
     }
 
     void show() {
