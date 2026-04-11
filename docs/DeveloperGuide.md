@@ -880,7 +880,7 @@ state. The max of 10 tags per command prevents abuse while covering realistic ba
 
 1. User requests to add a note to a candidate by index, providing content and an optional heading.
 2. System validates the index and content (must be non-empty; content max 500 characters, heading max 50 characters).
-3. System creates a note (with an auto-recorded creation time) and appends it to the candidate's record.
+3. System creates a note and appends it to the candidate's record.
 4. System informs the user of success.
    Use case ends.
 
@@ -895,12 +895,12 @@ state. The max of 10 tags per command prevents abuse while covering realistic ba
 * 2b. Content exceeds 500 characters or heading exceeds 50 characters.
     * 2b1. System informs the user of the character limit.
     * Use case ends.
-* 2c. Duplicate `n/` or `h/` prefixes detected.
+* 2c. Duplicate `c/` or `h/` prefixes detected.
     * 2c1. System informs the user that duplicate prefixes are not allowed.
     * Use case ends.
 
 **Design justification:** Heading defaults to "General Note" when omitted to keep the common case fast (just
-`addnote 1 n/content`). Duplicate prefix detection prevents silent data loss where content containing ` n/` would be
+`addnote 1 c/content`). Duplicate prefix detection prevents silent data loss where content containing ` c/` would be
 mis-parsed. Newline characters in pasted content are automatically converted to spaces to prevent JSON formatting issues
 and ensure single-line display.
 
@@ -1097,7 +1097,7 @@ prevents confusing branching states and is consistent with how most mainstream a
 * **Tag pool:** The master registry of all valid tags in the system. Tags must be created in the pool (`tagpool at/TAG`)
   before they can be assigned to candidates. Running `tagpool` with no arguments lists all tags. Deleting a tag from the
   pool cascades the removal to all candidates.
-* **Note:** A free-form text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Each note records its creation time internally for chronological ordering. Notes can be added, edited, or deleted.
+* **Note:** A free-form text entry attached to a candidate, with an optional heading (max 50 characters) and content (max 500 characters). Notes can be added, edited, or deleted.
 * **Hiring stage:** The current position of a candidate in the hiring pipeline, tracked via tags (e.g., `Shortlisted`,
   `Hired`, `Blacklisted`) assigned by the recruiter.
 * **Priority:** A boolean flag (`yes`/`no`) indicating whether a candidate is high-priority. High-priority candidates
@@ -1249,7 +1249,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Test case: `show 1` when at least one candidate is listed.<br>
    Expected: The right-side detail panel opens showing the candidate's full information: name, phone, email, address,
-   priority, date added, tags, all notes (with timestamps), and full rejection history.
+   priority, date added, tags, all notes, and full rejection history.
 
 1. Test case: `show 99` (index out of range).<br>
    Expected: Error message indicating the index is out of range.
@@ -1347,49 +1347,49 @@ testers are expected to do more *exploratory* testing.
 
     1. Prerequisites: List all candidates using the `list` command. At least one candidate in the list.
 
-    1. Test case: `addnote 1 n/Strong technical skills. h/Tech Round 1`<br>
+    1. Test case: `addnote 1 c/Strong technical skills. h/Tech Round 1`<br>
        Expected: A note with heading "Tech Round 1" and content "Strong technical skills." is appended to the first
-       candidate. Timestamp is the current date and time, displayed above the heading when viewed via `show 1`.
+       candidate. displayed in the detail panel when viewed via `show 1`.
 
-    1. Test case: `addnote 1 n/Quick follow-up needed.`<br>
+    1. Test case: `addnote 1 c/Quick follow-up needed.`<br>
        Expected: A note with default heading "General Note" is appended. Content is "Quick follow-up needed."
 
 1. Adding a note with invalid input
 
-    1. Test case: `addnote 0 n/content`<br>
+    1. Test case: `addnote 0 c/content`<br>
        Expected: Error message indicating invalid index.
 
-    1. Test case: `addnote 1 n/`<br>
+    1. Test case: `addnote 1 c/`<br>
        Expected: Error message indicating note content cannot be empty.
 
-    1. Test case: `addnote 1 n/content n/more`<br>
+    1. Test case: `addnote 1 c/content c/more`<br>
        Expected: Error message indicating duplicate prefixes are not allowed.
 
 ### Editing a note
 
 1. Editing a note with valid input
 
-    1. Prerequisites: Use `addnote 1 n/Original content h/Original Heading` to add a note to the first candidate. Verify
+    1. Prerequisites: Use `addnote 1 c/Original content h/Original Heading` to add a note to the first candidate. Verify
        via `show 1`.
 
-    1. Test case: `editnote 1 1 n/Updated content`<br>
-       Expected: Note 1's content changes to "Updated content". Heading and timestamp are preserved.
+    1. Test case: `editnote 1 1 c/Updated content`<br>
+       Expected: Note 1's content changes to "Updated content". Heading is preserved.
 
     1. Test case: `editnote 1 1 h/New Heading`<br>
-       Expected: Note 1's heading changes to "New Heading". Content and timestamp are preserved.
+       Expected: Note 1's heading changes to "New Heading". Content is preserved.
 
-    1. Test case: `editnote 1 1 n/New content h/New Heading`<br>
-       Expected: Both content and heading are updated. Timestamp is preserved.
+    1. Test case: `editnote 1 1 c/New content h/New Heading`<br>
+       Expected: Both content and heading are updated.
 
 1. Editing a note with invalid input
 
     1. Test case: `editnote 1 1` (no content or heading)<br>
        Expected: Error message indicating at least one field must be provided.
 
-    1. Test case: `editnote 1 99 n/content` (note index out of range)<br>
+    1. Test case: `editnote 1 99 c/content` (note index out of range)<br>
        Expected: Error message indicating note index is out of range.
 
-    1. Test case: `editnote 1 1 n/` (blank content)<br>
+    1. Test case: `editnote 1 1 c/` (blank content)<br>
        Expected: Error message indicating note content cannot be blank.
 
 ### Deleting a note
@@ -1564,12 +1564,6 @@ testers are expected to do more *exploratory* testing.
     1. To simulate invalid field values: open `data/talently.json` and change a note's date to `"2025-02-30T10:00:00"` (
        invalid date).<br>
        Expected: The app starts with no candidates (graceful recovery).
-
-    1. To simulate a future note date: open `data/talently.json` and change a note's date to a far-future value such as
-       `"2099-01-01T00:00:00"`.<br>
-       Expected: The app loads normally. The affected note's timestamp is silently clamped to the time of loading. The
-       corrected data is written back to disk immediately (no user command needed). A warning is written to the log. No
-       data is lost.
 
     1. To simulate a future candidate date: open `data/talently.json` and change a candidate's `dateAdded` to a
        far-future value such as `"01/01/2099 00:00 +0800"`.<br>

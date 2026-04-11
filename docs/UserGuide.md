@@ -148,7 +148,7 @@ Ready for more? Continue to [Features](#features).
 * Commands that take no parameters (such as `help`, `list`, `exit`, `clear`, `undo`, and `redo`) will reject any extra non-space text with an error. For example, `list abc` is not valid. However, trailing spaces are accepted — `list   ` (with spaces) is treated the same as `list`.
 * For commands where **all** parameters are shown in square brackets (e.g. `edit`, `editnote`, `tag`), at least one bracketed parameter must still be provided — providing zero will result in an error.
 * **Command words are case-insensitive** (e.g. `ADD`, `Add`, and `add` are all valid).
-* **Prefixes are strictly case-sensitive and must be typed in lowercase.** For example, `n/`, `p/`, `e/`, `a/`, `pr/`, `at/`, `dt/`, `c/`, `h/`, `o/` are valid prefixes. If you type `N/` instead of `n/`, or `AT/` instead of `at/`, Talently will NOT recognise it as a prefix and will report that required parameters are missing.
+* **Prefixes are case-insensitive.** For example, `n/`, `N/`, `p/`, `P/`, `e/`, `E/`, `at/`, `AT/` are all recognised. Lowercase is recommended for consistency.
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 
 <div markdown="span" class="alert alert-warning">
@@ -159,7 +159,7 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 *   **Backup:** Always keep a backup of your data file before performing manual edits.
 </div>
 
-* **Input normalization:** Names have extra whitespace collapsed (e.g., `John    Doe` becomes `John Doe`). Emails are automatically lowercased (e.g., `John@Gmail.COM` becomes `john@gmail.com`). Phone numbers are compared by their digits only — the `+` prefix, spaces, hyphens, and parentheses are stripped before comparing, so `+65-9123-4567`, `+6591234567`, and `6591234567` are all treated as the same number for duplicate detection.
+* **Input normalization:** Names have extra whitespace collapsed (e.g., `John    Doe` becomes `John Doe`). Emails are automatically lowercased (e.g., `John@Gmail.COM` becomes `john@gmail.com`). Addresses have leading and trailing whitespace stripped (e.g., `  123 Main St  ` is accepted as `123 Main St`). Phone numbers are compared by their digits only — the `+` prefix, spaces, hyphens, and parentheses are stripped before comparing, so `+65-9123-4567`, `+6591234567`, and `6591234567` are all treated as the same number for duplicate detection.
 * **Providing duplicate prefixes** (e.g., `n/Alice n/Bob`) in a single command is not allowed and will be rejected with an error.
 * **Display resets:** After any command that adds, edits, removes, or otherwise changes candidate data (`add`, `edit`, `remove`, `tag`, `addnote`, `editnote`, `deletenote`, `addreject`, `editreject`, `deletereject`), the candidate list returns to the default alphabetical order and any active filter or search is cleared.
 
@@ -172,9 +172,9 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 | Field | Prefix | Rules |
 |---|---|---|
 | NAME | `n/` | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Max 100 characters. |
-| PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
+| PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must begin and end with a digit. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
 | EMAIL | `e/` | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`. The domain must have at least one `.` and a TLD of at least two letters. Examples: `john@example.com`, `john+work@example.co.uk`. |
-| ADDRESS | `a/` | Any non-empty printable ASCII text. Max 200 characters. |
+| ADDRESS | `a/` | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Leading and trailing whitespace is stripped. Max 200 characters. |
 | TAG | `at/` / `dt/` | Must start with a letter or number, followed by letters, numbers, or `. + - _ ( ) @ # ! ? '`. No spaces. 1–30 characters. Case-insensitive (`Python` and `python` are treated as the same tag). |
 | REJECTION REASON | (positional in `addreject`) | Non-empty. Max 200 characters. Allowed characters: letters, digits, spaces, `. , - ' / : ; ! ? ( ) & " # + % @ *`. |
 | NOTE CONTENT | `c/` | Non-empty, printable ASCII only. Max 500 characters. |
@@ -199,7 +199,7 @@ Examples:
 
 <p align="center"><img src="images/help%20Command.png" alt="help message" width="730"/></p>
 
-> **Expected output:** A help window opens, displaying a link to the User Guide.
+> **Expected output:** A help window opens, displaying a link to the User Guide. A confirmation message (`Opened help window.`) also appears in the result display. This applies whether you type `help`, press `F1`, or click the Help menu button — all three methods open the window and show the same confirmation.
 
 ---
 
@@ -214,9 +214,9 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 | Parameter | Prefix | Required | Rules |
 |---|---|---|---|
 | NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Max 100 characters. |
-| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
+| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must begin and end with a digit. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
 | EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. Automatically lowercased. |
-| ADDRESS | `a/` | Yes | Any non-empty printable ASCII text. Max 200 characters. |
+| ADDRESS | `a/` | Yes | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Leading and trailing whitespace is stripped. Max 200 characters. |
 | PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
 
 <div markdown="span" class="alert alert-info">
@@ -301,7 +301,7 @@ Opens the full detail panel for a candidate on the right side of the screen.
 Format: `show INDEX`
 
 * `INDEX` must be a positive integer.
-* Detail panel displays: name, phone, email, address, priority, date added, tags, all notes (each showing the timestamp above the heading and content), and full rejection history.
+* Detail panel displays: name, phone, email, address, priority, date added, tags, all notes (each showing the heading and content), and full rejection history.
 * If you make changes to a candidate (e.g. via `edit`, `addnote`, `tag`) while their detail panel is open, the panel updates automatically to reflect the latest information.
 * If the candidate currently shown is removed (via `remove`), the detail panel clears automatically. If you then `undo` the removal, the detail panel repopulates automatically.
 
@@ -340,7 +340,7 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 * Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_` `:` `;` `!` `?` `(` `)` `&` `%` `"` `#` `*` `,` (non-ASCII characters such as accented letters or emojis are not supported).
 * Duplicate keywords are automatically removed (e.g., `find john john` searches for `john` once).
 * `find` always searches across **ALL** candidates in Talently, not just those currently shown by a previous `filter`. Running `find` after `filter` will show results from the full list.
-* If no candidates match, `0 candidates listed.` is shown. Run `list` to return to the full candidate list.
+* If no candidates match, `No matching candidates found.` is shown. Run `list` to return to the full candidate list.
 
 <div markdown="span" class="alert alert-info">
 :information_source: **Note:** `find` does not search the **address field** or **tags**. Use `filter` to search by tag. Phone number search is normalised — digits-only searches (e.g., `find 6591234567`) will match phone numbers stored with separators (e.g., `+65-9123-4567`).
@@ -516,15 +516,14 @@ Examples:
 
 ### Adding a note to a candidate : `addnote`
 
-Adds a timestamped note to a candidate's record.
+Adds a note to a candidate's record.
 
 Format: `addnote INDEX c/CONTENT [h/HEADING]`
 
 * `INDEX` must be a positive integer.
 * `CONTENT` is required, must not be blank, printable ASCII only, and must not exceed 500 characters.
-* `HEADING` is optional — candidates may have structured interview rounds (e.g. `h/Tech Round 1`, `h/HR Interview`) but sometimes you just want to jot down a quick observation without a specific occasion. Defaults to `General Note` if omitted **or** if `h/` is provided with only whitespace (e.g. `h/   `). Must not exceed 50 characters (printable ASCII only).
+* `HEADING` is optional — candidates may have structured interview rounds (e.g. `h/Tech Round 1`, `h/HR Interview`) but sometimes you just want to jot down a quick observation without a specific occasion. Defaults to `General Note` if omitted **or** if `h/` is provided with no value or only whitespace (e.g. `h/` or `h/   `). Must not exceed 50 characters (printable ASCII only).
 * Max 50 notes per candidate. Attempting to add a 51st note shows an error and nothing is saved.
-* Each note is automatically stamped with the current date and time. The timestamp is displayed above the note heading in the detail panel (e.g. `02 Apr 2026, 23:15`).
 * Notes are appended in order — earlier notes are never overwritten.
 * Newline characters in pasted content are automatically converted to spaces.
 * Note content and headings must not contain the sequences ` c/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
@@ -543,7 +542,7 @@ Examples:
 
 ### Editing a note : `editnote`
 
-Edits the content and/or heading of an existing note. The original timestamp is preserved.
+Edits the content and/or heading of an existing note.
 
 Format: `editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]` *(at least one required)*
 
@@ -551,12 +550,11 @@ Format: `editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]` *(at least one requi
 * `NOTE_INDEX` is the note's position in the candidate's notes list (positive integer). Use `show INDEX` to see note numbers.
 * At least one of `c/CONTENT` or `h/HEADING` must be provided.
 * `CONTENT` must not be blank, printable ASCII only, and must not exceed 500 characters.
-* `HEADING` is printable ASCII only and must not exceed 50 characters. If `h/` is provided with only whitespace (e.g. `h/   `), the heading defaults to `General Note`.
-* The note's original timestamp is preserved — only the content and/or heading are updated.
+* `HEADING` is printable ASCII only and must not exceed 50 characters. If `h/` is provided with no value or only whitespace (e.g. `h/` or `h/   `), the heading defaults to `General Note`.
 * Newline characters in pasted content are automatically converted to spaces.
 
 Examples:
-* `editnote 1 1 c/Actually failed the interview.` — updates the content of note 1 for candidate 1, keeping the original heading and timestamp.
+* `editnote 1 1 c/Actually failed the interview.` — updates the content of note 1 for candidate 1, keeping the original heading.
 * `editnote 2 3 h/Final Round` — updates only the heading of note 3 for candidate 2.
 * `editnote 1 2 c/New content h/New heading` — updates both content and heading.
 
@@ -612,7 +610,7 @@ Examples:
 * `tagpool dt/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
 * `tagpool at/Senior dt/Junior` — Creates `Senior` and deletes `Junior` in one command.
 
-> **Expected output:** `Tag pool updated. Created: 1 tag(s). Deleted: 0 tag(s).`
+> **Expected output:** `Tag pool updated. Created: 1 tag(s). Deleted: 0 tag(s).` When tags are deleted, an additional warning is shown: `Warning: Cascade deletion — candidates assigned to the deleted tag(s) have had those tags removed (if any such candidates exist).`
 
 ---
 
@@ -743,7 +741,7 @@ A: Tags must first exist in the pool. Run `tagpool at/TAG_NAME`, then `tag INDEX
 A: It shows the total number of times that candidate has been rejected. Run `show INDEX` to view the full rejection history.
 
 **Q: How do I view all notes for a candidate?**
-A: Use `show INDEX`. The detail panel lists all notes with headings, content, and timestamps. Note numbers shown correspond to the `NOTE_INDEX` used in `editnote` and `deletenote`.
+A: Use `show INDEX`. The detail panel lists all notes with headings and content. Note numbers shown correspond to the `NOTE_INDEX` used in `editnote` and `deletenote`.
 
 **Q: Can two candidates have the same name?**
 A: Yes — Talently identifies duplicates by phone **or** email, not name. Two candidates with the same name but different phone and email are allowed.
@@ -794,14 +792,14 @@ Action | Format, Examples
 | **Candidate** | A person managed in Talently, with fields name, phone, email, address, priority, date added, tags, notes, and rejection history. |
 | **Command** | A specific instruction typed into the command box to perform an action (e.g. `add`, `find`, `tag`). |
 | **Parameter** | A value supplied to a command, usually introduced by a prefix such as `n/`, `p/`, `e/`, `a/`, `pr/`, `h/`, `c/`, `o/`. |
-| **Prefix** | The short marker (e.g. `n/`) that introduces a parameter in a command. Prefixes are always lowercase. The real prefixes used in Talently are: `n/`, `p/`, `e/`, `a/`, `pr/`, `at/`, `dt/`, `c/`, `h/`, `o/`. Must be preceded by a space when not at the start of the command. |
+| **Prefix** | The short marker (e.g. `n/`) that introduces a parameter in a command. Prefixes are case-insensitive. The real prefixes used in Talently are: `n/`, `p/`, `e/`, `a/`, `pr/`, `at/`, `dt/`, `c/`, `h/`, `o/`. Must be preceded by a space when not at the start of the command. |
 | **Index** | The 1-based number shown next to each candidate in the currently displayed list. Used by commands such as `remove`, `edit`, `show`, `tag`, `addnote`, and `addreject`. The index refers to the **displayed** list, which may be filtered. |
 | **Tag** | A user-defined label attached to a candidate (e.g. `Shortlisted`). Tags are case-insensitive and must first be created in the tag pool before being assigned. |
 | **Tag pool** | The master registry of tags managed with `tagpool`. Only tags in the pool can be assigned to candidates. |
-| **Note** | A timestamped, free-form entry attached to a candidate, with optional heading. Notes are ordered and never overwritten by new additions. |
+| **Note** | A free-form entry attached to a candidate, with optional heading. Notes are ordered and never overwritten by new additions. |
 | **Rejection reason** | A formal, audit-style record of why a candidate was rejected, added with `addreject`. Each candidate maintains a numbered history; the red badge on a candidate card shows the total count. |
 | **Priority** | A boolean flag (`yes` / `no`) that marks a candidate as high-priority. Surfaced by `sort pr o/desc`. |
-| **Detail panel** | The right-side panel opened by `show INDEX`. Displays all candidate information including notes (with timestamps) and full rejection history. |
+| **Detail panel** | The right-side panel opened by `show INDEX`. Displays all candidate information including notes and full rejection history. |
 | **Command box** | The text input at the top of the main window where you type commands. |
 | **Result display** | The area directly below the command box that shows feedback and error messages after each command. |
 | **Candidate list** | The scrollable list on the left of the main window showing candidate cards with index, name, contact fields, tags, and rejection badge. |
