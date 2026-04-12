@@ -15,7 +15,7 @@ public class Messages {
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Error: Invalid command format! \n%1$s";
     public static final String MESSAGE_INDEX_OUT_OF_RANGE =
             "Error: Index %1$d is out of range. The current list has %2$d candidate(s). "
-            + "Please provide an index between 1 and %2$d.";
+            + "Please provide an index from 1 to %2$d.";
     public static final String MESSAGE_EMPTY_LIST =
             "Error: The candidate list is currently empty. "
             + "There are no candidates to perform this action on.";

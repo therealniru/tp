@@ -35,7 +35,7 @@ public class EditNoteCommand extends Command {
 
     public static final String MESSAGE_INVALID_NOTE_INDEX =
             "Error: Note index %1$d is out of range. Candidate %2$s has %3$d note(s). "
-            + "Please provide a note index between 1 and %3$d.";
+            + "Please provide a note index from 1 to %3$d.";
 
     private static final Logger logger = LogsCenter.getLogger(EditNoteCommand.class);
 

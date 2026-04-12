@@ -64,7 +64,7 @@ public class NoteCommandTest {
         NoteCommand noteCommand = new NoteCommand(outOfBoundIndex, VALID_NOTE);
         String expectedMessage = String.format(
                 "Error: Index %d is out of range. The current list has %d candidate(s). "
-                + "Please provide an index between 1 and %d.",
+                + "Please provide an index from 1 to %d.",
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
                 model.getFilteredPersonList().size());
         assertCommandFailure(noteCommand, model, expectedMessage);
@@ -100,7 +100,7 @@ public class NoteCommandTest {
         NoteCommand noteCommand = new NoteCommand(outOfBoundIndex, VALID_NOTE);
         String expectedMessage = String.format(
                 "Error: Index %d is out of range. The current list has %d candidate(s). "
-                + "Please provide an index between 1 and %d.",
+                + "Please provide an index from 1 to %d.",
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
                 model.getFilteredPersonList().size());
         assertCommandFailure(noteCommand, model, expectedMessage);

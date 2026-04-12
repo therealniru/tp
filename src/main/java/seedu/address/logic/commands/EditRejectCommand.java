@@ -36,7 +36,7 @@ public class EditRejectCommand extends Command {
 
     public static final String MESSAGE_INVALID_REJECT_INDEX =
             "Error: Rejection index %1$d is out of range. Candidate %2$s has %3$d rejection(s). "
-            + "Please provide a rejection index between 1 and %3$d.";
+            + "Please provide a rejection index from 1 to %3$d.";
 
     private static final Logger logger = LogsCenter.getLogger(EditRejectCommand.class);
 

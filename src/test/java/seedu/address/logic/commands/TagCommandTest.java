@@ -66,7 +66,7 @@ public class TagCommandTest {
         TagCommand command = new TagCommand(outOfBounds, List.of(), List.of());
         assertCommandFailure(command, model,
                 String.format("Error: Index %d is out of range. The current list has %d candidate(s). "
-                                + "Please provide an index between 1 and %d.",
+                                + "Please provide an index from 1 to %d.",
                         outOfBounds.getOneBased(),
                         model.getFilteredPersonList().size(),
                         model.getFilteredPersonList().size()));
@@ -79,7 +79,7 @@ public class TagCommandTest {
         TagCommand command = new TagCommand(INDEX_SECOND_PERSON, List.of(), List.of());
         assertCommandFailure(command, model,
                 String.format("Error: Index %d is out of range. The current list has %d candidate(s). "
-                                + "Please provide an index between 1 and %d.",
+                                + "Please provide an index from 1 to %d.",
                         INDEX_SECOND_PERSON.getOneBased(), 1, 1));
     }
 

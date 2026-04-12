@@ -249,7 +249,7 @@ public class EditCommandTest {
         EditCommand editCommand = new EditCommand(outOfBoundIndex, descriptor);
 
         String expectedMessage = String.format("Error: Index %d is out of range. "
-                        + "The current list has %d candidate(s). Please provide an index between 1 and %d.",
+                        + "The current list has %d candidate(s). Please provide an index from 1 to %d.",
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
                 model.getFilteredPersonList().size());
 
@@ -271,7 +271,7 @@ public class EditCommandTest {
                 new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
 
         String expectedMessage = String.format("Error: Index %d is out of range. "
-                        + "The current list has %d candidate(s). Please provide an index between 1 and %d.",
+                        + "The current list has %d candidate(s). Please provide an index from 1 to %d.",
                 outOfBoundIndex.getOneBased(), model.getFilteredPersonList().size(),
                 model.getFilteredPersonList().size());
 
