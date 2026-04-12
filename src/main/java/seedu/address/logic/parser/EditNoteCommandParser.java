@@ -7,7 +7,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE_HEADING;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.EditNoteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Note;
 
 /**
  * Parses input arguments and creates a new EditNoteCommand object.
@@ -66,38 +65,14 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
         String newHeading = null;
 
         if (hasContent) {
-            newContent = argMultimap.getValue(PREFIX_NOTE_CONTENT).get()
-                    .replaceAll("\\r\\n|\\r|\\n", " ").trim();
-            if (newContent.isEmpty()) {
-                throw new ParseException("Error: Note content cannot be blank. "
-                        + "Usage: editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]");
-            }
-            if (newContent.length() > Note.MAX_CONTENT_LENGTH) {
-                throw new ParseException(String.format(
-                        "Error: Note content must not exceed %d characters (currently %d).",
-                        Note.MAX_CONTENT_LENGTH, newContent.length()));
-            }
-            if (!Note.isValidContent(newContent)) {
-                throw new ParseException("Error: Note content must contain only printable ASCII characters "
-                        + "(no accented letters, emojis, or other non-ASCII input).");
-            }
+            newContent = NoteCommandParser.parseNoteContent(
+                    argMultimap.getValue(PREFIX_NOTE_CONTENT).get(),
+                    "Error: Note content cannot be blank. "
+                            + "Usage: editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]");
         }
 
         if (hasHeading) {
-            newHeading = argMultimap.getValue(PREFIX_NOTE_HEADING).get()
-                    .replaceAll("\\r\\n|\\r|\\n", " ").trim();
-            if (newHeading.isEmpty()) {
-                newHeading = NoteCommandParser.DEFAULT_HEADING;
-            }
-            if (newHeading.length() > Note.MAX_HEADING_LENGTH) {
-                throw new ParseException(String.format(
-                        "Error: Note heading must not exceed %d characters (currently %d).",
-                        Note.MAX_HEADING_LENGTH, newHeading.length()));
-            }
-            if (!Note.isValidHeading(newHeading)) {
-                throw new ParseException("Error: Note heading must contain only printable ASCII characters "
-                        + "(no accented letters, emojis, or other non-ASCII input).");
-            }
+            newHeading = NoteCommandParser.parseNoteHeading(argMultimap.getValue(PREFIX_NOTE_HEADING).get());
         }
 
         return new EditNoteCommand(targetIndex, noteIndex, newContent, newHeading);

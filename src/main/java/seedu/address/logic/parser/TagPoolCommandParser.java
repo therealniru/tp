@@ -44,16 +44,17 @@ public class TagPoolCommandParser implements Parser<TagPoolCommand> {
             throw new ParseException(MESSAGE_EXCEEDED_LIMIT);
         }
 
-        List<Tag> tagsToAdd = new ArrayList<>();
-        for (String tagName : addValues) {
-            tagsToAdd.add(ParserUtil.parseTag(tagName));
-        }
-
-        List<Tag> tagsToDelete = new ArrayList<>();
-        for (String tagName : deleteValues) {
-            tagsToDelete.add(ParserUtil.parseTag(tagName));
-        }
+        List<Tag> tagsToAdd = parseTags(addValues);
+        List<Tag> tagsToDelete = parseTags(deleteValues);
 
         return new TagPoolCommand(tagsToAdd, tagsToDelete);
+    }
+
+    private List<Tag> parseTags(List<String> values) throws ParseException {
+        List<Tag> tags = new ArrayList<>();
+        for (String name : values) {
+            tags.add(ParserUtil.parseTag(name));
+        }
+        return tags;
     }
 }

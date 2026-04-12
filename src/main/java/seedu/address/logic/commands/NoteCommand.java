@@ -65,7 +65,7 @@ public class NoteCommand extends Command {
         if (personToEdit.getNotes().size() >= MAX_NOTES_PER_CANDIDATE) {
             throw new CommandException(MESSAGE_NOTES_LIMIT_REACHED);
         }
-        Person editedPerson = createEditedPerson(personToEdit, note);
+        Person editedPerson = createEditedPerson(personToEdit, createUpdatedNotes(personToEdit.getNotes(), note));
 
         model.setPerson(personToEdit, editedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
@@ -74,15 +74,18 @@ public class NoteCommand extends Command {
         return new CommandResult(String.format(MESSAGE_SUCCESS, personToEdit.getName()));
     }
 
-    /**
-     * Creates and returns a {@code Person} with the given {@code note} appended to its notes list.
-     */
-    private static Person createEditedPerson(Person personToEdit, Note note) {
-        assert personToEdit != null;
-        assert note != null;
+    private static List<Note> createUpdatedNotes(List<Note> currentNotes, Note newNote) {
+        List<Note> updatedNotes = new ArrayList<>(currentNotes);
+        updatedNotes.add(newNote);
+        return updatedNotes;
+    }
 
-        List<Note> updatedNotes = new ArrayList<>(personToEdit.getNotes());
-        updatedNotes.add(note);
+    /**
+     * Creates and returns a {@code Person} with the given list of {@code Note}s.
+     */
+    public static Person createEditedPerson(Person personToEdit, List<Note> updatedNotes) {
+        assert personToEdit != null;
+        assert updatedNotes != null;
 
         return new Person(
                 personToEdit.getName(),

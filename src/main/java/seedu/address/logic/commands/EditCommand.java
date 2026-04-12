@@ -93,25 +93,7 @@ public class EditCommand extends Command {
             return new CommandResult("Note: No changes detected; candidate details remain the same.");
         }
 
-        // Duplicate exclusion validation: check if any OTHER person conflicts with the edited identity
-        for (Person p : model.getAddressBook().getPersonList()) {
-            if (!p.equals(personToEdit) && p.isSamePerson(editedPerson)) {
-                boolean phoneMatch = p.getPhone().equals(editedPerson.getPhone());
-                boolean emailMatch = p.getEmail().equals(editedPerson.getEmail());
-                String field;
-                if (phoneMatch && emailMatch) {
-                    field = String.format("Phone %s and Email %s are",
-                            editedPerson.getPhone().value, editedPerson.getEmail().value);
-                } else if (phoneMatch) {
-                    field = String.format("Phone %s is", editedPerson.getPhone().value);
-                } else {
-                    field = String.format("Email %s is", editedPerson.getEmail().value);
-                }
-                throw new CommandException(String.format(
-                        "Error: This edit would duplicate an existing candidate. "
-                        + "%s already assigned to %s.", field, p.getName().fullName));
-            }
-        }
+        validateNoDuplicate(model, personToEdit, editedPerson);
 
         model.setPerson(personToEdit, editedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
@@ -135,6 +117,28 @@ public class EditCommand extends Command {
                 && a.getDateAdded().equals(b.getDateAdded())
                 && a.getPriority().equals(b.getPriority())
                 && a.getNotes().equals(b.getNotes());
+    }
+
+    private static void validateNoDuplicate(Model model, Person personToEdit, Person editedPerson)
+            throws CommandException {
+        for (Person p : model.getAddressBook().getPersonList()) {
+            if (!p.equals(personToEdit) && p.isSamePerson(editedPerson)) {
+                boolean phoneMatch = p.getPhone().equals(editedPerson.getPhone());
+                boolean emailMatch = p.getEmail().equals(editedPerson.getEmail());
+                String field;
+                if (phoneMatch && emailMatch) {
+                    field = String.format("Phone %s and Email %s are",
+                            editedPerson.getPhone().value, editedPerson.getEmail().value);
+                } else if (phoneMatch) {
+                    field = String.format("Phone %s is", editedPerson.getPhone().value);
+                } else {
+                    field = String.format("Email %s is", editedPerson.getEmail().value);
+                }
+                throw new CommandException(String.format(
+                        "Error: This edit would duplicate an existing candidate. "
+                        + "%s already assigned to %s.", field, p.getName().fullName));
+            }
+        }
     }
 
     /**

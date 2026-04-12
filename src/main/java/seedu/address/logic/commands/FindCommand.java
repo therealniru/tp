@@ -39,6 +39,7 @@ public class FindCommand extends Command {
     @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
+        assert predicate != null : "Predicate must be initialised before execute is called";
         model.updateFilteredPersonList(predicate);
         int listSize = model.getFilteredPersonList().size();
         logger.info("Find command executed: " + listSize + " candidate(s) found");

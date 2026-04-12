@@ -52,45 +52,53 @@ public class NoteCommandParser implements Parser<NoteCommand> {
             throw new ParseException(MESSAGE_MISSING_CONTENT);
         }
 
-        String content = argMultimap.getValue(PREFIX_NOTE_CONTENT).get()
-                .replaceAll("\\r\\n|\\r|\\n", " ").trim();
-        if (content.isEmpty()) {
-            throw new ParseException(MESSAGE_INVALID_FORMAT);
-        }
-        if (content.length() > Note.MAX_CONTENT_LENGTH) {
-            throw new ParseException(String.format(
-                    "Error: Note content must not exceed %d characters (currently %d).",
-                    Note.MAX_CONTENT_LENGTH, content.length()));
-        }
-        if (!Note.isValidContent(content)) {
-            throw new ParseException("Error: Note content must contain only printable ASCII characters "
-                    + "(no accented letters, emojis, or other non-ASCII input).");
-        }
-
-        String heading;
-        if (argMultimap.getValue(PREFIX_NOTE_HEADING).isPresent()) {
-            heading = argMultimap.getValue(PREFIX_NOTE_HEADING).get()
-                    .replaceAll("\\r\\n|\\r|\\n", " ").trim();
-            if (heading.isEmpty()) {
-                heading = DEFAULT_HEADING;
-            }
-        } else {
-            heading = DEFAULT_HEADING;
-        }
-
-        if (heading.length() > Note.MAX_HEADING_LENGTH) {
-            throw new ParseException(String.format(
-                    "Error: Note heading must not exceed %d characters (currently %d).",
-                    Note.MAX_HEADING_LENGTH, heading.length()));
-        }
-        if (!Note.isValidHeading(heading)) {
-            throw new ParseException("Error: Note heading must contain only printable ASCII characters "
-                    + "(no accented letters, emojis, or other non-ASCII input).");
-        }
+        String content = parseNoteContent(argMultimap.getValue(PREFIX_NOTE_CONTENT).get(), MESSAGE_INVALID_FORMAT);
+        String heading = argMultimap.getValue(PREFIX_NOTE_HEADING).isPresent()
+                ? parseNoteHeading(argMultimap.getValue(PREFIX_NOTE_HEADING).get()) : DEFAULT_HEADING;
 
         logger.fine("Parsed note command: index=" + index.getOneBased()
                 + ", heading=" + heading + ", content=" + content);
 
         return new NoteCommand(index, new Note(heading, content));
+    }
+
+    /**
+     * Parses the note content.
+     */
+    public static String parseNoteContent(String content, String emptyErrMsg) throws ParseException {
+        String clean = content.replaceAll("\\r\\n|\\r|\\n", " ").trim();
+        if (clean.isEmpty()) {
+            throw new ParseException(emptyErrMsg);
+        }
+        if (clean.length() > Note.MAX_CONTENT_LENGTH) {
+            throw new ParseException(String.format(
+                    "Error: Note content must not exceed %d characters (currently %d).",
+                    Note.MAX_CONTENT_LENGTH, clean.length()));
+        }
+        if (!Note.isValidContent(clean)) {
+            throw new ParseException("Error: Note content must contain only printable "
+                    + "ASCII characters (no accented letters, emojis, or other non-ASCII input).");
+        }
+        return clean;
+    }
+
+    /**
+     * Parses the note heading.
+     */
+    public static String parseNoteHeading(String heading) throws ParseException {
+        String clean = heading.replaceAll("\\r\\n|\\r|\\n", " ").trim();
+        if (clean.isEmpty()) {
+            return DEFAULT_HEADING;
+        }
+        if (clean.length() > Note.MAX_HEADING_LENGTH) {
+            throw new ParseException(String.format(
+                    "Error: Note heading must not exceed %d characters (currently %d).",
+                    Note.MAX_HEADING_LENGTH, clean.length()));
+        }
+        if (!Note.isValidHeading(clean)) {
+            throw new ParseException("Error: Note heading must contain only printable "
+                    + "ASCII characters (no accented letters, emojis, or other non-ASCII input).");
+        }
+        return clean;
     }
 }
