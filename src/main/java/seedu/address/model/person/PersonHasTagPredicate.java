@@ -17,6 +17,10 @@ public class PersonHasTagPredicate implements Predicate<Person> {
         this.tag = tag;
     }
 
+    public Tag getTag() {
+        return tag;
+    }
+
     @Override
     public boolean test(Person person) {
         return person.getTags().contains(tag);

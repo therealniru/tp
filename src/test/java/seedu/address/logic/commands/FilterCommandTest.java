@@ -10,7 +10,6 @@ import static seedu.address.testutil.TypicalPersons.DANIEL;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
@@ -47,14 +46,34 @@ public class FilterCommandTest {
     }
 
     @Test
+    public void execute_tagNotInPool_showsErrorMessage() {
+        Tag ghostTag = new Tag("ghost");
+        FilterCommand command = new FilterCommand(new PersonHasTagPredicate(ghostTag));
+        String expectedMessage = String.format(FilterCommand.MESSAGE_TAG_NOT_IN_POOL, ghostTag);
+
+        CommandResult result = command.execute(model);
+        assertEquals(expectedMessage, result.getFeedbackToUser());
+    }
+
+    @Test
+    public void execute_tagInPoolNoPersonsFound_showsNoMatch() {
+        Model emptyModel = new ModelManager();
+        emptyModel.addTag(new Tag("owesMoney"));
+        FilterCommand command = new FilterCommand(new PersonHasTagPredicate(new Tag("owesMoney")));
+
+        CommandResult result = command.execute(emptyModel);
+        assertEquals(FilterCommand.MESSAGE_NO_MATCH, result.getFeedbackToUser());
+    }
+
+    @Test
     public void execute_tagNotFound_noPersonFound() {
-        String expectedMessage = FilterCommand.MESSAGE_NO_MATCH;
+        String expectedMessage = String.format(FilterCommand.MESSAGE_TAG_NOT_IN_POOL, new Tag("ghost"));
         PersonHasTagPredicate predicate = new PersonHasTagPredicate(new Tag("ghost"));
         FilterCommand command = new FilterCommand(predicate);
         expectedModel.updateFilteredPersonList(predicate);
 
-        assertCommandSuccess(command, model, expectedMessage, expectedModel);
-        assertEquals(Collections.emptyList(), model.getFilteredPersonList());
+        CommandResult result = command.execute(model);
+        assertEquals(expectedMessage, result.getFeedbackToUser());
     }
 
     @Test
@@ -73,6 +92,8 @@ public class FilterCommandTest {
         Model customModel = new ModelManager(getTypicalAddressBook(), new UserPrefs());
         Model customExpected = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
+        customModel.addTag(new Tag("Java"));
+        customModel.addTag(new Tag("JavaScript"));
         customModel.addPerson(new PersonBuilder()
                 .withName("Java Person")
                 .withPhone("81234567")
@@ -88,6 +109,8 @@ public class FilterCommandTest {
                 .withTags("JavaScript")
                 .build());
 
+        customExpected.addTag(new Tag("Java"));
+        customExpected.addTag(new Tag("JavaScript"));
         customExpected.addPerson(new PersonBuilder()
                 .withName("Java Person")
                 .withPhone("81234567")

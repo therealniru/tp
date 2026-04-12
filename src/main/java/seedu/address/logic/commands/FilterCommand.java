@@ -20,6 +20,7 @@ public class FilterCommand extends Command {
             + "Example: " + COMMAND_WORD + " friends";
 
     public static final String MESSAGE_NO_MATCH = "No matching candidates found.";
+    public static final String MESSAGE_TAG_NOT_IN_POOL = "The tag '%s' does not exist in the tag pool.";
 
     private final PersonHasTagPredicate predicate;
 
@@ -30,6 +31,9 @@ public class FilterCommand extends Command {
     @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
+        if (!model.hasTag(predicate.getTag())) {
+            return new CommandResult(String.format(MESSAGE_TAG_NOT_IN_POOL, predicate.getTag()));
+        }
         model.updateFilteredPersonList(predicate);
 
         int listSize = model.getFilteredPersonList().size();
