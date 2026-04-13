@@ -17,7 +17,6 @@ Talently is a **desktop contact-management application** for recruiters and hiri
 
 ### Expectations
 
-* **The application assumes users prefer keyboard-driven workflows** over mouse-driven interfaces, valuing speed and accuracy in data entry and retrieval.
 * Users are expected to be familiar with basic command syntax similar to search bars or messaging apps, and need tagging capabilities to organise candidates by hiring stage, role, or project without complex navigation.
 * The application is optimised for structured, ASCII-based text entry — it is not intended as a rich-text editor or a multilingual CRM.
 
@@ -32,11 +31,10 @@ Talently is a **desktop contact-management application** for recruiters and hiri
 ### Environment assumptions
 
 * **Display:** Talently is designed for a **single-monitor desktop setup**. It has been tested at the default launch size up to a typical 1920×1080 display. Stretching the window across multiple monitors, onto ultra-wide displays, or to extreme aspect ratios is **not supported** and may cause the candidate list, detail panel, or help window to render with awkward spacing. If this happens, resize the window back to a normal single-monitor size and the layout will recover.
+* **Window positioning:** If the saved window position is off-screen (e.g., because your display settings changed between launches), Talently automatically repositions the window to the primary screen. No manual intervention is needed.
 * **Minimum window size:** Talently enforces a minimum main-window size of 800×600 and a minimum help-window size of 700×500. You cannot shrink either window below these dimensions — this guarantees that the command box, result display, candidate list, and command summary remain visible at all times.
 * **Operating system:** Tested on Windows, macOS, and Linux with Java 17+.
 * **Character input:** Commands and all text fields accept **printable ASCII characters only** (letters, digits, spaces, and punctuation listed per field below). Non-ASCII characters — including accented letters (`é`, `ñ`), CJK characters (中, 日本語), emojis, curly/smart quotes, and right-to-left scripts — are rejected by the field validators or by the find keyword parser. If you paste text and receive a validation error, re-type the value using plain ASCII.
-
-**Assumed knowledge:** You can open a terminal and type commands. No programming experience required.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -171,14 +169,14 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 
 | Field | Prefix | Rules |
 |---|---|---|
-| NAME | `n/` | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter (cannot be strictly numeric). Between 1 and 100 characters. |
-| PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must begin and end with a digit. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
-| EMAIL | `e/` | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`. The domain must have at least one `.` and a TLD of at least two letters. Examples: `john@example.com`, `john+work@example.co.uk`. |
-| ADDRESS | `a/` | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Leading and trailing whitespace is stripped. Max 200 characters. |
-| TAG | `at/` / `dt/` | Must start with a letter or number, followed by letters, numbers, or `. + - _ ( ) @ # ! ? '`. No spaces. 1–30 characters. Case-insensitive (`Python` and `python` are treated as the same tag). |
-| REJECTION REASON | (positional in `addreject`) | Non-empty. Max 200 characters. Allowed characters: letters, digits, spaces, `. , - ' / : ; ! ? ( ) & " # + % @ *`. |
-| NOTE CONTENT | `c/` | Non-empty, printable ASCII only. Max 500 characters. |
-| NOTE HEADING | `h/` | Optional. Printable ASCII only. Max 50 characters. Defaults to `General Note` if omitted or if `h/` is given with only whitespace. |
+| NAME | `n/` | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. 1–100 characters. Strips leading/trailing whitespace and normalizes internal spaces. **Do not include the sequences ` n/`, ` p/`, ` e/`, ` a/`, or ` pr/` (space + prefix) inside the name value** — the parser will treat them as new field prefixes, splitting your input incorrectly. |
+| PHONE | `p/` | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must start with a `+` or digit, and must end with a digit. Must contain 3–15 digits (separators excluded). Strips leading/trailing whitespace. |
+| EMAIL | `e/` | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`; it must **start and end with a letter or digit** (not a special character), and **consecutive special characters are not allowed** (e.g. `test..email@example.com` is invalid). The domain must have at least one `.` and a TLD of at least two letters. Strips leading/trailing whitespace. |
+| ADDRESS | `a/` | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Max 200 characters. Strips leading/trailing whitespace. **Do not include the sequences ` n/`, ` p/`, ` e/`, ` a/`, or ` pr/` (space + prefix) inside the address value** — the parser will treat them as new field prefixes. |
+| TAG | `at/` / `dt/` | Must start with a letter or number, followed by letters, numbers, or `. + - _ ( ) @ # ! ? '`. No spaces. 1–30 characters. Case-insensitive. Strips leading/trailing whitespace. |
+| PRIORITY | `pr/` | Case-insensitive `yes` or `no`. Defaults to `no` if omitted during creation. Strips leading/trailing whitespace. |
+| REJECTION REASON | *(none — positional)* | Letters, numbers, spaces, and the symbols `. , - ' / : ; ! ? ( ) & " # + % @ *`. Must not be blank. Max 200 characters. Strips leading/trailing whitespace. The reason is entered directly after the index (and rejection index for `editreject`) with no prefix — e.g. `addreject 1 Failed technical interview`. |
+| NOTE | `c/`, `h/` | Heading (`h/`) is optional (defaults to `General Note`). Content (`c/`) is required. Printable ASCII only. Converts newlines to spaces and strips leading/trailing whitespace. **Do not include the sequences ` c/` or ` h/` (space + prefix) inside note content or headings** — the parser will treat them as new field delimiters, splitting your input incorrectly. |
 
 All text fields accept **printable ASCII characters only** — non-ASCII input (accented letters, emojis, CJK characters) is rejected. See [Environment assumptions](#environment-assumptions) for details.
 
@@ -190,7 +188,7 @@ All text fields accept **printable ASCII characters only** — non-ASCII input (
 
 ### Viewing help : `help`
 
-Opens a help window with a link to this User Guide. Note that the help window always opens with a default window size, even if you resized it previously.
+Opens a help window with a quick-reference command summary and a link to this full User Guide. Note that the help window always opens with a default window size, even if you resized it previously.
 
 Format: `help`
 
@@ -199,7 +197,7 @@ Examples:
 
 <p align="center"><img src="images/help%20Command.png" alt="help message" width="730"/></p>
 
-> **Expected output:** A help window opens, displaying a link to the User Guide. A confirmation message (`Opened help window.`) also appears in the result display. This applies whether you type `help`, press `F1`, or click the Help menu button — all three methods open the window and show the same confirmation.
+> **Expected output:** A help window opens, displaying a quick-reference guide of allowed command formats and a link to the online User Guide. A confirmation message (`Opened help window.`) also appears in the result display. This applies whether you type `help`, press `F1`, or click the Help menu button — all three methods open the window and show the same confirmation.
 
 ---
 
@@ -213,11 +211,11 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 
 | Parameter | Prefix | Required | Rules |
 |---|---|---|---|
-| NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter (cannot be strictly numeric). Between 1 and 100 characters. |
-| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must begin and end with a digit. Must contain 3–15 digits (separators excluded). Examples: `91234567`, `+6591234567`, `+65-9123-4567`, `+1 (415) 555-2671`. |
-| EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. Automatically lowercased. |
-| ADDRESS | `a/` | Yes | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Leading and trailing whitespace is stripped. Max 200 characters. |
-| PRIORITY | `pr/` | No | `yes` (high) or `no` (normal). Default: `no`. |
+| NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Strips leading/trailing whitespace and normalizes internal spaces. 1–100 characters. **Avoid the sequences ` n/`, ` p/`, ` e/`, ` a/`, ` pr/` inside the value** — they are treated as new prefixes. |
+| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must start with a `+` or digit, and must end with a digit. Must contain 3–15 digits (separators excluded). Strips leading/trailing whitespace. |
+| EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`; must start and end with a letter or digit; no consecutive special characters (e.g. `a..b@x.com` is invalid). Strips leading/trailing whitespace. |
+| ADDRESS | `a/` | Yes | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Max 200 characters. Strips leading/trailing whitespace. **Avoid the sequences ` n/`, ` p/`, ` e/`, ` a/`, ` pr/` inside the value** — they are treated as new prefixes. |
+| PRIORITY | `pr/` | No | Case-insensitive `yes` or `no`. Default: `no`. Strips leading/trailing whitespace. |
 
 <div markdown="span" class="alert alert-info">
 :information_source: **Tags are not set at add time.** First create tags with `tagpool`, then assign them with `tag`. See [Managing the tag pool](#managing-the-tag-pool--tagpool) and [Tagging a candidate](#tagging-a-candidate--tag).
@@ -241,7 +239,7 @@ Examples:
 
 <p align="center"><img src="images/add%20command.png" alt="Expected result after running the add command" width="730"/></p>
 
-> **Expected output:** `New candidate added: John Doe`
+> **Expected output:** `New candidate added: John Doe | Phone: 98765432 | Email: johnd@example.com | Address: John street, block 123, #01-01`
 
 ---
 
@@ -260,7 +258,7 @@ Examples:
 
 <p align="center"><img src="images/list%20command.png" alt="Expected result after running the list command" width="730"/></p>
 
-> **Expected output:** `Listed all X candidates.` (where X is the total number of candidates)
+> **Expected output:** `Listed 1 candidate.` (singular) or `Listed X candidates.` (where X is the total number of candidates)
 
 ---
 
@@ -273,12 +271,12 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [pr/PRIORITY]` *(at
 * `INDEX` refers to the number shown in the current list. Must be a positive integer.
 * At least one field must be provided.
 * Unspecified fields are unchanged.
+* All provided fields (including `INDEX`) have leading and trailing whitespace stripped before validation.
 * `PRIORITY`: `yes` or `no` (case-insensitive — `YES`, `Yes`, `NO` are all accepted).
-* If the new values are identical to the existing ones (including casing), a message indicating no changes were detected is shown and no modification is made. Case-only changes (e.g., `alice` → `Alice`) are treated as real edits.
-
-<div markdown="span" class="alert alert-primary">
-:bulb: **Tip:** Use tags to track hiring stages. For example, create a `Hired` tag with `tagpool at/Hired` and assign it with `tag INDEX at/Hired`.
-</div>
+* `NAME`: Multiple internal spaces are compressed into one.
+* If the new values are identical to the existing ones (including casing), a message indicating no changes were detected is shown and no modification is made. Case-only changes (e.g., `alice` → `Alice`) are treated as real edits, except for emails which are automatically lowercased and thus treated as case-insensitive during this check.
+* **NAME / ADDRESS values:** Do not include the sequences ` n/`, ` p/`, ` e/`, ` a/`, or ` pr/` (space + prefix) inside a name or address value — the parser will treat them as the start of a new field, splitting your input incorrectly.
+* **EMAIL:** The local part must start and end with a letter or digit; consecutive special characters (e.g. `a..b@x.com`) are not allowed.
 
 <div markdown="span" class="alert alert-warning">
 :warning: **Warning:** Editing phone or email to match another existing candidate will fail — duplicates are not allowed.
@@ -290,7 +288,7 @@ Examples:
 
 <p align="center"><img src="images/edit%20command.png" alt="Expected result after running the edit command" width="730"/></p>
 
-> **Expected output:** `Edited Candidate: Betsy Crower`
+> **Expected output:** `Edited Candidate: Betsy Crower | Phone: 99272758 | Email: berniceyu@example.com | Address: Blk 30 Lorong 3 Serangoon Gardens, #07-18`
 
 ---
 
@@ -336,7 +334,7 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 **Rules:**
 * Case-insensitive. Partial matches supported.
 * Candidates matching **any** keyword are returned (OR logic).
-* Max 20 keywords. The combined character length of all keywords must not exceed 150 characters.
+* Max 20 keywords. The total search input (including spaces between keywords) must not exceed 150 characters. Leading and trailing whitespace is not counted.
 * Keywords may contain: letters, digits, `-` `'` `.` `/` `@` `+` `_` `:` `;` `!` `?` `(` `)` `&` `%` `"` `#` `*` `,` (non-ASCII characters such as accented letters or emojis are not supported).
 * Duplicate keywords are automatically removed (e.g., `find john john` searches for `john` once).
 * `find` always searches across **ALL** candidates in Talently, not just those currently shown by a previous `filter`. Running `find` after `filter` will show results from the full list.
@@ -352,7 +350,7 @@ Examples:
 * `find overqualified` — Matches candidates whose rejection reasons include "overqualified".
 * `find technical interview` — Matches candidates with notes or rejection reasons mentioning `technical` or `interview`.
 
-> **Expected output:** `X candidates listed.` (where X is the number of matches)
+> **Expected output:** `1 candidate listed.` (singular), `X candidates listed.` (where X is 2 or more), or `No matching candidates found.` if the search set is empty.
 
 ---
 
@@ -375,7 +373,7 @@ Examples:
 * `filter Shortlisted` — Shows all candidates tagged `Shortlisted`.
 * `filter Java` — Shows candidates tagged `Java`, not `JavaScript`.
 
-> **Expected output:** `X candidates listed.` (where X is the number of candidates with that tag), or `No matching candidates found.` if none match.
+> **Expected output:** `1 candidate listed.` (singular) or `X candidates listed.` (where X is the number of candidates with that tag), or `No matching candidates found.` if none match.
 
 ---
 
@@ -405,10 +403,10 @@ Records a rejection reason against a candidate and appends it to their rejection
 
 Format: `addreject INDEX REASON`
 
-* `INDEX` must be a positive integer.
-* `REASON`: non-empty, max 200 characters. Allowed characters: letters, digits, spaces, `. , - ' / : ; ! ? ( ) & " # + % @ *`.
-* Each `addreject` call appends to the rejection history — previous entries are not overwritten. Max 20 rejection records per candidate. Attempting to add a 21st rejection shows an error and nothing is recorded.
-* The candidate's card shows a **red badge** with the total rejection count (lifetime counter).
+* `INDEX` is the candidate's position in the displayed list (positive integer).
+* `REASON`: entered **directly after the index with no prefix** (e.g. `addreject 1 Failed interview` — there is no `rj/` or similar prefix). Non-empty, max 200 characters. Leading and trailing whitespace is automatically stripped.
+    * **Allowed characters:** Letters, digits, spaces, and the symbols `. , - ' / : ; ! ? ( ) & " # + % @ *`.
+* Each `addreject` call appends to the rejection history — previous entries are not overwritten. Max 20 rejection records per candidate.
 * If the same reason is given consecutively, a warning is shown (the rejection is still recorded).
 
 <div markdown="span" class="alert alert-info">
@@ -435,14 +433,15 @@ Format: `editreject INDEX REJECT_INDEX NEW_REASON`
 
 * `INDEX` is the candidate's position in the displayed list (positive integer).
 * `REJECT_INDEX` is the rejection reason's position in the candidate's rejection history (positive integer). Use `show INDEX` to see rejection numbers.
-* `NEW_REASON`: non-empty, max 200 characters. Same allowed characters as `addreject`.
+* `NEW_REASON`: entered **directly after the rejection index with no prefix** (e.g. `editreject 1 1 Failed cultural fit` — there is no prefix before the reason). Non-empty, max 200 characters. Leading and trailing whitespace is automatically stripped. Same allowed characters as `addreject`.
+* If the new reason is identical to the existing one, a message indicating no changes were detected is shown and no modification is made.
 * The candidate must have at least one existing rejection reason.
 
 Examples:
 * `editreject 1 1 Failed cultural fit interview` — updates the 1st rejection reason for candidate 1.
 * `editreject 2 2 Insufficient experience for senior role` — updates the 2nd rejection reason for candidate 2.
 
-> **Expected output:** A confirmation message showing the updated rejection reason.
+> **Expected output:** `Successfully edited rejection reason for candidate: John Doe`
 
 ---
 
@@ -460,7 +459,7 @@ Examples:
 * `deletereject 1 2` — deletes the 2nd rejection reason from candidate 1.
 * `deletereject 3 1` — deletes the 1st rejection reason from candidate 3.
 
-> **Expected output:** A confirmation message showing that the rejection reason has been deleted.
+> **Expected output:** `Successfully deleted rejection reason from candidate: John Doe`
 
 ---
 
@@ -486,7 +485,7 @@ Examples:
 * `sort date o/asc` — Oldest candidates first.
 * `sort date o/desc` — Newest candidates first.
 
-> **Expected output:** `Sorted all candidates by date added (ascending).` or `Sorted all candidates by date added (descending).`
+> **Expected output:** `Sorted all candidates by date added in ascending order.` or `Sorted all candidates by date added in descending order.`
 
 ---
 
@@ -527,11 +526,11 @@ Adds a note to a candidate's record.
 Format: `addnote INDEX c/CONTENT [h/HEADING]`
 
 * `INDEX` must be a positive integer.
-* `CONTENT` is required, must not be blank, printable ASCII only, and must not exceed 500 characters.
-* `HEADING` is optional — candidates may have structured interview rounds (e.g. `h/Tech Round 1`, `h/HR Interview`) but sometimes you just want to jot down a quick observation without a specific occasion. Defaults to `General Note` if omitted **or** if `h/` is provided with no value or only whitespace (e.g. `h/` or `h/   `). Must not exceed 50 characters (printable ASCII only).
+* `CONTENT` is required, must not be blank, printable ASCII only, and must not exceed 500 characters. Leading and trailing whitespace is automatically stripped.
+* `HEADING` is optional — candidates may have structured interview rounds (e.g. `h/Tech Round 1`, `h/HR Interview`) but sometimes you just want to jot down a quick observation without a specific occasion. Defaults to `General Note` if omitted **or** if `h/` is followed by only whitespace (any number of spaces). Leading and trailing whitespace is automatically stripped. Must not exceed 50 characters (printable ASCII only).
 * Max 50 notes per candidate. Attempting to add a 51st note shows an error and nothing is saved.
 * Notes are appended in order — earlier notes are never overwritten.
-* Newline characters in pasted content are automatically converted to spaces.
+* Newline characters (from multiline pastes) are automatically converted to spaces; literal text sequences like `\n` are not converted.
 * Note content and headings must not contain the sequences ` c/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
 
 <div markdown="span" class="alert alert-primary">
@@ -555,16 +554,18 @@ Format: `editnote INDEX NOTE_INDEX [c/CONTENT] [h/HEADING]` *(at least one requi
 * `INDEX` is the candidate's position in the displayed list (positive integer).
 * `NOTE_INDEX` is the note's position in the candidate's notes list (positive integer). Use `show INDEX` to see note numbers.
 * At least one of `c/CONTENT` or `h/HEADING` must be provided.
-* `CONTENT` must not be blank, printable ASCII only, and must not exceed 500 characters.
-* `HEADING` is printable ASCII only and must not exceed 50 characters. If `h/` is provided with no value or only whitespace (e.g. `h/` or `h/   `), the heading defaults to `General Note`.
-* Newline characters in pasted content are automatically converted to spaces.
+* `CONTENT` must not be blank, printable ASCII only, and must not exceed 500 characters. Leading and trailing whitespace is automatically stripped.
+* `HEADING` is printable ASCII only and must not exceed 50 characters. Leading and trailing whitespace is automatically stripped. If `h/` is followed by only whitespace (any number of spaces), the heading defaults to `General Note`.
+* If the new values are identical to the existing note, a message indicating no changes were detected is shown and no modification is made.
+* Newline characters (from multiline pastes) are automatically converted to spaces; literal text sequences like `\n` are not converted.
+* Note content and headings must not contain the sequences ` c/` or ` h/` (space followed by a prefix), as these are interpreted as command prefixes.
 
 Examples:
 * `editnote 1 1 c/Actually failed the interview.` — updates the content of note 1 for candidate 1, keeping the original heading.
 * `editnote 2 3 h/Final Round` — updates only the heading of note 3 for candidate 2.
 * `editnote 1 2 c/New content h/New heading` — updates both content and heading.
 
-> **Expected output:** A confirmation message showing that the note has been updated.
+> **Expected output:** `Successfully edited note for candidate: Robert Lim`
 
 ---
 
@@ -581,7 +582,7 @@ Examples:
 * `deletenote 1 2` — deletes the 2nd note from candidate 1.
 * `deletenote 3 1` — deletes the 1st note from candidate 3.
 
-> **Expected output:** A confirmation message showing that the note has been deleted.
+> **Expected output:** `Successfully deleted note from candidate: Robert Lim`
 
 ---
 
@@ -596,7 +597,7 @@ Format: `tagpool [at/TAG_TO_CREATE]... [dt/TAG_TO_DELETE]...`
 * Running `tagpool` with no arguments lists all tags currently in the pool.
 * To create or delete tags, at least one `at/` or `dt/` prefix is required.
 * Max 10 tags per command — **adds and deletes counted together** (e.g., 6 adds + 5 deletes = 11 total, which exceeds the limit). The pool can hold at most 50 tags total. A command that would bring the net pool size above 50 is rejected — but a swap (e.g., `tagpool at/NewTag dt/OldTag`) is permitted even when the pool is already at 50, since the net size does not change.
-* Tag names: must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`, no spaces, 1–30 characters, case-insensitive (`Python` and `python` are the same).
+* Tag names: must start with a letter or number, followed by letters, numbers, or the symbols `. + - _ ( ) @ # ! ? '`, 1–30 characters, case-insensitive (`Python` and `python` are the same). Any leading or trailing whitespace is automatically stripped. Internal spaces are not allowed.
 * Cannot create a tag that already exists, or delete one that does not exist. If you try to create an existing tag, the error message will tell you it already exists — this is the quickest way to check if a tag is in the pool.
 * Cannot create and delete the same tag in one command.
 * Duplicate tags within the same add or delete list are not allowed (e.g., `tagpool at/Java at/java` is rejected because tags are case-insensitive).
@@ -616,7 +617,9 @@ Examples:
 * `tagpool dt/Shortlisted` — Deletes `Shortlisted` from the pool and all candidates.
 * `tagpool at/Senior dt/Junior` — Creates `Senior` and deletes `Junior` in one command.
 
-> **Expected output:** `Tag pool updated. Created: 1 tag(s). Deleted: 0 tag(s).` When tags are deleted, an additional warning is shown: `Warning: Cascade deletion — candidates assigned to the deleted tag(s) have had those tags removed (if any such candidates exist).`
+> **Expected output:**
+> * **Mutating (with arguments):** `Tag pool updated. Created: 1 tag(s). Deleted: 0 tag(s).` When tags are deleted, an additional warning is shown: `Warning: Cascade deletion — candidates assigned to the deleted tag(s) have had those tags removed (if any such candidates exist).`
+> * **Listing (no arguments):** `Tag pool (9 tags): d, deudheudhe, e, f, g, h, i, j, k` or `Tag pool is empty. Use tagpool at/TAG to create tags.` if the pool is empty.
 
 ---
 
@@ -701,7 +704,7 @@ Format: `clear`
 Examples:
 * `clear`
 
-> **Expected output:** `Address book has been cleared!`
+> **Expected output:** `All candidates and tags have been cleared!`
 
 ---
 
@@ -760,13 +763,7 @@ A: Use `show INDEX`. The detail panel lists all notes with headings and content.
 **Q: Can two candidates have the same name?**
 A: Yes — Talently identifies duplicates by phone **or** email, not name. Two candidates with the same name but different phone and email are allowed.
 
---------------------------------------------------------------------------------------------------------------------
 
-## Known issues
-
-1. **Off-screen window on relaunch:** Talently is designed for a single-monitor desktop. If the saved window position is off-screen (e.g. because display settings changed since the last launch), Talently automatically repositions the window to the primary screen on the next launch. No manual intervention is required.
-2. **Minimised help window:** If you minimise the Help Window and then run `help` again (or press `F1`), the existing Help Window is brought back into focus but may remain minimised on some platforms. **Fix:** Restore it manually from the taskbar.
-3. **Long single-line notes:** Extremely long note content without any spaces (e.g. a single 500-character URL) will wrap visually but cannot be broken at word boundaries in the detail panel. Prefer pasting URLs separated by spaces from surrounding prose.
 
 --------------------------------------------------------------------------------------------------------------------
 

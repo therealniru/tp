@@ -78,10 +78,6 @@ alt#LightCoral #FFCCCC index out of range
     AddRejectCommand --> LogicManager : throw CommandException\n("Index out of range")
 end
 
-alt#LightCoral #FFCCCC candidate is blacklisted
-    RejectCommand --> LogicManager : throw CommandException\n("Cannot modify blacklisted candidate")
-end
-
 AddRejectCommand -> AddRejectCommand : createRejectedPerson(person, reason)
 activate AddRejectCommand #C8C8FA
 note right
@@ -98,11 +94,6 @@ Model --> AddRejectCommand
 deactivate Model
 
 AddRejectCommand -> Model : updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)
-activate Model
-Model --> AddRejectCommand
-deactivate Model
-
-AddRejectCommand -> Model : sortFilteredPersonList(DEFAULT_SORT)
 activate Model
 Model --> AddRejectCommand
 deactivate Model

@@ -240,18 +240,15 @@ public class MainWindow extends UiPart<Stage> {
                 Optional<Person> updatedPerson = currentList.stream()
                         .filter(p -> p.isSamePerson(currentlyShownPerson))
                         .findFirst();
-                // Fallback: if isSamePerson fails (e.g. both phone and email changed),
-                // try matching by name as a secondary identifier.
-                if (!updatedPerson.isPresent()) {
-                    updatedPerson = currentList.stream()
-                            .filter(p -> p.getName().equals(currentlyShownPerson.getName()))
-                            .findFirst();
-                }
                 if (updatedPerson.isPresent()) {
                     currentlyShownPerson = updatedPerson.get();
                     candidateDetailPanel.updatePerson(currentlyShownPerson);
                 } else {
-                    lastRemovedPerson = currentlyShownPerson;
+                    boolean existsInFullList = logic.getAddressBook().getPersonList().stream()
+                            .anyMatch(p -> p.isSamePerson(currentlyShownPerson));
+                    if (!existsInFullList) {
+                        lastRemovedPerson = currentlyShownPerson;
+                    }
                     currentlyShownPerson = null;
                     candidateDetailPanel.clear();
                 }

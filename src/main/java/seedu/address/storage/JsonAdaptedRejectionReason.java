@@ -40,10 +40,11 @@ class JsonAdaptedRejectionReason {
      * @throws IllegalValueException if there were any data constraints violated in the adapted rejection reason.
      */
     public RejectionReason toModelType() throws IllegalValueException {
-        if (!RejectionReason.isValidReason(reason)) {
+        String sanitised = reason == null ? null : reason.replaceAll("[\\r\\n]+", " ").strip();
+        if (!RejectionReason.isValidReason(sanitised)) {
             throw new IllegalValueException(RejectionReason.MESSAGE_CONSTRAINTS);
         }
-        return new RejectionReason(reason);
+        return new RejectionReason(sanitised);
     }
 
 }

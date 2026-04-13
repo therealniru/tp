@@ -287,6 +287,158 @@ The following activity diagram summarizes what happens when a user executes a ne
     * Cons: Developers must remember to add the commit call in every new mutating command. Forgetting this silently
       breaks undo for that command.
 
+### List feature
+
+#### Implementation
+
+The `list` command resets the current view to show every candidate in the default alphabetical order. It is implemented by `ListCommand` with input validation handled by `ListCommandParser`.
+
+`ListCommandParser#parse()` rejects any non-whitespace arguments with a `ParseException`, keeping `list` a strict zero-argument command.
+
+`ListCommand#execute()` calls `Model#updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)`, which removes any active predicate (from `find` or `filter`) and exposes the full underlying sorted list. It then inspects the resulting list size and returns one of two messages:
+
+* Empty list: `"No candidates found. Use the add command to add a new candidate."`
+* Non-empty list: `"Listed X candidates."` (or the singular form for exactly one).
+
+The sequence diagram below illustrates the flow for `list`:
+
+![ListSequenceDiagram](images/ListSequenceDiagram.png)
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `ListCommandParser` should end at the destroy marker (X) but due to a limitation of PlantUML, the lifeline continues till the end of the diagram.
+</div>
+
+#### Design considerations
+
+**Aspect: Why reject extra parameters?**
+
+* **Alternative 1 (current choice):** `list abc` is rejected with a clear error.
+    * Pros: Prevents silent misinterpretation — a user who types `list friends` may expect tag filtering, which is `filter`. Failing loudly guides them to the correct command.
+    * Cons: Marginally stricter than necessary; trailing spaces are still accepted.
+
+* **Alternative 2:** Ignore extra parameters.
+    * Pros: More forgiving.
+    * Cons: Masks typos and makes the command set harder to reason about.
+
+---
+
+### Extended find feature
+
+#### Implementation
+
+The `find` command searches candidates across five fields simultaneously. It is implemented by `FindCommand` using `NamePhoneEmailContainsKeywordsPredicate` as its filter, with input parsing and validation in `FindCommandParser`.
+
+`FindCommandParser#parse()` enforces these rules before building the predicate:
+
+1. Total input length must not exceed 150 characters (after trimming).
+2. Input must not be empty.
+3. Only printable ASCII symbols are allowed (letters, digits, and the set `- ' . / @ + _ : ; ! ? ( ) & % " # * ,`).
+4. After splitting on whitespace, at most 20 keywords are permitted.
+5. Duplicate keywords are silently removed via `Stream#distinct()`.
+
+`NamePhoneEmailContainsKeywordsPredicate#test()` evaluates a `Person` as follows for each keyword (OR logic across all keywords):
+
+* **Name** — case-insensitive substring match against `fullName`.
+* **Phone** — two checks: (a) substring match against the stored value (preserving separators) and (b) substring match against the digit-only normalised value, so `find 6591234567` matches `+65-9123-4567`.
+* **Email** — case-insensitive substring match.
+* **Notes** — substring match against each note's heading and content.
+* **Rejection reasons** — substring match against each recorded reason.
+
+Tags and address fields are intentionally excluded. Tags are exact-match identifiers best queried via `filter`.
+
+The sequence diagram below illustrates the flow for `find john`:
+
+![FindSequenceDiagram](images/FindSequenceDiagram.png)
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `FindCommandParser` should end at the destroy marker (X) but due to a limitation of PlantUML, the lifeline continues till the end of the diagram.
+</div>
+
+#### Design considerations
+
+**Aspect: Why OR logic across keywords (not AND)?**
+
+* **Alternative 1 (current choice):** Any keyword match returns the candidate.
+    * Pros: Broad recall — useful when the recruiter only remembers a fragment (e.g., `find alice 9123`). Consistent with how CLI search tools (`grep`, browser Ctrl+F) behave.
+    * Cons: May return more results than intended with common keywords.
+
+* **Alternative 2:** All keywords must match (AND).
+    * Pros: Higher precision.
+    * Cons: A single misremembered keyword would return zero results, which is far worse for a busy recruiter.
+
+**Aspect: Why search notes and rejection reasons?**
+
+Recruiters frequently remember context ("overqualified", "missed call") rather than the candidate's name. Searching across notes and rejection reasons lets the recruiter locate a candidate from any fragment of their recorded history without knowing their exact contact details.
+
+---
+
+### Tag feature
+
+#### Implementation
+
+The `tag` command adds or removes tags on one or more candidates in a single atomic operation. It is implemented by `TagCommand` with parsing in `TagCommandParser`.
+
+**Parsing (`TagCommandParser#parse()`)**
+
+1. Tokenises the preamble (before the first `at/` or `dt/`) to extract the index or comma-separated index list.
+2. `parseIndices()` splits on commas, trims each token, and calls `ParserUtil#parseIndex()` per token. If `parseIndex` throws `MESSAGE_INVALID_INDEX` (non-positive/non-integer input) or a `MESSAGE_DUPLICATE_INDICES` error is detected, those `ParseException`s are re-thrown directly so the user sees the specific error rather than a generic format message.
+3. Validates that at least one `at/` or `dt/` tag is provided and that the total tag count does not exceed 10.
+
+**Execution (`TagCommand#execute()`)** — six sequential phases:
+
+| Phase | Check |
+|---|---|
+| 1 — Target retrieval | Resolve each index against the filtered list; throw `CommandException` if any is out of range. |
+| 2a — Conflict | Reject if the same tag appears in both the add and delete lists. |
+| 2b — Arg duplicates | Reject duplicate tags within the add list or within the delete list. |
+| 2c — Pool membership | Reject if any tag does not exist in the master tag pool. |
+| 2d — Candidate delete state | Reject if any target candidate does not hold a tag being deleted. |
+| 2e — Candidate add state | Reject if any target candidate already holds a tag being added. |
+| 3 — Mutation | For each target, compute the updated tag set, look up the canonical `Tag` object from the pool, and call `Model#setPerson()`. |
+| 4 — UI feedback | Call `Model#updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)` and return a success message. |
+
+The sequence diagram below illustrates the flow for `tag 1 at/Java`:
+
+![TagSequenceDiagram](images/TagSequenceDiagram.png)
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `TagCommandParser` should end at the destroy marker (X) but due to a limitation of PlantUML, the lifeline continues till the end of the diagram.
+</div>
+
+#### Design considerations
+
+**Aspect: Why strict fail-fast atomicity across all validation phases?**
+
+If phase 2c (pool check) passes but phase 2d (candidate state check) fails for the third of three candidates, the first two candidates have already been mutated in a naive implementation. Fail-fast ensures either all targets succeed or none are changed, preventing partial updates that leave the data in an inconsistent state.
+
+**Aspect: Why re-throw `MESSAGE_INVALID_INDEX` and `MESSAGE_DUPLICATE_INDICES` directly in the parser?**
+
+The catch block in `TagCommandParser` originally wrapped all `ParseException`s from `parseIndices` as a generic "invalid command format" message. This masked specific, actionable errors. By inspecting the exception message before wrapping, semantic errors surface to the user while format errors (e.g., a space before `at/` where an index was expected) still produce the guided format hint.
+
+---
+
+### Rejection history feature (`addreject`)
+
+#### Implementation
+
+The `addreject` command appends a rejection reason to a candidate's rejection history. It is implemented by `AddRejectCommand` with argument parsing in `AddRejectCommandParser`.
+
+`AddRejectCommandParser#parse()` splits the argument string into an index token and the remainder (treated as the raw reason text). It calls `ParserUtil#parseIndex()` for the index and `ParserUtil#parseRejectionReason()` for the reason, both of which validate their respective constraints.
+
+`AddRejectCommand#execute()`:
+
+1. Resolves the index to a `Person` in the filtered list (throws `CommandException` if out of range or list is empty).
+2. Rejects if the candidate already holds the maximum of 20 rejection records.
+3. Calls `isSequentialDuplicate()` — if the new reason matches the most recent existing reason (case-insensitive), a warning is appended to the success message but the operation still proceeds.
+4. Creates a new `Person` with the reason appended to an immutable copy of the rejection list via `createRejectedPerson()`.
+5. Calls `Model#setPerson()` to replace the candidate, then `Model#updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)` to reset the view.
+
+The sequence diagram below illustrates the flow for `addreject 1 Failed technical interview`:
+
+![RejectSequenceDiagram](images/RejectSequenceDiagram.png)
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `AddRejectCommandParser` should end at the destroy marker (X) but due to a limitation of PlantUML, the lifeline continues till the end of the diagram.
+</div>
+
+---
+
 ### Tag pool design
 
 **Aspect: Tag lifecycle — why a two-step workflow?**
