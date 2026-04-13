@@ -22,7 +22,7 @@ Talently is a **desktop contact-management application** for recruiters and hiri
 
 ### Assumptions about user skills
 
-* **Basic command-line familiarity:** opening a terminal, navigating folders (e.g. `cd`), and running the application with `java -jar talently.jar`. Able to copy/paste commands correctly.
+* **Basic command-line familiarity:** opening a terminal, navigating folders (e.g. `cd`), and running the application with `java -jar [CS2103T-T17-4][Talently].jar`. Able to copy/paste commands correctly.
 * **Understanding of simple data concepts used by the app:** 1-based indexes, tags, and candidate fields (name, phone, email, address, priority).
 * **Comfortable reading short on-screen prompts** and the result-display feedback after each command.
 * **Basic English literacy** sufficient to interpret command keywords and UI labels.
@@ -89,15 +89,15 @@ Expected: output showing `17` or higher.
 </div>
 
 **Step 2 — Download Talently**
-Get the latest `talently.jar` from the [Talently GitHub Releases page](https://github.com/AY2526S2-CS2103T-T17-4/tp/releases).
+Get the latest `[CS2103T-T17-4][Talently].jar` from the [Talently GitHub Releases page](https://github.com/AY2526S2-CS2103T-T17-4/tp/releases).
 
 **Step 3 — Set up your home folder**
-Copy `talently.jar` into an **empty folder**. Talently stores its data files here — using an empty folder avoids accidental conflicts with existing files.
+Copy `[CS2103T-T17-4][Talently].jar` into an **empty folder**. Talently stores its data files here — using an empty folder avoids accidental conflicts with existing files.
 
 **Step 4 — Launch**
 
 ```
-java -jar talently.jar
+java -jar [CS2103T-T17-4][Talently].jar
 ```
 
 Expected: Talently opens within a few seconds with sample candidate data pre-loaded (Note: The detail panel on the right is not shown when the app is launched).
@@ -809,7 +809,7 @@ Action | Format, Examples
 | **Command box** | The text input at the top of the main window where you type commands. |
 | **Result display** | The area directly below the command box that shows feedback and error messages after each command. |
 | **Candidate list** | The scrollable list on the left of the main window showing candidate cards with index, name, contact fields, tags, and rejection badge. |
-| **Home folder** | The folder containing `talently.jar`. Talently reads and writes `data/talently.json` and `preferences.json` relative to this folder. |
+| **Home folder** | The folder containing `[CS2103T-T17-4][Talently].jar`. Talently reads and writes `data/talently.json` and `preferences.json` relative to this folder. |
 | **Save file** | `data/talently.json` — the JSON file where candidate data is autosaved after every modifying command. |
 | **Autosave** | The automatic write to the save file after any command that changes data. No manual save is needed. |
 | **Duplicate candidate** | Any new or edited candidate whose phone number **or** email matches an existing candidate. Talently rejects duplicates. Name alone does not determine uniqueness. |
