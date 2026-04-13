@@ -100,9 +100,9 @@ Copy `talently.jar` into an **empty folder**. Talently stores its data files her
 java -jar talently.jar
 ```
 
-Expected: Talently opens within a few seconds with sample candidate data pre-loaded.
+Expected: Talently opens within a few seconds with sample candidate data pre-loaded (Note: The detail panel on the right is not shown when the app is launched).
 
-![Ui](images/Ui.png)
+![Ui.png](images/Ui.png)
 
 **Step 5 — Overview of the interface**
 
