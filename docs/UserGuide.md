@@ -181,7 +181,7 @@ The data file `[JAR file location]/data/talently.json` is in JSON format. While 
 All text fields accept **printable ASCII characters only** — non-ASCII input (accented letters, emojis, CJK characters) is rejected. See [Environment assumptions](#environment-assumptions) for details.
 
 <div markdown="span" class="alert alert-info">
-:information_source: **Data Verification:** Talently does **not** verify whether emails, phone numbers, or names exist in the real world. This application acts purely as a local record management system. Duplicate people (same names) can be entered twice if they have different phone numbers or emails.
+:information_source: **Data Verification:** Talently does **not** verify whether emails, phone numbers, or names exist in the real world. This application acts purely as a local record management system. Duplicate people (same names) can be entered twice if they have different phone numbers and emails.
 </div>
 
 ---
@@ -209,13 +209,13 @@ Format: `add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]`
 
 **Parameters:**
 
-| Parameter | Prefix | Required | Rules |
-|---|---|---|---|
-| NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Strips leading/trailing whitespace and normalizes internal spaces. 1–100 characters. **Avoid the sequences ` n/`, ` p/`, ` e/`, ` a/`, ` pr/` inside the value** — they are treated as new prefixes. |
-| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must start with a `+` or digit, and must end with a digit. Must contain 3–15 digits (separators excluded). Strips leading/trailing whitespace. |
-| EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`; must start and end with a letter or digit; no consecutive special characters (e.g. `a..b@x.com` is invalid). Strips leading/trailing whitespace. |
-| ADDRESS | `a/` | Yes | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Max 200 characters. Strips leading/trailing whitespace. **Avoid the sequences ` n/`, ` p/`, ` e/`, ` a/`, ` pr/` inside the value** — they are treated as new prefixes. |
-| PRIORITY | `pr/` | No | Case-insensitive `yes` or `no`. Default: `no`. Strips leading/trailing whitespace. |
+| Parameter | Prefix | Required | Rules                                                                                                                                                                                                                                                                                                                                                                                                                |
+|---|---|---|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| NAME | `n/` | Yes | Letters (a-z, A-Z), digits (0-9), spaces, hyphens `-`, apostrophe `'`, periods `.`, slashes `/`, commas `,`, `@` symbols, backticks (`` ` ``), and parentheses `()`. Must start with a letter. Strips leading/trailing whitespace and normalizes internal spaces. 1–100 characters. **Avoid the sequences ` n/`, ` p/`, ` e/`, ` a/`, ` pr/` (space + prefix) inside the value** — they are treated as new prefixes. |
+| PHONE | `p/` | Yes | Optional `+` prefix, then digits with optional spaces, hyphens `-`, or parentheses `()` as separators. Must start with a `+` or digit, and must end with a digit. Must contain 3–15 digits (separators excluded). Strips leading/trailing whitespace.                                                                                                                                                                |
+| EMAIL | `e/` | Yes | `local@domain` format. Max 254 characters. Automatically lowercased. The local part may contain letters, digits, and `+ _ . -`; must start and end with a letter or digit; no consecutive special characters (e.g. `a..b@x.com` is invalid). Strips leading/trailing whitespace.                                                                                                                                     |
+| ADDRESS | `a/` | Yes | Any non-empty printable ASCII text (no accented letters, emojis, or non-ASCII input). Max 200 characters. Strips leading/trailing whitespace. **Avoid the sequences ` n/`, ` p/`, ` e/`, ` a/`, ` pr/` (space + prefix) inside the value** — they are treated as new prefixes.                                                                                                                                       |
+| PRIORITY | `pr/` | No | Case-insensitive `yes` or `no`. Default: `no`. Strips leading/trailing whitespace.                                                                                                                                                                                                                                                                                                                                   |
 
 <div markdown="span" class="alert alert-info">
 :information_source: **Tags are not set at add time.** First create tags with `tagpool`, then assign them with `tag`. See [Managing the tag pool](#managing-the-tag-pool--tagpool) and [Tagging a candidate](#tagging-a-candidate--tag).
@@ -620,7 +620,7 @@ Examples:
 
 > **Expected output:**
 > * **Mutating (with arguments):** `Tag pool updated. Created: 1 tag(s). Deleted: 0 tag(s).` When tags are deleted, an additional warning is shown: `Warning: Cascade deletion — candidates assigned to the deleted tag(s) have had those tags removed (if any such candidates exist).`
-> * **Listing (no arguments):** `Tag pool (9 tags): d, deudheudhe, e, f, g, h, i, j, k` or `Tag pool is empty. Use tagpool at/TAG to create tags.` if the pool is empty.
+> * **Listing (no arguments):** `Tag pool (3 tags): Shortlisted, Interviewed, Selected` or `Tag pool is empty. Use tagpool at/TAG to create tags.` if the pool is empty.
 
 ---
 
@@ -660,9 +660,6 @@ Format: `undo`
 * Does **not** apply to read-only commands (`find`, `filter`, `list`, `show`, `help`, `exit`). Typing `undo` after one of these steps back to the last data-changing action, not the last view change.
 * If there is nothing to undo, an error is shown.
 
-<div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Using any `sort` command (`sort date`, `sort pr`) clears the entire command history. Once you sort, `undo` and `redo` are no longer available.
-</div>
 
 Examples:
 * `remove 2` then `undo` — Restores the removed candidate.
@@ -681,9 +678,6 @@ Format: `redo`
 * Can only be used after `undo`. If there is no undone state, an error is shown.
 * Any new modifying command after `undo` clears the redo history — once you make a new change, the previously undone actions can no longer be redone.
 
-<div markdown="span" class="alert alert-warning">
-:warning: **Warning:** Using any `sort` command (`sort date`, `sort pr`) clears the entire command history. Once you sort, `redo` is no longer available.
-</div>
 
 Examples:
 * `remove 2` → `undo` → `redo` — Re-applies the removal.
