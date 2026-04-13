@@ -15,12 +15,12 @@ public class Messages {
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Error: Invalid command format! \n%1$s";
     public static final String MESSAGE_INDEX_OUT_OF_RANGE =
             "Error: Index %1$d is out of range. The current list has %2$d candidate(s). "
-            + "Please provide an index from 1 to %2$d.";
+                    + "Please provide an index from 1 to %2$d.";
     public static final String MESSAGE_EMPTY_LIST =
             "Error: The candidate list is currently empty. "
-            + "There are no candidates to perform this action on.";
+                    + "There are no candidates to perform this action on.";
     public static final String MESSAGE_DUPLICATE_FIELDS =
-                "Error: Duplicate parameter detected \u2014 multiple values for %s provided.";
+            "Error: Duplicate parameter detected \u2014 multiple values for %s provided.";
 
     public static final String MESSAGE_REJECT_INVALID_INDEX =
             "Error: Invalid index. Please provide a valid positive integer. Usage: addreject INDEX REASON";
@@ -51,10 +51,6 @@ public class Messages {
                 .append(" | Email: ")
                 .append(person.getEmail());
         builder.append(" | Address: ").append(person.getAddress().value);
-        if (!person.getTags().isEmpty()) {
-            builder.append(" | Tags: ");
-            person.getTags().forEach(builder::append);
-        }
         return builder.toString();
     }
 

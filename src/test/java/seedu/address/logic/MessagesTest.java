@@ -21,10 +21,11 @@ public class MessagesTest {
 
 
     @Test
-    public void format_personWithTags_containsTags() {
+    public void format_personWithTags_doesNotContainTags() {
         Person person = new PersonBuilder().withTags("friends").build();
         String result = Messages.format(person);
-        assertTrue(result.contains("friends"));
+        assertFalse(result.contains("friends"));
+        assertFalse(result.contains("Tags:"));
     }
 
     @Test

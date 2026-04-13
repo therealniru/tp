@@ -37,14 +37,6 @@ public class AddCommand extends Command {
     public static final String MESSAGE_SUCCESS = "New candidate added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book";
 
-    public static final String MESSAGE_MISSING_NAME =
-            "Error: Name is required. Usage: add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]";
-    public static final String MESSAGE_MISSING_PHONE =
-            "Error: Phone number is required. Usage: add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]";
-    public static final String MESSAGE_MISSING_EMAIL =
-            "Error: Email address is required. Usage: add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]";
-    public static final String MESSAGE_MISSING_ADDRESS =
-            "Error: Address is required. Usage: add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]";
     public static final String MESSAGE_MISSING_ALL =
             "Error: Missing required parameters. Usage: add n/NAME p/PHONE e/EMAIL a/ADDRESS [pr/PRIORITY]";
 

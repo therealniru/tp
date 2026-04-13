@@ -128,19 +128,19 @@ public class AddCommandParserTest {
     public void parse_compulsoryFieldMissing_failure() {
         // missing name prefix
         assertParseFailure(parser, PHONE_DESC_BOB + EMAIL_DESC_BOB + ADDRESS_DESC_BOB,
-                AddCommand.MESSAGE_MISSING_NAME);
+                AddCommand.MESSAGE_MISSING_ALL);
 
         // missing phone prefix
         assertParseFailure(parser, NAME_DESC_BOB + EMAIL_DESC_BOB + ADDRESS_DESC_BOB,
-                AddCommand.MESSAGE_MISSING_PHONE);
+                AddCommand.MESSAGE_MISSING_ALL);
 
         // missing email prefix
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + ADDRESS_DESC_BOB,
-                AddCommand.MESSAGE_MISSING_EMAIL);
+                AddCommand.MESSAGE_MISSING_ALL);
 
         // missing address prefix
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_BOB,
-                AddCommand.MESSAGE_MISSING_ADDRESS);
+                AddCommand.MESSAGE_MISSING_ALL);
 
         // all prefixes missing (preamble triggers invalid command format error)
         assertParseFailure(parser, VALID_NAME_BOB + VALID_PHONE_BOB + VALID_EMAIL_BOB + VALID_ADDRESS_BOB,

@@ -28,6 +28,7 @@ public class AddCommandParser implements Parser<AddCommand> {
     /**
      * Parses the given {@code String} of arguments in the context of the AddCommand
      * and returns an AddCommand object for execution.
+     *
      * @throws ParseException if the user input does not conform the expected format
      */
     public AddCommand parse(String args) throws ParseException {
@@ -67,20 +68,8 @@ public class AddCommandParser implements Parser<AddCommand> {
         boolean hasEmail = argMultimap.getValue(PREFIX_EMAIL).isPresent();
         boolean hasAddress = argMultimap.getValue(PREFIX_ADDRESS).isPresent();
 
-        if (!hasName && !hasPhone && !hasEmail && !hasAddress) {
+        if (!hasName || !hasPhone || !hasEmail || !hasAddress) {
             throw new ParseException(AddCommand.MESSAGE_MISSING_ALL);
-        }
-        if (!hasName) {
-            throw new ParseException(AddCommand.MESSAGE_MISSING_NAME);
-        }
-        if (!hasPhone) {
-            throw new ParseException(AddCommand.MESSAGE_MISSING_PHONE);
-        }
-        if (!hasEmail) {
-            throw new ParseException(AddCommand.MESSAGE_MISSING_EMAIL);
-        }
-        if (!hasAddress) {
-            throw new ParseException(AddCommand.MESSAGE_MISSING_ADDRESS);
         }
     }
 
