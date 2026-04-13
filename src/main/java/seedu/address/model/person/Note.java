@@ -17,11 +17,17 @@ public class Note {
     public static final String MESSAGE_HEADING_CONSTRAINTS =
             "Note heading must not be blank, must contain only printable ASCII characters"
             + " (no newlines, tabs, accented letters, emojis, or other non-ASCII input),"
-            + " and must not exceed " + MAX_HEADING_LENGTH + " characters.";
+            + " and must not exceed " + MAX_HEADING_LENGTH + " characters. "
+            + "Do not include the sequences ' c/' or ' h/' "
+            + "(a space followed by a command prefix) inside the heading — "
+            + "the parser will treat them as field delimiters.";
     public static final String MESSAGE_CONTENT_CONSTRAINTS =
             "Note content must not be blank, must contain only printable ASCII characters"
             + " (no newlines, tabs, accented letters, emojis, or other non-ASCII input),"
-            + " and must not exceed " + MAX_CONTENT_LENGTH + " characters.";
+            + " and must not exceed " + MAX_CONTENT_LENGTH + " characters. "
+            + "Do not include the sequences ' c/' or ' h/' "
+            + "(a space followed by a command prefix) inside the content — "
+            + "the parser will treat them as field delimiters.";
 
     public final String heading;
     public final String content;

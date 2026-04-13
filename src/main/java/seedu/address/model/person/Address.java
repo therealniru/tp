@@ -13,7 +13,10 @@ public class Address {
     public static final String MESSAGE_CONSTRAINTS =
             "Error: Invalid address. Must not be blank, contain only printable ASCII characters"
             + " (no accented letters, emojis, or other non-ASCII input), and must not exceed "
-            + MAX_LENGTH + " characters.";
+            + MAX_LENGTH + " characters. "
+            + "Do not include the sequences ' n/', ' p/', ' e/', ' a/', or ' pr/' "
+            + "(a space followed by a command prefix) inside the address — "
+            + "the parser will treat them as field delimiters.";
 
     /*
      * The first character of the address must not be a whitespace (otherwise " " becomes valid),

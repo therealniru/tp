@@ -10,8 +10,12 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 public class Email {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Error: Invalid email address. Must be in the format local@domain.com "
-            + "(e.g. user@example.com) and must not exceed 254 characters total.";
+            "Error: Invalid email address. Must be in the format local@domain "
+            + "(e.g. user@example.com). The local part may contain letters, digits, "
+            + "and the special characters + _ . - but must start and end with a letter or digit, "
+            + "and consecutive special characters are not allowed (e.g. a..b@x.com is invalid). "
+            + "The domain must have at least one '.' and a top-level domain of at least 2 letters. "
+            + "Max 254 characters. Automatically lowercased.";
     public static final int MAX_LENGTH = 254;
     public static final int MAX_LOCAL_PART_LENGTH = 64;
 

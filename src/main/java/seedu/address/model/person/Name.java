@@ -12,7 +12,10 @@ public class Name {
     public static final String MESSAGE_CONSTRAINTS =
             "Error: Invalid name. Name must start with a letter, followed by letters, digits, spaces, "
             + "hyphens, apostrophes, periods, slashes, commas, parentheses, backticks, and @ symbols. "
-            + "Must be between 1 and 100 characters.";
+            + "Must be between 1 and 100 characters. "
+            + "Do not include the sequences ' n/', ' p/', ' e/', ' a/', or ' pr/' "
+            + "(a space followed by a command prefix) inside the name — "
+            + "the parser will treat them as field delimiters.";
 
     public static final int MAX_LENGTH = 100;
 
