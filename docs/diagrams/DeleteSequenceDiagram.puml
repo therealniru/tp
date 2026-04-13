@@ -49,7 +49,7 @@ deactivate AddressBookParser
 LogicManager -> RemoveCommand : execute(m)
 activate RemoveCommand
 
-RemoveCommand -> Model : deletePerson(1)
+RemoveCommand -> Model : deletePerson(personToRemove)
 activate Model
 
 Model --> RemoveCommand

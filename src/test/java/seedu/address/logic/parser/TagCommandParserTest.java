@@ -88,7 +88,7 @@ public class TagCommandParserTest {
     @Test
     public void parse_invalidIndex_throwsParseException() {
         assertThrows(ParseException.class,
-                String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
+                ParserUtil.MESSAGE_INVALID_INDEX, ()
                         -> parser.parse(" 0 at/Java"));
     }
 
@@ -117,7 +117,7 @@ public class TagCommandParserTest {
     @Test
     public void parse_duplicateIndices_throwsParseException() {
         assertThrows(ParseException.class,
-                String.format(MESSAGE_INVALID_COMMAND_FORMAT, TagCommand.MESSAGE_USAGE), ()
+                TagCommandParser.MESSAGE_DUPLICATE_INDICES, ()
                         -> parser.parse(" 1,1 at/Java"));
     }
 

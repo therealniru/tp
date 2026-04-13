@@ -390,8 +390,8 @@ The `tag` command adds or removes tags on one or more candidates in a single ato
 | 2a — Conflict | Reject if the same tag appears in both the add and delete lists. |
 | 2b — Arg duplicates | Reject duplicate tags within the add list or within the delete list. |
 | 2c — Pool membership | Reject if any tag does not exist in the master tag pool. |
-| 2d — Candidate add state | Reject if any target candidate already holds a tag being added. |
-| 2e — Candidate delete state | Reject if any target candidate does not hold a tag being deleted. |
+| 2d — Candidate delete state | Reject if any target candidate does not hold a tag being deleted. |
+| 2e — Candidate add state | Reject if any target candidate already holds a tag being added. |
 | 3 — Mutation | For each target, compute the updated tag set, look up the canonical `Tag` object from the pool, and call `Model#setPerson()`. |
 | 4 — UI feedback | Call `Model#updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS)` and return a success message. |
 
